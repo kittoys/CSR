@@ -1,4 +1,5 @@
-# 📊 LAPORAN WEBSITE CSR (CORPORATE SOCIAL RESPONSIBILITY) PORTAL
+# 📊 LAPORAN SISTEM INFORMASI MANAJEMEN CSR (CORPORATE SOCIAL RESPONSIBILITY)
+# PT TIRTA INVESTAMA
 
 ## Tanggal Laporan: 23 Desember 2025
 
@@ -6,7 +7,7 @@
 
 ## 1. Ringkasan Eksekutif
 
-**CSR Portal** adalah sistem manajemen program Corporate Social Responsibility yang dirancang untuk membantu organisasi dalam mengelola program-program tanggung jawab sosial perusahaan. Website ini menyediakan platform terpusat untuk mengelola program CSR, proposal donasi, dan kategori program dengan sistem autentikasi yang aman.
+**Sistem Informasi Manajemen CSR PT Tirta Investama** adalah platform digital yang dirancang untuk mendukung pengelolaan program-program tanggung jawab sosial perusahaan (Corporate Social Responsibility) PT Tirta Investama. Website ini menyediakan platform terpusat untuk mengelola program CSR, proposal donasi, dan kategori program dengan sistem autentikasi yang aman, guna mendukung komitmen perusahaan dalam memberikan dampak positif bagi masyarakat dan lingkungan.
 
 ---
 
@@ -261,7 +262,7 @@ Proposal donasi memiliki sistem tracking dengan status:
 ## 9. Deployment
 
 ### 9.1 Prerequisites
-- Node.js v16+
+- Node.js v18+ (LTS) atau v20+
 - MySQL/MariaDB
 - Git
 
@@ -309,10 +310,10 @@ CSR Portal adalah website yang lengkap dan fungsional untuk mengelola program Co
 
 ---
 
-**Dibuat oleh**: GitHub Copilot Agent  
+**Dibuat oleh**: Tim IT PT Tirta Investama  
 **Tanggal**: 23 Desember 2025  
 **Versi Laporan**: 1.0
 
 ---
 
-© 2025 CSR Portal - All Rights Reserved
+© 2025 PT Tirta Investama - Sistem Informasi Manajemen CSR - All Rights Reserved
