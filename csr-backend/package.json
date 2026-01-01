@@ -9,6 +9,7 @@
     "setup-db": "node scripts/setupDb.js",
     "seed-db": "node scripts/seed.js",
     "create-admin": "node scripts/createAdmin.js",
+    "create-proposals-table": "node scripts/createDonationProposals.js",
     "test-db": "node scripts/testDb.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

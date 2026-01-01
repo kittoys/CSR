@@ -17,16 +17,19 @@ const emptyForm = {
   end_date: "",
   status: "planned",
   image_url: "",
+  source_link: "",
 };
 
 const AdminDashboard = () => {
   const [programs, setPrograms] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [selectedPrograms, setSelectedPrograms] = useState([]);
 
   useEffect(() => {
     fetchPrograms();
@@ -48,11 +51,9 @@ const AdminDashboard = () => {
 
   const fetchCategories = async () => {
     try {
-      const data = await getCategories();
-      setCategories(Array.isArray(data) ? data : []);
+      await getCategories();
     } catch (err) {
       // ignore if categories endpoint empty
-      setCategories([]);
     }
   };
 
@@ -61,18 +62,69 @@ const AdminDashboard = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview("");
+    setForm((prev) => ({ ...prev, image_url: "" }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title || !form.description) {
       alert("Judul dan deskripsi wajib diisi");
       return;
     }
+
+    // Validasi category_id jika diisi
+    if (form.category_id && isNaN(Number(form.category_id))) {
+      alert(
+        "Kategori harus berupa angka ID. Gunakan: 1=Lingkungan, 2=Pendidikan, 3=Kesehatan, 4=Ekonomi"
+      );
+      return;
+    }
+
     setSaving(true);
     try {
+      let imageUrl = form.image_url;
+
+      // Upload image jika ada file baru
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("image", imageFile);
+
+        const uploadResponse = await fetch("http://localhost:5000/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadData = await uploadResponse.json();
+
+        if (!uploadResponse.ok) {
+          throw new Error(uploadData.message || "Gagal upload gambar");
+        }
+
+        imageUrl = uploadData.url;
+      }
+
       const payload = {
         ...form,
+        image_url: imageUrl,
         category_id: form.category_id ? Number(form.category_id) : null,
+        source_link: form.source_link || null,
       };
+
       if (editingId) {
         await updateProgram(editingId, payload);
         alert("Program diperbarui");
@@ -80,11 +132,16 @@ const AdminDashboard = () => {
         await createProgram(payload);
         alert("Program dibuat");
       }
+
       setForm(emptyForm);
       setEditingId(null);
+      setImageFile(null);
+      setImagePreview("");
       await fetchPrograms();
     } catch (err) {
+      console.error("Error saving program:", err);
       const msg =
+        err.message ||
         err.response?.data?.message ||
         (err.response?.status === 401
           ? "Sesi berakhir atau belum login admin."
@@ -106,7 +163,10 @@ const AdminDashboard = () => {
       end_date: program.end_date ? program.end_date.slice(0, 10) : "",
       status: program.status || "planned",
       image_url: program.image_url || "",
+      source_link: program.source_link || "",
     });
+    setImageFile(null);
+    setImagePreview(program.image_url || "");
   };
 
   const handleDelete = async (id) => {
@@ -125,6 +185,41 @@ const AdminDashboard = () => {
   const handleCancel = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setImageFile(null);
+    setImagePreview("");
+  };
+
+  const handleSelectProgram = (id) => {
+    setSelectedPrograms((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedPrograms.length === programs.length) {
+      setSelectedPrograms([]);
+    } else {
+      setSelectedPrograms(programs.map((p) => p.id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedPrograms.length === 0) return;
+    if (
+      !window.confirm(`Hapus ${selectedPrograms.length} program yang dipilih?`)
+    )
+      return;
+
+    try {
+      await Promise.all(selectedPrograms.map((id) => deleteProgram(id)));
+      setSelectedPrograms([]);
+      await fetchPrograms();
+      alert("Program berhasil dihapus");
+    } catch (err) {
+      const msg =
+        err.response?.data?.message || "Gagal menghapus beberapa program";
+      alert(msg);
+    }
   };
 
   const statusOptions = [
@@ -132,6 +227,13 @@ const AdminDashboard = () => {
     { value: "ongoing", label: "Ongoing" },
     { value: "completed", label: "Completed" },
   ];
+
+  // Resolve image URL: if stored as "/uploads/..." prefix backend host
+  const resolveImageUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("/uploads")) return `http://localhost:5000${url}`;
+    return url;
+  };
 
   return (
     <div className="page admin">
@@ -150,7 +252,7 @@ const AdminDashboard = () => {
           <div className="card-header">
             <h3>{editingId ? "Edit Program" : "Tambah Program"}</h3>
             {editingId && (
-              <button className="btn btn--ghost" onClick={handleCancel}>
+              <button className="btn-cancel-edit" onClick={handleCancel}>
                 Batal Edit
               </button>
             )}
@@ -180,39 +282,57 @@ const AdminDashboard = () => {
             </div>
 
             <div className="form-group">
-              <label>URL Gambar (opsional)</label>
+              <label>Link Sumber Berita (opsional)</label>
               <input
-                name="image_url"
-                value={form.image_url}
+                type="url"
+                name="source_link"
+                value={form.source_link}
                 onChange={handleChange}
-                placeholder="https://... gambar program"
+                placeholder="https://contoh.com/berita"
               />
+            </div>
+
+            <div className="form-group">
+              <label>Upload Gambar (opsional)</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="form-file-input"
+              />
+              {imagePreview && (
+                <div className="image-preview-wrapper">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="image-preview"
+                  />
+                  <button
+                    type="button"
+                    className="btn-remove-image"
+                    onClick={handleRemoveImage}
+                    title="Hapus gambar"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="form-row">
               <div className="form-group">
                 <label>Kategori</label>
-                {categories.length > 0 ? (
-                  <select
-                    name="category_id"
-                    value={form.category_id}
-                    onChange={handleChange}
-                  >
-                    <option value="">Pilih kategori</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    name="category_id"
-                    value={form.category_id}
-                    onChange={handleChange}
-                    placeholder="ID kategori (opsional)"
-                  />
-                )}
+                <select
+                  name="category_id"
+                  value={form.category_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Pilih kategori</option>
+                  <option value="1">Lingkungan</option>
+                  <option value="2">Pendidikan</option>
+                  <option value="3">Kesehatan</option>
+                  <option value="4">Ekonomi</option>
+                </select>
               </div>
 
               <div className="form-group">
@@ -264,7 +384,7 @@ const AdminDashboard = () => {
             <div className="form-actions">
               <button
                 type="submit"
-                className="btn btn--primary"
+                className="btn-primary-submit"
                 disabled={saving}
               >
                 {saving
@@ -275,7 +395,8 @@ const AdminDashboard = () => {
               </button>
               <button
                 type="button"
-                className="btn btn--ghost"
+                className="btn-ghost-reset"
+                disabled={saving}
                 onClick={handleCancel}
               >
                 Reset
@@ -286,10 +407,21 @@ const AdminDashboard = () => {
 
         <div className="card table-card">
           <div className="card-header">
-            <h3>Daftar Program</h3>
-            <p className="muted small">
-              Klik edit untuk mengubah, delete untuk menghapus.
-            </p>
+            <div>
+              <h3>Daftar Program</h3>
+              <p className="muted small">
+                Pilih program untuk hapus massal atau edit/hapus individual.
+              </p>
+            </div>
+            {selectedPrograms.length > 0 && (
+              <button
+                className="btn-bulk-delete"
+                onClick={handleBulkDelete}
+                title="Hapus program terpilih"
+              >
+                🗑 Hapus {selectedPrograms.length} Program
+              </button>
+            )}
           </div>
 
           {error && <div className="alert">{error}</div>}
@@ -302,6 +434,17 @@ const AdminDashboard = () => {
               <table>
                 <thead>
                   <tr>
+                    <th className="th-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={
+                          programs.length > 0 &&
+                          selectedPrograms.length === programs.length
+                        }
+                        onChange={handleSelectAll}
+                        title="Pilih semua"
+                      />
+                    </th>
                     <th>Gambar</th>
                     <th>Judul</th>
                     <th>Kategori</th>
@@ -312,11 +455,23 @@ const AdminDashboard = () => {
                 </thead>
                 <tbody>
                   {programs.map((p) => (
-                    <tr key={p.id}>
+                    <tr
+                      key={p.id}
+                      className={
+                        selectedPrograms.includes(p.id) ? "selected" : ""
+                      }
+                    >
+                      <td className="td-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={selectedPrograms.includes(p.id)}
+                          onChange={() => handleSelectProgram(p.id)}
+                        />
+                      </td>
                       <td>
                         {p.image_url ? (
                           <img
-                            src={p.image_url}
+                            src={resolveImageUrl(p.image_url)}
                             alt={p.title}
                             className="thumb"
                           />

@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import ProposalModal from "../components/ProposalModal";
 import {
+  PlusCircle,
+  Archive,
+  Hourglass,
+  Package,
+  CheckSquare,
+  Wallet,
+} from "lucide-react";
+import {
   getProposals,
   createProposal,
   updateProposal,
@@ -233,8 +241,10 @@ const ProposalDashboard = () => {
         <button
           className="btn btn--primary btn--lg"
           onClick={() => setIsModalOpen(true)}
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
-          + Tambah Proposal
+          <PlusCircle size={18} />
+          <span>Tambah Proposal</span>
         </button>
       </div>
 
@@ -248,7 +258,9 @@ const ProposalDashboard = () => {
       {stats && (
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-icon stat-icon--proposals">📋</div>
+            <div className="stat-icon stat-icon--proposals" aria-hidden="true">
+              <Archive size={22} />
+            </div>
             <div className="stat-content">
               <p className="stat-label">TOTAL PROPOSALS</p>
               <h3 className="stat-value">{stats.total_proposals || 0}</h3>
@@ -256,7 +268,9 @@ const ProposalDashboard = () => {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon stat-icon--progress">⏳</div>
+            <div className="stat-icon stat-icon--progress" aria-hidden="true">
+              <Hourglass size={22} />
+            </div>
             <div className="stat-content">
               <p className="stat-label">IN PROGRESS</p>
               <h3 className="stat-value">{stats.in_progress || 0}</h3>
@@ -264,7 +278,9 @@ const ProposalDashboard = () => {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon stat-icon--waiting">📦</div>
+            <div className="stat-icon stat-icon--waiting" aria-hidden="true">
+              <Package size={22} />
+            </div>
             <div className="stat-content">
               <p className="stat-label">SIAP DIAMBIL</p>
               <h3 className="stat-value">{stats.waiting || 0}</h3>
@@ -272,7 +288,9 @@ const ProposalDashboard = () => {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon stat-icon--done">✓</div>
+            <div className="stat-icon stat-icon--done" aria-hidden="true">
+              <CheckSquare size={22} />
+            </div>
             <div className="stat-content">
               <p className="stat-label">DONE</p>
               <h3 className="stat-value">{stats.completed || 0}</h3>
@@ -280,7 +298,9 @@ const ProposalDashboard = () => {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon stat-icon--budget">💰</div>
+            <div className="stat-icon stat-icon--budget" aria-hidden="true">
+              <Wallet size={22} />
+            </div>
             <div className="stat-content">
               <p className="stat-label">TOTAL BUDGET</p>
               <h3 className="stat-value" style={{ fontSize: "1.2rem" }}>
@@ -294,7 +314,7 @@ const ProposalDashboard = () => {
       <div className="chart-card">
         <div className="chart-header">
           <div>
-            <h2>Tren Proposal 6 Bulan Terakhir</h2>
+            <h2>Tren Proposal Per Bulan</h2>
             <p className="chart-subtitle">
               Data proposal per bulan dengan breakdown status
             </p>
@@ -317,9 +337,10 @@ const ProposalDashboard = () => {
           <div className="chart-body">
             {monthlyStats.map((m) => {
               const total = m.total || 0;
+              // Minimum height 30px, maksimum 220px untuk bar
               const barHeight = maxMonthlyTotal
-                ? Math.max(8, (total / maxMonthlyTotal) * 180)
-                : 8;
+                ? Math.max(30, (total / maxMonthlyTotal) * 220)
+                : 30;
               const inProgressPct = total
                 ? (m.breakdown.in_progress / total) * 100
                 : 0;
@@ -335,18 +356,27 @@ const ProposalDashboard = () => {
                     style={{ height: `${barHeight}px` }}
                     title={`${m.label}\nTotal: ${total}\nIn Progress: ${m.breakdown.in_progress}\nSiap Diambil: ${m.breakdown.waiting}\nDone: ${m.breakdown.done}`}
                   >
-                    <div
-                      className="bar-segment segment-progress"
-                      style={{ height: `${inProgressPct}%` }}
-                    ></div>
-                    <div
-                      className="bar-segment segment-waiting"
-                      style={{ height: `${waitingPct}%` }}
-                    ></div>
-                    <div
-                      className="bar-segment segment-done"
-                      style={{ height: `${donePct}%` }}
-                    ></div>
+                    {m.breakdown.in_progress > 0 && (
+                      <div
+                        className="bar-segment segment-progress"
+                        style={{ height: `${inProgressPct}%` }}
+                        title={`In Progress: ${m.breakdown.in_progress}`}
+                      ></div>
+                    )}
+                    {m.breakdown.waiting > 0 && (
+                      <div
+                        className="bar-segment segment-waiting"
+                        style={{ height: `${waitingPct}%` }}
+                        title={`Siap Diambil: ${m.breakdown.waiting}`}
+                      ></div>
+                    )}
+                    {m.breakdown.done > 0 && (
+                      <div
+                        className="bar-segment segment-done"
+                        style={{ height: `${donePct}%` }}
+                        title={`Done: ${m.breakdown.done}`}
+                      ></div>
+                    )}
                   </div>
                   <div className="bar-label">{m.label}</div>
                 </div>

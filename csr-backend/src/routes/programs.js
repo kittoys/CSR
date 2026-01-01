@@ -49,11 +49,12 @@ router.post("/", verifyToken, isAdmin, async (req, res) => {
     end_date,
     status,
     image_url,
+    source_link,
   } = req.body;
   try {
     const [result] = await pool.query(
-      `INSERT INTO csr_programs (title, description, category_id, location, start_date, end_date, status, image_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO csr_programs (title, description, category_id, location, start_date, end_date, status, image_url, source_link)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title,
         description,
@@ -63,6 +64,7 @@ router.post("/", verifyToken, isAdmin, async (req, res) => {
         end_date,
         status || "planned",
         image_url || null,
+        source_link || null,
       ]
     );
     res.status(201).json({ id: result.insertId, message: "Program created" });
@@ -83,11 +85,12 @@ router.put("/:id", verifyToken, isAdmin, async (req, res) => {
     end_date,
     status,
     image_url,
+    source_link,
   } = req.body;
   try {
     await pool.query(
       `UPDATE csr_programs
-       SET title = ?, description = ?, category_id = ?, location = ?, start_date = ?, end_date = ?, status = ?, image_url = ?
+       SET title = ?, description = ?, category_id = ?, location = ?, start_date = ?, end_date = ?, status = ?, image_url = ?, source_link = ?
        WHERE id = ?`,
       [
         title,
@@ -98,6 +101,7 @@ router.put("/:id", verifyToken, isAdmin, async (req, res) => {
         end_date,
         status,
         image_url || null,
+        source_link || null,
         req.params.id,
       ]
     );

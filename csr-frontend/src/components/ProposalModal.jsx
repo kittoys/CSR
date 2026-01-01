@@ -242,7 +242,7 @@ const ProposalModal = ({
                   <option value="Done">Done</option>
                 </select>
               </div>
-              <div className="form-gro  up">
+              <div className="form-group">
                 <label>Status Pengajuan Bright</label>
                 <select
                   name="bright_status"

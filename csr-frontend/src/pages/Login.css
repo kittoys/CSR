@@ -4,7 +4,11 @@
   justify-content: center;
   min-height: 100vh;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-dark) 0%,
+    var(--color-primary) 100%
+  );
   position: relative;
 }
 
@@ -26,10 +30,10 @@
 }
 
 .login-card {
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 16px;
   padding: 2.5rem;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 119, 200, 0.22);
   position: relative;
   overflow: hidden;
 }
@@ -41,20 +45,24 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #16a34a 0%, #22c55e 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-support) 100%
+  );
 }
 
 .login-title {
   margin: 0 0 0.5rem 0;
   font-size: 1.875rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-dark);
   text-align: center;
 }
 
 .login-subtitle {
   margin: 0 0 2rem 0;
-  color: #64748b;
+  color: var(--color-muted);
   text-align: center;
   font-size: 0.95rem;
   line-height: 1.5;
@@ -108,31 +116,32 @@
 
 .form-group label {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-dark);
   font-size: 0.95rem;
 }
 
 .form-group input {
   padding: 0.875rem 1rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid rgba(0, 119, 200, 0.18);
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.2s ease;
-  background: white;
+  background: #ffffff;
+  color: #111827;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #22c55e;
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(0, 119, 200, 0.15);
   transform: translateY(-1px);
 }
 
 .form-group input:disabled {
-  background: #f8fafc;
-  color: #94a3b8;
+  background: var(--color-light-gray);
+  color: var(--color-muted);
   cursor: not-allowed;
-  border-color: #e2e8f0;
+  border-color: rgba(0, 119, 200, 0.15);
 }
 
 .btn {
@@ -147,184 +156,233 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  text-indent: 0;
+  text-align: center;
+  line-height: 1.5;
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
-
-  /* Responsive Design */
-  @media (max-width: 640px) {
-    .login-page {
-      padding: 1rem;
-    }
-
-    .login-card {
-      padding: 2rem 1.5rem;
-      border-radius: 12px;
-    }
-
-    .login-title {
-      font-size: 1.5rem;
-    }
-
-    .login-subtitle {
-      font-size: 0.875rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .login-form {
-      gap: 1rem;
-    }
-
-    .form-group input {
-      padding: 0.75rem 0.875rem;
-      font-size: 0.9375rem;
-    }
-
-    .btn {
-      padding: 0.75rem 1.25rem;
-      font-size: 0.9375rem;
-    }
-
-    .alert {
-      padding: 0.75rem 0.875rem;
-      font-size: 0.875rem;
-    }
-
-    .login-footer {
-      font-size: 0.875rem;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .login-page {
-      padding: 0.75rem;
-    }
-
-    .login-card {
-      padding: 1.75rem 1.25rem;
-    }
-
-    .login-title {
-      font-size: 1.375rem;
-    }
-
-    .login-subtitle {
-      font-size: 0.8125rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .form-group label {
-      font-size: 0.875rem;
-    }
-
-    .form-group input {
-      padding: 0.625rem 0.75rem;
-      font-size: 0.875rem;
-    }
-
-    .btn {
-      padding: 0.625rem 1rem;
-      font-size: 0.875rem;
-    }
-  }
-
-  @media (min-width: 641px) and (max-width: 1024px) {
-    .login-container {
-      max-width: 400px;
-    }
-  }
-
-  @media (max-height: 600px) {
-    .login-page {
-      padding: 1rem;
-      align-items: flex-start;
-      padding-top: 2rem;
-    }
-
-    .login-card {
-      padding: 1.5rem;
-    }
-
-    .login-title {
-      font-size: 1.5rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .login-subtitle {
-      margin-bottom: 1rem;
-      font-size: 0.875rem;
-    }
-
-    .login-form {
-      gap: 0.875rem;
-      margin-bottom: 1rem;
-    }
-  }
-
-  /* Landscape orientation for mobile */
-  @media (max-height: 500px) and (orientation: landscape) {
-    .login-page {
-      padding: 0.5rem;
-    }
-
-    .login-card {
-      padding: 1.25rem;
-    }
-
-    .login-title {
-      font-size: 1.25rem;
-    }
-
-    .login-subtitle {
-      font-size: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .login-form {
-      gap: 0.625rem;
-    }
-
-    .form-group input {
-      padding: 0.5rem 0.75rem;
-    }
-  }
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-support) 100%
+  );
+  background-color: #0077c8;
   color: white;
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 119, 200, 0.28);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 1rem;
+  text-transform: none;
+}
+
+/* Force primary button styles within login form to avoid global overrides */
+.login-form .btn.btn--primary {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-support) 100%
+  ) !important;
+  color: #ffffff !important;
+}
+.login-form .btn.btn--primary * {
+  color: #ffffff !important;
 }
 
 .btn--primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 6px 16px rgba(0, 119, 200, 0.35);
+  color: white;
 }
 
 .btn--primary:active:not(:disabled) {
   transform: translateY(0);
+  color: white;
 }
 
 .btn--primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+  color: white;
 }
 
 .btn--full {
   width: 100%;
 }
 
+/* Fix button text tidak tampil - Solusi Kuat */
+.login-form button.btn {
+  position: relative;
+}
+
+.login-form button.btn::before {
+  z-index: 0 !important;
+}
+
+.login-form button.btn * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Pastikan text dalam button terlihat */
+.login-form .btn--primary {
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  padding: 0.875rem 1.5rem !important;
+  overflow: visible !important;
+}
+
 .login-footer {
   text-align: center;
-  color: #64748b;
+  color: var(--color-muted);
   margin: 0;
   font-size: 0.95rem;
 }
 
 .login-footer a {
-  color: #22c55e;
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
 }
 
 .login-footer a:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .login-page {
+    padding: 1rem;
+  }
+
+  .login-card {
+    padding: 2rem 1.5rem;
+    border-radius: 12px;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .login-form {
+    gap: 1rem;
+  }
+
+  .form-group input {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9375rem;
+  }
+
+  .btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+
+  .alert {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .login-footer {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: 0.75rem;
+  }
+
+  .login-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .login-title {
+    font-size: 1.375rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.8125rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    font-size: 0.875rem;
+  }
+
+  .form-group input {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .btn {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .login-container {
+    max-width: 400px;
+  }
+}
+
+@media (max-height: 600px) {
+  .login-page {
+    padding: 1rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .login-card {
+    padding: 1.5rem;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .login-subtitle {
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .login-form {
+    gap: 0.875rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Landscape orientation for mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .login-page {
+    padding: 0.5rem;
+  }
+
+  .login-card {
+    padding: 1.25rem;
+  }
+
+  .login-title {
+    font-size: 1.25rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .login-form {
+    gap: 0.625rem;
+  }
+
+  .form-group input {
+    padding: 0.5rem 0.75rem;
+  }
 }

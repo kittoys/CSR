@@ -33,6 +33,92 @@ const upload = multer({
   },
 });
 
+// GET statistics - HARUS SEBELUM /:id
+router.get("/stats/summary", async (req, res) => {
+  try {
+    const [stats] = await pool.query(`
+      SELECT 
+        COUNT(*) as total_proposals,
+        SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
+        SUM(CASE WHEN status = 'Siap Diambil' THEN 1 ELSE 0 END) as waiting,
+        SUM(CASE WHEN status = 'Done' THEN 1 ELSE 0 END) as completed,
+        SUM(budget) as total_budget
+      FROM donation_proposals
+    `);
+    res.json(stats[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching statistics" });
+  }
+});
+
+// GET monthly trend (all months) with status breakdown
+router.get("/stats/monthly", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT 
+          DATE_FORMAT(COALESCE(proposal_date, created_at), '%Y-%m-01') AS month,
+          status,
+          COUNT(*) AS count
+        FROM donation_proposals
+        GROUP BY month, status
+        ORDER BY month ASC`
+    );
+
+    const statusKey = {
+      "In Progress": "in_progress",
+      "Siap Diambil": "waiting",
+      Done: "done",
+    };
+
+    // Build all months from database
+    const months = [];
+    const monthsSet = new Set();
+    rows.forEach((row) => {
+      const monthKey = row.month.slice(0, 7);
+      monthsSet.add(monthKey);
+    });
+
+    // Sort months and create labels
+    Array.from(monthsSet)
+      .sort()
+      .forEach((key) => {
+        const [year, month] = key.split("-");
+        const d = new Date(parseInt(year), parseInt(month) - 1, 1);
+        months.push({
+          key,
+          label: d.toLocaleString("id-ID", { month: "short", year: "numeric" }),
+        });
+      });
+
+    const aggregated = months.map((m) => ({
+      month: m.key,
+      label: m.label,
+      breakdown: {
+        in_progress: 0,
+        waiting: 0,
+        done: 0,
+      },
+      total: 0,
+    }));
+
+    rows.forEach((row) => {
+      const monthKey = row.month.slice(0, 7);
+      const target = aggregated.find((m) => m.month === monthKey);
+      if (!target) return;
+      const key = statusKey[row.status] || "other";
+      if (key === "other") return;
+      target.breakdown[key] = row.count;
+      target.total += row.count;
+    });
+
+    res.json(aggregated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching monthly statistics" });
+  }
+});
+
 // GET semua proposal donasi
 router.get("/", async (req, res) => {
   try {
@@ -216,85 +302,6 @@ router.delete("/:id", verifyToken, isAdmin, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error deleting proposal" });
-  }
-});
-
-// GET statistics
-router.get("/stats/summary", async (req, res) => {
-  try {
-    const [stats] = await pool.query(`
-      SELECT 
-        COUNT(*) as total_proposals,
-        SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
-        SUM(CASE WHEN status = 'Siap Diambil' THEN 1 ELSE 0 END) as waiting,
-        SUM(CASE WHEN status = 'Done' THEN 1 ELSE 0 END) as completed,
-        SUM(budget) as total_budget
-      FROM donation_proposals
-    `);
-    res.json(stats[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error fetching statistics" });
-  }
-});
-
-// GET monthly trend (last 6 months) with status breakdown
-router.get("/stats/monthly", async (req, res) => {
-  try {
-    const [rows] = await pool.query(
-      `SELECT 
-          DATE_FORMAT(COALESCE(proposal_date, created_at), '%Y-%m-01') AS month,
-          status,
-          COUNT(*) AS count
-        FROM donation_proposals
-        WHERE COALESCE(proposal_date, created_at) >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
-        GROUP BY month, status
-        ORDER BY month ASC`
-    );
-
-    const statusKey = {
-      "In Progress": "in_progress",
-      "Siap Diambil": "waiting",
-      Done: "done",
-    };
-
-    // Build last 6 months including current month
-    const months = [];
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = d.toISOString().slice(0, 7); // YYYY-MM
-      months.push({
-        key,
-        label: d.toLocaleString("id-ID", { month: "short", year: "numeric" }),
-      });
-    }
-
-    const aggregated = months.map((m) => ({
-      month: m.key,
-      label: m.label,
-      breakdown: {
-        in_progress: 0,
-        waiting: 0,
-        done: 0,
-      },
-      total: 0,
-    }));
-
-    rows.forEach((row) => {
-      const monthKey = row.month.slice(0, 7);
-      const target = aggregated.find((m) => m.month === monthKey);
-      if (!target) return;
-      const key = statusKey[row.status] || "other";
-      if (key === "other") return;
-      target.breakdown[key] = row.count;
-      target.total += row.count;
-    });
-
-    res.json(aggregated);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error fetching monthly statistics" });
   }
 });
 

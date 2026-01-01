@@ -37,10 +37,17 @@ const ProgramDetail = () => {
     end_date,
     status,
     image_url,
+    source_link,
   } = program;
 
+  const resolveImageUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("/uploads")) return `http://localhost:5000${url}`;
+    return url;
+  };
+
   const imageUrl =
-    image_url ||
+    resolveImageUrl(image_url) ||
     "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80";
 
   return (
@@ -59,6 +66,18 @@ const ProgramDetail = () => {
         Jadwal: {start_date ? new Date(start_date).toLocaleDateString() : "TBD"}{" "}
         - {end_date ? new Date(end_date).toLocaleDateString() : "TBD"}
       </p>
+      {source_link && (
+        <p className="source-link-detail">
+          <a
+            href={source_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-source-link"
+          >
+            📰 Baca Sumber Berita
+          </a>
+        </p>
+      )}
       <p className="detail-desc">{description}</p>
     </div>
   );

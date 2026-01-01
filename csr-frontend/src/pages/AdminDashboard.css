@@ -14,12 +14,72 @@
   gap: 16px;
 }
 
-.card {
+/* File Upload Styles */
+.form-file-input {
+  padding: 0.75rem;
+  border: 2px dashed #0077c8;
+  border-radius: 0.5rem;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  color: #111827;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  font-weight: 500;
+}
+
+.form-file-input:hover {
+  border-color: #0077c8;
+  background: #f0f9ff;
+}
+
+.image-preview-wrapper {
+  position: relative;
+  margin-top: 1rem;
+  display: inline-block;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(0, 119, 200, 0.12);
+}
+
+.image-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.btn-remove-image {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(220, 38, 38, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-remove-image:hover {
+  background: rgba(185, 28, 28, 1);
+  transform: scale(1.1);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid rgba(0, 119, 200, 0.12);
   border-radius: 12px;
   padding: 18px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 119, 200, 0.08);
 }
 
 .card-header {
@@ -28,6 +88,7 @@
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 .card-header h3 {
@@ -57,6 +118,8 @@
   font-weight: 600;
   color: #1f2937;
   font-size: 0.95rem;
+  display: block;
+  margin-bottom: 4px;
 }
 
 .form-group input,
@@ -67,11 +130,28 @@
   padding: 10px 12px;
   font-size: 0.95rem;
   width: 100%;
+  background: #ffffff;
+  color: #111827;
+  font-family: inherit;
 }
 
-.form-group textarea {
-  resize: vertical;
-  min-height: 84px;
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #6b7280;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #0077c8;
+  box-shadow: 0 0 0 3px rgba(0, 119, 200, 0.1);
+}
+
+.form-group select option {
+  background: #ffffff;
+  color: #111827;
+  padding: 8px;
 }
 
 .form-actions {
@@ -86,11 +166,12 @@
   padding: 10px 14px;
   cursor: pointer;
   font-weight: 600;
+  color: inherit;
 }
 
 .btn--primary {
-  background: #16a34a;
-  color: white;
+  background: var(--color-primary);
+  color: #ffffff;
 }
 
 .btn--primary:disabled {
@@ -99,9 +180,9 @@
 }
 
 .btn--ghost {
-  background: #f3f4f6;
-  color: #1f2937;
-  border: 1px solid #e5e7eb;
+  background: var(--color-accent);
+  color: var(--color-dark);
+  border: 1px solid rgba(37, 61, 44, 0.12);
 }
 
 .table-card .table-wrapper {
@@ -190,18 +271,18 @@
 }
 
 .badge--planned {
-  background: #eef2ff;
-  color: #4338ca;
+  background: #eef5f0;
+  color: #3f5246;
 }
 
 .badge--ongoing {
-  background: #ecfeff;
-  color: #0ea5e9;
+  background: rgba(104, 186, 127, 0.16);
+  color: var(--color-primary);
 }
 
 .badge--completed {
-  background: #ecfdf3;
-  color: #15803d;
+  background: rgba(46, 111, 64, 0.12);
+  color: var(--color-primary);
 }
 
 .alert {
@@ -213,8 +294,149 @@
   margin-bottom: 10px;
 }
 
+/* Checkbox Styles */
+.th-checkbox,
+.td-checkbox {
+  width: 40px;
+  text-align: center;
+}
+
+.th-checkbox input[type="checkbox"],
+.td-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+tr.selected {
+  background: rgba(0, 119, 200, 0.05);
+}
+
+/* Bulk Delete Button */
+.btn--danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+.btn--danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+}
+
 .small {
   font-size: 0.9rem;
+}
+
+/* Button Styles - Fixed untuk memastikan text muncul */
+.admin .btn-primary-submit {
+  padding: 0.875rem 1.5rem !important;
+  border: none !important;
+  border-radius: 8px !important;
+  fontsize: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 119, 200, 0.28) !important;
+  transition: all 0.2s ease !important;
+  line-height: 1.5 !important;
+  text-align: center !important;
+  font-family: inherit !important;
+  overflow: visible !important;
+}
+
+.admin .btn-primary-submit:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+.admin .btn-primary-submit:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(0, 119, 200, 0.35) !important;
+}
+
+.admin .btn-ghost-reset {
+  padding: 0.875rem 1.5rem !important;
+  border: 2px solid rgba(0, 119, 200, 0.3) !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  color: #0891b2 !important;
+  transition: all 0.2s ease !important;
+  line-height: 1.5 !important;
+  text-align: center !important;
+  font-family: inherit !important;
+  overflow: visible !important;
+}
+
+.admin .btn-ghost-reset:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.admin .btn-ghost-reset:hover:not(:disabled) {
+  background: rgba(8, 145, 178, 0.1) !important;
+  border-color: #0891b2 !important;
+}
+
+.admin .btn-cancel-edit {
+  padding: 0.5rem 1rem !important;
+  border: 2px solid rgba(0, 119, 200, 0.3) !important;
+  border-radius: 6px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  background: transparent !important;
+  color: #0891b2 !important;
+  transition: all 0.2s ease !important;
+  line-height: 1.5 !important;
+  font-family: inherit !important;
+  overflow: visible !important;
+}
+
+.admin .btn-cancel-edit:hover {
+  background: rgba(8, 145, 178, 0.1) !important;
+  border-color: #0891b2 !important;
+}
+
+.admin .btn-bulk-delete {
+  padding: 0.625rem 1.25rem !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+  transition: all 0.2s ease !important;
+  line-height: 1.5 !important;
+  font-family: inherit !important;
+  overflow: visible !important;
+}
+
+.admin .btn-bulk-delete:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4) !important;
 }
 
 @media (max-width: 1024px) {

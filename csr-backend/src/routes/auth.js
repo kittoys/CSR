@@ -28,7 +28,8 @@ router.post("/login", async (req, res) => {
     const user = users[0];
 
     // Verifikasi password
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    // Kolom di database bernama `password` (berisi hash bcrypt)
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Email atau password salah" });
@@ -73,7 +74,7 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const [result] = await pool.query(
-      "INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)",
+      "INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)",
       [email, hashedPassword, name, "user"]
     );
 

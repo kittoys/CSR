@@ -25,7 +25,20 @@ async function testConnection() {
     connection.release();
     process.exit(0);
   } catch (err) {
-    console.error("❌ Connection failed:", err.message);
+    console.error("❌ Connection failed:", {
+      message: err.message,
+      code: err.code,
+      errno: err.errno,
+      sqlState: err.sqlState,
+      address: err.address,
+      port: err.port,
+    });
+    console.error("Env used:", {
+      DB_HOST: process.env.DB_HOST,
+      DB_PORT: process.env.DB_PORT,
+      DB_USER: process.env.DB_USER,
+      DB_NAME: process.env.DB_NAME,
+    });
     process.exit(1);
   }
 }

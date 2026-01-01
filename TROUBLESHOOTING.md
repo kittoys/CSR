@@ -112,7 +112,7 @@ Output akan menampilkan:
 node scripts/checkDatabase.js
 
 # Setup tabel proposal (jika perlu ulang)
-node scripts/setupProposalTable.js
+npm run create-proposals-table
 
 # Test database connection
 node scripts/testDb.js
@@ -148,7 +148,7 @@ node scripts/testDb.js
 
    # Jalankan setup ulang
    cd c:\Users\HYPE AMD\CSR\csr-backend
-   node scripts/setupProposalTable.js
+   npm run setup-db
    ```
 
 ## ✨ Fitur yang Sudah Siap

@@ -22,7 +22,7 @@ async function checkDatabase() {
     const [tables] = await pool.query(
       `SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?`,
       [process.env.DB_NAME || "csr_db"]
-    );
+    );admin
 
     console.log("\n📋 Tables found:");
     tables.forEach((table) => {

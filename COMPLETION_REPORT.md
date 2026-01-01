@@ -49,9 +49,7 @@ Tabel `donation_proposals` belum dibuat di database MySQL
 ### Helper Scripts
 
 - ✅ `scripts/checkDatabase.js` - Database status checker
-- ✅ `scripts/setupProposalTable.js` - Table setup script
 - ✅ `scripts/testAPI.js` - API endpoint tester
-- ✅ `scripts/runSetup.js` - SQL setup runner
 
 ### Documentation
 

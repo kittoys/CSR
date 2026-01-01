@@ -15,6 +15,7 @@ async function createAdminUser() {
     // Connect to database
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST || "localhost",
+      port: process.env.DB_PORT || 3306,
       user: process.env.DB_USER || "root",
       password: process.env.DB_PASSWORD || "",
       database: process.env.DB_NAME || "csr_db",
@@ -22,7 +23,9 @@ async function createAdminUser() {
 
     // Insert admin user
     await connection.execute(
-      'INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)',
+      `INSERT INTO users (email, password, name, role)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE password = VALUES(password), name = VALUES(name), role = VALUES(role)`,
       [email, hashedPassword, name, "admin"]
     );
 
@@ -34,7 +37,7 @@ async function createAdminUser() {
     process.exit(0);
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
-      console.log("❌ User already exists");
+      console.log("❌ User already exists, password kept");
     } else {
       console.error("❌ Error:", err.message);
     }

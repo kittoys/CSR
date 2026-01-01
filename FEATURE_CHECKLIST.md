@@ -235,7 +235,7 @@ SECTION 3: INFORMASI TAMBAHAN
 ✅ Helper Scripts
 ✅ scripts/checkDatabase.js (existing)
 ✅ scripts/testAPI.js (existing)
-✅ scripts/setupProposalTable.js (existing)
+✅ scripts/createDonationProposals.js (existing)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
