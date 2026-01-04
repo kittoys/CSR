@@ -53,8 +53,10 @@ export const deleteProposal = async (id) => {
   return res.data;
 };
 
-export const getProposalStats = async () => {
-  const res = await axios.get(`${API_BASE}/proposals/stats/summary`);
+export const getProposalStats = async (params = {}) => {
+  const res = await axios.get(`${API_BASE}/proposals/stats/summary`, {
+    params: params,
+  });
   return res.data;
 };
 

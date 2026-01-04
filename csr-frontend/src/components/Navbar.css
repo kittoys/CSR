@@ -72,6 +72,15 @@
   box-shadow: var(--shadow-md);
 }
 
+.navbar__logo svg {
+  display: block;
+  width: 28px;
+  height: 28px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
 .navbar__title {
   display: flex;
   flex-direction: column;
@@ -120,6 +129,18 @@
   transition: all var(--transition-base);
   position: relative;
   white-space: nowrap;
+}
+
+/* Ensure icons are visible */
+.navbar__link svg,
+.navbar__logout svg,
+.navbar__toggle svg,
+.navbar__logo svg {
+  display: inline-block;
+  flex-shrink: 0;
+  stroke-width: 2;
+  stroke: currentColor;
+  fill: none;
 }
 
 .navbar__link::before {
@@ -201,6 +222,15 @@
   color: var(--color-primary);
   cursor: pointer;
   transition: all var(--transition-base);
+}
+
+.navbar__toggle svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
 }
 
 .navbar__toggle:hover {

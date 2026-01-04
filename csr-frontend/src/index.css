@@ -136,6 +136,20 @@ body {
   letter-spacing: -0.011em;
 }
 
+/* SVG Icon Fixes - Ensure all icons are visible */
+svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+svg:not([fill]) {
+  fill: none;
+}
+
+svg:not([stroke]) {
+  stroke: currentColor;
+}
+
 a {
   color: inherit;
   text-decoration: none;

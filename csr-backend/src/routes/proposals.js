@@ -36,7 +36,31 @@ const upload = multer({
 // GET statistics - HARUS SEBELUM /:id
 router.get("/stats/summary", async (req, res) => {
   try {
-    const [stats] = await pool.query(`
+    const { month, year } = req.query;
+
+    console.log("📊 Stats request - month:", month, "year:", year);
+
+    let whereClause = "";
+    const params = [];
+
+    if (month && year) {
+      // Filter by specific month and year
+      // Convert month string to integer (remove leading zero if any)
+      const monthInt = parseInt(month, 10);
+      whereClause =
+        "WHERE YEAR(proposal_date) = ? AND MONTH(proposal_date) = ?";
+      params.push(year, monthInt);
+      console.log("🔍 Filtering by month:", monthInt, "year:", year);
+    } else if (year) {
+      // Filter by year only
+      whereClause = "WHERE YEAR(proposal_date) = ?";
+      params.push(year);
+      console.log("🔍 Filtering by year:", year);
+    } else {
+      console.log("🔍 No filter - getting all data");
+    }
+
+    const query = `
       SELECT 
         COUNT(*) as total_proposals,
         SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
@@ -44,7 +68,14 @@ router.get("/stats/summary", async (req, res) => {
         SUM(CASE WHEN status = 'Done' THEN 1 ELSE 0 END) as completed,
         SUM(budget) as total_budget
       FROM donation_proposals
-    `);
+      ${whereClause}
+    `;
+
+    console.log("📝 Query:", query);
+    console.log("📝 Params:", params);
+
+    const [stats] = await pool.query(query, params);
+    console.log("✅ Stats result:", stats[0]);
     res.json(stats[0]);
   } catch (err) {
     console.error(err);

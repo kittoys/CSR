@@ -236,15 +236,15 @@
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, #0077c8 0%, #1a8917 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #0077c8 0%, #1a8917 100%) !important;
+  color: #ffffff !important;
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none;
 }
 
 .btn--primary * {
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .btn--primary:hover:not(:disabled) {

@@ -4,6 +4,16 @@ button {
   font-family: inherit;
 }
 
+/* Ensure button icons are visible */
+button svg {
+  display: inline-block;
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  vertical-align: middle;
+}
+
 button.btn {
   font-size: 1rem;
   font-weight: 600;
@@ -18,8 +28,8 @@ button.btn {
 }
 
 button.btn--primary {
-  background: linear-gradient(135deg, #0077c8 0%, #1a8917 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #0077c8 0%, #1a8917 100%) !important;
+  color: #ffffff !important;
   font-weight: 700;
 }
 

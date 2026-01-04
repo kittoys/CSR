@@ -12,13 +12,14 @@ const ProposalModal = ({
     case_id: "",
     proposal_name: "",
     organization: "",
-    bentuk_donasi: "Pilih bentuk donasi",
-    tipe_proposal: "Pilih tipe",
+    bentuk_donasi: "",
+    tipe_proposal: "",
     product_detail: "",
     jumlah_produk: "",
     budget: "",
     catatan: "",
     pic_name: "",
+    pic_email: "",
     proposal_date: new Date().toISOString().split("T")[0],
     status: "In Progress",
     bright_status: "",
@@ -42,6 +43,7 @@ const ProposalModal = ({
         budget: editingProposal.budget || "",
         catatan: editingProposal.catatan || "",
         pic_name: editingProposal.pic_name || "",
+        pic_email: editingProposal.pic_email || "",
         proposal_date:
           editingProposal.proposal_date ||
           new Date().toISOString().split("T")[0],
@@ -56,13 +58,14 @@ const ProposalModal = ({
         case_id: "",
         proposal_name: "",
         organization: "",
-        bentuk_donasi: "Pilih bentuk donasi",
-        tipe_proposal: "Pilih tipe",
+        bentuk_donasi: "",
+        tipe_proposal: "",
         product_detail: "",
         jumlah_produk: "",
         budget: "",
         catatan: "",
         pic_name: "",
+        pic_email: "",
         proposal_date: new Date().toISOString().split("T")[0],
         status: "In Progress",
         bright_status: "",
@@ -137,13 +140,14 @@ const ProposalModal = ({
       case_id: "",
       proposal_name: "",
       organization: "",
-      bentuk_donasi: "Pilih bentuk donasi",
-      tipe_proposal: "Pilih tipe",
+      bentuk_donasi: "",
+      tipe_proposal: "",
       product_detail: "",
       jumlah_produk: "",
       budget: "",
       catatan: "",
       pic_name: "",
+      pic_email: "",
       proposal_date: new Date().toISOString().split("T")[0],
       status: "In Progress",
       bright_status: "",
@@ -182,6 +186,19 @@ const ProposalModal = ({
                 />
               </div>
               <div className="form-group">
+                <label>Email PIC</label>
+                <input
+                  type="email"
+                  name="pic_email"
+                  value={formData.pic_email}
+                  onChange={handleChange}
+                  placeholder="email@example.com"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
                 <label>ID CASE *</label>
                 <input
                   type="text"
@@ -191,6 +208,9 @@ const ProposalModal = ({
                   placeholder="Contoh: CSR-2025-001"
                   required
                 />
+              </div>
+              <div className="form-group">
+                {/* Empty space for layout balance */}
               </div>
             </div>
 
@@ -389,6 +409,17 @@ const ProposalModal = ({
               className="btn btn--ghost"
               onClick={onClose}
               disabled={isLoading}
+              style={{
+                backgroundColor: "#ffffff",
+                color: "#374151",
+                border: "1px solid #d1d5db",
+                fontWeight: "600",
+                fontSize: "1rem",
+                padding: "14px 32px",
+                borderRadius: "6px",
+                cursor: isLoading ? "not-allowed" : "pointer",
+                opacity: isLoading ? 0.6 : 1,
+              }}
             >
               Batal
             </button>
@@ -396,6 +427,17 @@ const ProposalModal = ({
               type="submit"
               className="btn btn--primary"
               disabled={isLoading}
+              style={{
+                background: "linear-gradient(135deg, #0077c8 0%, #1a8917 100%)",
+                color: "#ffffff",
+                fontWeight: "700",
+                fontSize: "1rem",
+                border: "none",
+                padding: "14px 32px",
+                borderRadius: "6px",
+                cursor: isLoading ? "not-allowed" : "pointer",
+                opacity: isLoading ? 0.65 : 1,
+              }}
             >
               {isLoading
                 ? "Menyimpan..."
