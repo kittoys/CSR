@@ -770,6 +770,7 @@
 .bulk-actions {
   display: flex;
   align-items: center;
+
   gap: 12px;
   padding: 16px;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
@@ -1242,4 +1243,16 @@
       content: "Halaman " counter(page) " dari " counter(pages);
     }
   }
+}
+
+/* Button with icon layout */
+.btn-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Budget value with smaller font */
+.stat-value--budget {
+  font-size: 1.2rem;
 }

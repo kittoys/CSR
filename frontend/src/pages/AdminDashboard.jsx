@@ -6,6 +6,7 @@ import {
   deleteProgram,
 } from "../api/programs";
 import { getCategories } from "../api/categories";
+import { useToast } from "../context/ToastContext";
 import "./AdminDashboard.css";
 
 const emptyForm = {
@@ -21,6 +22,7 @@ const emptyForm = {
 };
 
 const AdminDashboard = () => {
+  const toast = useToast();
   const [programs, setPrograms] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
@@ -83,14 +85,15 @@ const AdminDashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title || !form.description) {
-      alert("Judul dan deskripsi wajib diisi");
+      toast.warning("Judul dan deskripsi wajib diisi", "Data Tidak Lengkap");
       return;
     }
 
     // Validasi category_id jika diisi
     if (form.category_id && isNaN(Number(form.category_id))) {
-      alert(
-        "Kategori harus berupa angka ID. Gunakan: 1=Lingkungan, 2=Pendidikan, 3=Kesehatan, 4=Ekonomi"
+      toast.warning(
+        "Kategori harus berupa angka ID. Gunakan: 1=Lingkungan, 2=Pendidikan, 3=Kesehatan, 4=Ekonomi",
+        "Kategori Tidak Valid"
       );
       return;
     }
@@ -127,10 +130,10 @@ const AdminDashboard = () => {
 
       if (editingId) {
         await updateProgram(editingId, payload);
-        alert("Program diperbarui");
+        toast.success("Program berhasil diperbarui");
       } else {
         await createProgram(payload);
-        alert("Program dibuat");
+        toast.success("Program berhasil dibuat");
       }
 
       setForm(emptyForm);
@@ -146,7 +149,7 @@ const AdminDashboard = () => {
         (err.response?.status === 401
           ? "Sesi berakhir atau belum login admin."
           : "Gagal menyimpan program");
-      alert(msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
@@ -178,7 +181,7 @@ const AdminDashboard = () => {
       const msg =
         err.response?.data?.message ||
         "Gagal menghapus program (butuh login admin)";
-      alert(msg);
+      toast.error(msg);
     }
   };
 
@@ -214,11 +217,11 @@ const AdminDashboard = () => {
       await Promise.all(selectedPrograms.map((id) => deleteProgram(id)));
       setSelectedPrograms([]);
       await fetchPrograms();
-      alert("Program berhasil dihapus");
+      toast.success(`${selectedPrograms.length} program berhasil dihapus`);
     } catch (err) {
       const msg =
         err.response?.data?.message || "Gagal menghapus beberapa program";
-      alert(msg);
+      toast.error(msg);
     }
   };
 

@@ -17,9 +17,13 @@ import {
   getProposalStats,
   getProposalMonthlyStats,
 } from "../api/proposals";
+import { generatePrintTableHTML } from "../utils/PrintTableTemplate";
+import { generatePrintChartHTML } from "../utils/PrintChartTemplate";
+import { useToast } from "../context/ToastContext";
 import "./ProposalDashboard.css";
 
 const ProposalDashboard = () => {
+  const toast = useToast();
   const API_BASE =
     process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
   const FILES_BASE = API_BASE.replace(/\/api$/, "");
@@ -40,6 +44,14 @@ const ProposalDashboard = () => {
     currentMonth < 10 ? `0${currentMonth}` : `${currentMonth}`
   );
   const [selectedYear, setSelectedYear] = useState(
+    new Date().getFullYear().toString()
+  );
+  // Filter untuk tabel proposal
+  const [tableFilterPeriod, setTableFilterPeriod] = useState("all");
+  const [tableSelectedMonth, setTableSelectedMonth] = useState(
+    currentMonth < 10 ? `0${currentMonth}` : `${currentMonth}`
+  );
+  const [tableSelectedYear, setTableSelectedYear] = useState(
     new Date().getFullYear().toString()
   );
 
@@ -106,8 +118,9 @@ const ProposalDashboard = () => {
     // Cek authentication terlebih dahulu
     const token = localStorage.getItem("authToken");
     if (!token) {
-      alert(
-        "⚠️ Anda harus login sebagai admin terlebih dahulu!\n\nSilakan login di halaman Login dengan:\n- Email: admin@csr.com\n- Password: admin123"
+      toast.warning(
+        "Silakan login di halaman Login dengan:\n- Email: admin@csr.com\n- Password: admin123",
+        "Login Diperlukan"
       );
       setIsLoading(false);
       setIsModalOpen(false);
@@ -128,11 +141,11 @@ const ProposalDashboard = () => {
       if (editingProposal) {
         // Mode edit: gunakan PUT
         await updateProposal(editingProposal.id, payload);
-        alert("✅ Proposal berhasil diperbarui");
+        toast.success("Proposal berhasil diperbarui");
       } else {
         // Mode create: gunakan POST
         await createProposal(payload);
-        alert("✅ Proposal berhasil ditambahkan");
+        toast.success("Proposal berhasil ditambahkan");
       }
 
       setIsModalOpen(false);
@@ -152,17 +165,17 @@ const ProposalDashboard = () => {
 
       if (err.response?.status === 401) {
         message =
-          "🔒 Sesi Anda berakhir atau token tidak valid.\n\n" +
+          "Sesi Anda berakhir atau token tidak valid.\n\n" +
           "Silakan login ulang sebagai admin:\n" +
           "- Email: admin@csr.com\n" +
           "- Password: admin123";
         // Hapus token yang tidak valid
         localStorage.removeItem("authToken");
       } else if (err.response?.status === 403) {
-        message = "❌ Akses ditolak. Hanya admin yang dapat menambah proposal.";
+        message = "Akses ditolak. Hanya admin yang dapat menambah proposal.";
       }
 
-      alert("❌ Gagal menyimpan proposal:\n\n" + message);
+      toast.error(message, "Gagal Menyimpan Proposal");
     } finally {
       setIsLoading(false);
     }
@@ -176,7 +189,7 @@ const ProposalDashboard = () => {
         await fetchStats();
         await fetchMonthlyStats();
       } catch (err) {
-        alert("Gagal menghapus proposal: " + err.message);
+        toast.error("Gagal menghapus proposal: " + err.message);
       }
     }
   };
@@ -216,9 +229,9 @@ const ProposalDashboard = () => {
         await fetchProposals();
         await fetchStats();
         await fetchMonthlyStats();
-        alert(`${count} proposal berhasil dihapus.`);
+        toast.success(`${count} proposal berhasil dihapus`);
       } catch (err) {
-        alert("Gagal menghapus proposal: " + err.message);
+        toast.error("Gagal menghapus proposal: " + err.message);
       } finally {
         setIsDeleting(false);
       }
@@ -234,754 +247,46 @@ const ProposalDashboard = () => {
     setIsModalOpen(false);
     setEditingProposal(null);
   };
-
+ 
   const handlePrint = () => {
-    const printWindow = window.open("", "_blank");
-    const currentDate = new Date().toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+  const printWindow = window.open("", "_blank");
 
-    const totalBudget = filteredProposals.reduce(
-      (sum, p) => sum + (parseFloat(p.budget) || 0),
-      0
-    );
+  if (!printWindow) {
+    toast.warning("Mohon izinkan popup untuk mencetak", "Popup Diblokir");
+    return;
+  }
 
-    const statusCounts = {
-      "In Progress": filteredProposals.filter((p) => p.status === "In Progress")
-        .length,
-      "Siap Diambil": filteredProposals.filter(
-        (p) => p.status === "Siap Diambil"
-      ).length,
-      Done: filteredProposals.filter((p) => p.status === "Done").length,
-    };
+  const htmlContent = generatePrintTableHTML(
+    filteredProposals,
+    filterStatus,
+    formatCurrency,
+    formatDate
+  );
 
-    const proposalRows = filteredProposals
-      .map(
-        (proposal, index) => `
-      <tr>
-        <td style="text-align: center; font-weight: 600; color: #374151;">${
-          index + 1
-        }</td>
-        <td>
-          <div style="background: #fef08a; color: #78350f; padding: 4px 8px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: 600; display: inline-block;">
-            ${proposal.case_id}
-          </div>
-        </td>
-        <td style="font-weight: 600; color: #1f2937;">${
-          proposal.proposal_name
-        }</td>
-        <td style="color: #4b5563;">${proposal.organization}</td>
-        <td style="font-size: 0.8rem; color: #6b7280;">${
-          proposal.product_detail || "-"
-        }</td>
-        <td style="font-weight: 600; color: #059669; text-align: right;">
-          ${formatCurrency(proposal.budget)}
-        </td>
-        <td style="text-align: center;">
-          <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; ${
-            proposal.status === "In Progress"
-              ? "background: #fef3c7; color: #92400e;"
-              : proposal.status === "Siap Diambil"
-              ? "background: #dbeafe; color: #0c4a6e;"
-              : "background: #d1fae5; color: #065f46;"
-          }">
-            ${proposal.status}
-          </span>
-        </td>
-        <td style="font-size: 0.75rem;">
-          <div style="font-weight: 600; color: #1f2937; margin-bottom: 2px;">${
-            proposal.pic_name
-          }</div>
-          <div style="color: #6b7280; font-size: 0.7rem;">${
-            proposal.pic_email || "-"
-          }</div>
-        </td>
-        <td style="text-align: center; color: #6b7280; font-size: 0.75rem; white-space: nowrap;">
-          ${formatDate(proposal.proposal_date)}
-        </td>
-      </tr>
-    `
-      )
-      .join("");
-
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Laporan Daftar Proposal CSR</title>
-        <style>
-          @page {
-            size: A4 landscape;
-            margin: 12mm;
-          }
-          
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-          }
-          
-          body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 9pt;
-            line-height: 1.4;
-            color: #1f2937;
-            background: white;
-            padding: 0;
-            margin: 0;
-          }
-          
-          .print-container {
-            max-width: 100%;
-            margin: 0 auto;
-            background: white;
-          }
-          
-          .print-header {
-            text-align: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 3px solid #0077c8;
-          }
-          
-          .print-header h1 {
-            font-size: 18pt;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          
-          .print-header .subtitle {
-            font-size: 9pt;
-            color: #6b7280;
-            font-weight: 500;
-          }
-          
-          .print-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 8px 12px;
-            background: #f9fafb;
-            border-radius: 6px;
-            border: 1px solid #e5e7eb;
-          }
-          
-          .print-info-item {
-            font-size: 8pt;
-            color: #374151;
-          }
-          
-          .print-info-item strong {
-            font-weight: 700;
-            color: #0f172a;
-          }
-          
-          .summary-stats {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
-          }
-          
-          .summary-card {
-            background: white;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 8px;
-            text-align: center;
-          }
-          
-          .summary-label {
-            font-size: 7pt;
-            color: #6b7280;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-            letter-spacing: 0.3px;
-          }
-          
-          .summary-value {
-            font-size: 14pt;
-            font-weight: 800;
-            color: #0f172a;
-          }
-          
-          .summary-card.total {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde047 100%);
-            border-color: #fbbf24;
-          }
-          
-          .summary-card.progress {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-color: #fbbf24;
-          }
-          
-          .summary-card.waiting {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            border-color: #60a5fa;
-          }
-          
-          .summary-card.done {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border-color: #34d399;
-          }
-          
-          .summary-card.budget {
-            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
-            border-color: #a78bfa;
-          }
-          
-          .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 12px;
-            font-size: 8pt;
-          }
-          
-          .data-table thead {
-            background: linear-gradient(135deg, #0077c8 0%, #005a9e 100%);
-            color: white;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          
-          .data-table th {
-            padding: 8px 6px;
-            text-align: left;
-            font-weight: 700;
-            font-size: 7.5pt;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            border: 1px solid #0077c8;
-            color: white;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          
-          .data-table td {
-            padding: 6px 6px;
-            border: 1px solid #e5e7eb;
-            vertical-align: top;
-            background: white;
-          }
-          
-          .data-table tbody tr:nth-child(even) {
-            background: #f9fafb;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          
-          .data-table tbody tr:hover {
-            background: #f3f4f6;
-          }
-          
-          .print-footer {
-            margin-top: 12px;
-            padding-top: 8px;
-            border-top: 2px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 7pt;
-            color: #6b7280;
-          }
-          
-          .footer-left {
-            font-weight: 500;
-          }
-          
-          .footer-right {
-            text-align: right;
-          }
-          
-          @media print {
-            body {
-              print-color-adjust: exact;
-              -webkit-print-color-adjust: exact;
-            }
-            
-            .print-container {
-              page-break-inside: avoid;
-            }
-            
-            .data-table {
-              page-break-inside: auto;
-            }
-            
-            .data-table tr {
-              page-break-inside: avoid;
-              page-break-after: auto;
-            }
-            
-            .data-table thead {
-              display: table-header-group;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="print-container">
-          <div class="print-header">
-            <h1>📋 Laporan Daftar Proposal CSR</h1>
-            <div class="subtitle">Sistem Manajemen Proposal Corporate Social Responsibility</div>
-          </div>
-          
-          <div class="print-info">
-            <div class="print-info-item">
-              <strong>Tanggal Cetak:</strong> ${currentDate}
-            </div>
-            <div class="print-info-item">
-              <strong>Total Proposal:</strong> ${
-                filteredProposals.length
-              } proposal
-            </div>
-            <div class="print-info-item">
-              <strong>Filter Status:</strong> ${filterStatus}
-            </div>
-          </div>
-          
-          <div class="summary-stats">
-            <div class="summary-card total">
-              <div class="summary-label">Total Proposal</div>
-              <div class="summary-value">${filteredProposals.length}</div>
-            </div>
-            <div class="summary-card progress">
-              <div class="summary-label">In Progress</div>
-              <div class="summary-value">${statusCounts["In Progress"]}</div>
-            </div>
-            <div class="summary-card waiting">
-              <div class="summary-label">Siap Diambil</div>
-              <div class="summary-value">${statusCounts["Siap Diambil"]}</div>
-            </div>
-            <div class="summary-card done">
-              <div class="summary-label">Done</div>
-              <div class="summary-value">${statusCounts.Done}</div>
-            </div>
-            <div class="summary-card budget">
-              <div class="summary-label">Total Budget</div>
-              <div class="summary-value" style="font-size: 10pt;">${formatCurrency(
-                totalBudget
-              )}</div>
-            </div>
-          </div>
-          
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th style="width: 30px; text-align: center;">No</th>
-                <th style="width: 90px;">Case ID</th>
-                <th style="width: 140px;">Nama Proposal</th>
-                <th style="width: 100px;">Organisasi</th>
-                <th style="width: 150px;">Detail Produk</th>
-                <th style="width: 85px; text-align: right;">Budget</th>
-                <th style="width: 75px; text-align: center;">Status</th>
-                <th style="width: 100px;">PIC</th>
-                <th style="width: 70px; text-align: center;">Tanggal</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${proposalRows}
-            </tbody>
-          </table>
-          
-          <div class="print-footer">
-            <div class="footer-left">
-              <strong>Sistem Manajemen Proposal CSR</strong><br>
-              Dicetak pada: ${currentDate}
-            </div>
-            <div class="footer-right">
-              Total ${
-                filteredProposals.length
-              } proposal | Budget: ${formatCurrency(totalBudget)}<br>
-              <em>Dokumen ini dicetak secara otomatis dari sistem</em>
-            </div>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    setTimeout(() => {
-      printWindow.print();
-    }, 500);
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+  setTimeout(() => {
+    printWindow.print();
+  }, 500);
   };
 
   const handlePrintChart = () => {
-    const printWindow = window.open("", "_blank");
-    const chartCard = document.querySelector(".chart-card");
-    const statsGrid = document.querySelector(".stats-grid");
+  const printWindow = window.open("", "_blank");
 
-    if (!printWindow) {
-      alert("Mohon izinkan popup untuk mencetak");
-      return;
-    }
+  if (!printWindow) {
+    toast.warning("Mohon izinkan popup untuk mencetak", "Popup Diblokir");
+    return;
+  }
 
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Laporan Tren Proposal CSR</title>
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            
-            @page {
-              size: A4 landscape;
-              margin: 15mm;
-            }
-            
-            body { 
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-              padding: 0;
-              background: white;
-              font-size: 11px;
-            }
-            
-            .print-container {
-              width: 100%;
-              height: 100%;
-              display: flex;
-              flex-direction: column;
-            }
-            
-            .print-header {
-              text-align: center;
-              margin-bottom: 15px;
-              border-bottom: 2px solid #0077c8;
-              padding-bottom: 10px;
-            }
-            .print-header h1 {
-              font-size: 20px;
-              color: #1f2937;
-              margin-bottom: 4px;
-            }
-            .print-header p {
-              color: #6b7280;
-              font-size: 10px;
-            }
-            .stats-section {
-              display: grid;
-              grid-template-columns: repeat(5, 1fr);
-              gap: 10px;
-              margin-bottom: 15px;
-            }
-            .stat-box {
-              border: 1.5px solid #e5e7eb;
-              border-radius: 6px;
-              padding: 10px;
-              text-align: center;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .stat-label {
-              font-size: 9px;
-              color: #6b7280;
-              text-transform: uppercase;
-              font-weight: 600;
-              margin-bottom: 4px;
-              letter-spacing: 0.3px;
-            }
-            .stat-value {
-              font-size: 18px;
-              font-weight: 800;
-              color: #1f2937;
-            }
-            .chart-section {
-              border: 1.5px solid #e5e7eb;
-              border-radius: 8px;
-              padding: 12px;
-              background: white;
-              flex: 1;
-              display: flex;
-              flex-direction: column;
-            }
-            .chart-title {
-              font-size: 16px;
-              font-weight: 700;
-              color: #1f2937;
-              margin-bottom: 4px;
-            }
-            .chart-subtitle {
-              color: #6b7280;
-              font-size: 11px;
-              margin-bottom: 10px;
-            }
-            .chart-legend {
-              display: flex;
-              gap: 15px;
-              justify-content: center;
-              margin-bottom: 12px;
-              padding: 8px;
-              background: #f9fafb;
-              border-radius: 6px;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .legend-item {
-              display: flex;
-              align-items: center;
-              gap: 6px;
-              font-size: 10px;
-              color: #4b5563;
-            }
-            .legend-dot {
-              width: 10px;
-              height: 10px;
-              border-radius: 50%;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-              color-adjust: exact;
-            }
-            .legend-progress { 
-              background: #fbbf24;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .legend-waiting { 
-              background: #60a5fa;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .legend-done { 
-              background: #34d399;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .chart-body {
-              display: flex;
-              gap: 12px;
-              align-items: flex-end;
-              justify-content: space-around;
-              height: 180px;
-              border-top: 2px solid #e5e7eb;
-              border-left: 2px solid #e5e7eb;
-              padding: 12px;
-              margin-bottom: 12px;
-              flex: 1;
-            }
-            .chart-column {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              gap: 8px;
-              flex: 1;
-            }
-            .bar-stack {
-              width: 32px;
-              background: #f3f4f6;
-              border-radius: 6px;
-              overflow: hidden;
-              display: flex;
-              flex-direction: column;
-              justify-content: flex-end;
-              border: 1.5px solid #e5e7eb;
-              box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            }
-            .bar-segment {
-              width: 100%;
-              min-height: 2px;
-            }
-            .segment-progress { 
-              background: linear-gradient(180deg, #f59e0b 0%, #fbbf24 100%);
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-              color-adjust: exact;
-            }
-            .segment-waiting { 
-              background: linear-gradient(180deg, #3b82f6 0%, #60a5fa 100%);
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-              color-adjust: exact;
-            }
-            .segment-done { 
-              background: linear-gradient(180deg, #10b981 0%, #34d399 100%);
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-              color-adjust: exact;
-            }
-            .bar-label {
-              font-size: 10px;
-              font-weight: 600;
-              color: #1f2937;
-              text-align: center;
-            }
-            .data-table {
-              width: 100%;
-              border-collapse: collapse;
-              font-size: 10px;
-            }
-            .data-table th {
-              background: #f9fafb;
-              padding: 6px 8px;
-              text-align: center;
-              font-size: 9px;
-              font-weight: 700;
-              color: #1f2937;
-              border: 1px solid #e5e7eb;
-              text-transform: uppercase;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .data-table td {
-              padding: 6px 8px;
-              border: 1px solid #e5e7eb;
-              text-align: center;
-              color: #374151;
-            }
-            .data-table td:first-child {
-              text-align: left;
-              font-weight: 600;
-            }
-            .print-footer {
-              margin-top: 10px;
-              padding-top: 8px;
-              border-top: 1.5px solid #e5e7eb;
-              text-align: center;
-              color: #6b7280;
-              font-size: 9px;
-            }
-            
-            @media print {
-              body { padding: 0; }
-              .print-container {
-                page-break-inside: avoid;
-              }
-              * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                color-adjust: exact !important;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="print-container">
-            <div class="print-header">
-              <h1>📊 Laporan Tren Proposal CSR</h1>
-              <p>Sistem Monitoring CSR - Dicetak pada ${new Date().toLocaleDateString(
-                "id-ID",
-                {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                }
-              )} | Periode: ${getFilterLabel()}</p>
-            </div>
-            
-            ${
-              statsGrid
-                ? `
-              <div class="stats-section">
-                <div class="stat-box">
-                  <div class="stat-label">Total Proposals</div>
-                  <div class="stat-value">${stats?.total_proposals || 0}</div>
-                </div>
-                <div class="stat-box">
-                  <div class="stat-label">In Progress</div>
-                  <div class="stat-value">${stats?.in_progress || 0}</div>
-                </div>
-                <div class="stat-box">
-                  <div class="stat-label">Siap Diambil</div>
-                  <div class="stat-value">${stats?.waiting || 0}</div>
-                </div>
-                <div class="stat-box">
-                  <div class="stat-label">Done</div>
-                  <div class="stat-value">${stats?.completed || 0}</div>
-                </div>
-                <div class="stat-box">
-                  <div class="stat-label">Total Budget</div>
-                  <div class="stat-value" style="font-size: 13px;">${formatCurrency(
-                    stats?.total_budget || 0
-                  )}</div>
-                </div>
-              </div>
-            `
-                : ""
-            }
+  const htmlContent = generatePrintChartHTML(
+    stats,
+    monthlyStats,
+    getFilterLabel,
+    formatCurrency
+  );
 
-            <div class="chart-section">
-              <div class="chart-title">Tren Proposal Per Bulan</div>
-              <div class="chart-subtitle">Data proposal 6 bulan terakhir dengan breakdown status</div>
-              
-              <div class="chart-legend">
-                <div class="legend-item">
-                  <span class="legend-dot legend-progress"></span>
-                  <span>In Progress</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-dot legend-waiting"></span>
-                  <span>Siap Diambil</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-dot legend-done"></span>
-                  <span>Done</span>
-                </div>
-              </div>
-
-              ${
-                chartCard
-                  ? chartCard.querySelector(".chart-body")?.outerHTML ||
-                    '<p style="text-align:center;padding:20px;color:#9ca3af;">Tidak ada data chart</p>'
-                  : '<p style="text-align:center;padding:20px;color:#9ca3af;">Chart tidak ditemukan</p>'
-              }
-
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Bulan</th>
-                    <th>Total</th>
-                    <th>In Progress</th>
-                    <th>Siap Diambil</th>
-                    <th>Done</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${monthlyStats
-                    .map(
-                      (m) => `
-                    <tr>
-                      <td><strong>${m.label}</strong></td>
-                      <td><strong>${m.total || 0}</strong></td>
-                      <td>${m.breakdown?.in_progress || 0}</td>
-                      <td>${m.breakdown?.waiting || 0}</td>
-                      <td>${m.breakdown?.done || 0}</td>
-                    </tr>
-                  `
-                    )
-                    .join("")}
-                </tbody>
-              </table>
-            </div>
-
-            <div class="print-footer">
-              <p><strong>Dashboard CSR</strong> | System Monitoring CSR | Bright PLN Batam</p>
-            </div>
-          </div>
-
-          <script>
-            window.onload = function() {
-              setTimeout(function() {
-                window.print();
-              }, 500);
-            };
-          </script>
-        </body>
-      </html>
-    `);
-
-    printWindow.document.close();
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
   };
 
   const filteredProposals = proposals.filter((proposal) => {
@@ -991,7 +296,27 @@ const ProposalDashboard = () => {
       proposal.proposal_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       proposal.case_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       proposal.organization.toLowerCase().includes(searchTerm.toLowerCase());
-    return statusMatch && searchMatch;
+
+    // Filter berdasarkan tanggal (bulan/tahun)
+    let dateMatch = true;
+    if (proposal.proposal_date && tableFilterPeriod !== "all") {
+      const proposalDate = new Date(proposal.proposal_date);
+      const proposalYear = proposalDate.getFullYear().toString();
+      const proposalMonth = String(proposalDate.getMonth() + 1).padStart(
+        2,
+        "0"
+      );
+
+      if (tableFilterPeriod === "month") {
+        dateMatch =
+          proposalYear === tableSelectedYear &&
+          proposalMonth === tableSelectedMonth;
+      } else if (tableFilterPeriod === "year") {
+        dateMatch = proposalYear === tableSelectedYear;
+      }
+    }
+
+    return statusMatch && searchMatch && dateMatch;
   });
 
   const formatCurrency = (value) => {
@@ -1090,9 +415,8 @@ const ProposalDashboard = () => {
           <p className="subtitle">System Monitoring CSR</p>
         </div>
         <button
-          className="btn btn--primary btn--lg"
+          className="btn btn--primary btn--lg btn-with-icon"
           onClick={() => setIsModalOpen(true)}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
           <PlusCircle size={18} />
           <span>Tambah Proposal</span>
@@ -1222,7 +546,7 @@ const ProposalDashboard = () => {
               </div>
               <div className="stat-content">
                 <p className="stat-label">TOTAL BUDGET</p>
-                <h3 className="stat-value" style={{ fontSize: "1.2rem" }}>
+                <h3 className="stat-value stat-value--budget">
                   {formatCurrency(stats.total_budget || 0)}
                 </h3>
               </div>
@@ -1240,10 +564,9 @@ const ProposalDashboard = () => {
             </div>
             <div className="chart-header-right">
               <button
-                className="btn btn--print-chart"
+                className="btn btn--print-chart btn-with-icon"
                 onClick={handlePrintChart}
                 title="Print Grafik"
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
                 <Printer size={16} />
                 <span>Print Grafik</span>
@@ -1321,10 +644,9 @@ const ProposalDashboard = () => {
             <h2>Daftar Proposal</h2>
             <div className="section-header-actions">
               <button
-                className="btn btn--print"
+                className="btn btn--print btn-with-icon"
                 onClick={handlePrint}
                 title="Print Daftar Proposal"
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
                 <Printer size={16} />
                 <span>Print</span>
@@ -1355,6 +677,47 @@ const ProposalDashboard = () => {
               <option>Siap Diambil</option>
               <option>Done</option>
             </select>
+
+            <select
+              value={tableFilterPeriod}
+              onChange={(e) => {
+                setTableFilterPeriod(e.target.value);
+              }}
+              className="filter-select"
+            >
+              <option value="all">Semua Periode</option>
+              <option value="month">Bulan Tertentu</option>
+              <option value="year">Tahun Tertentu</option>
+            </select>
+
+            {tableFilterPeriod === "month" && (
+              <select
+                value={tableSelectedMonth}
+                onChange={(e) => setTableSelectedMonth(e.target.value)}
+                className="filter-select"
+              >
+                {getMonthOptions().map((month) => (
+                  <option key={month.value} value={month.value}>
+                    {month.label}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {(tableFilterPeriod === "month" ||
+              tableFilterPeriod === "year") && (
+              <select
+                value={tableSelectedYear}
+                onChange={(e) => setTableSelectedYear(e.target.value)}
+                className="filter-select"
+              >
+                {getYearOptions().map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            )}
 
             {selectedIds.size > 0 && (
               <div className="bulk-actions">

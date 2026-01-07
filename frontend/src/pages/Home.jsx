@@ -592,45 +592,45 @@ const GallerySection = () => {
   const galleryItems = [
     {
       image:
-        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80",
+        "https://assets.espos.id/images/2024/02/Tanam-pohon-aqua.jpg",
       title: "Program Penghijauan",
       category: "Lingkungan",
-      date: "15 Des 2025",
+      date: "24 Februari 2024",
     },
     {
       image:
-        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80",
-      title: "Pelatihan UMKM",
+        "https://ik.imagekit.io/waters2021/sehataqua/uploads/20240131101306_original.jpg?tr=w-1600,h-900,q-80,fo-auto,f-webp",
+      title: "Sertifikasi UKM Halal",
       category: "Ekonomi",
-      date: "10 Des 2025",
+      date: "10 Desember 2025",
     },
     {
       image:
-        "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&q=80",
+        "https://jurnalbogor.com/wp-content/uploads/2024/08/WhatsApp-Image-2024-08-14-at-17.05.41.jpeg",
       title: "Beasiswa Pendidikan",
       category: "Pendidikan",
-      date: "5 Des 2025",
+      date: "14 Agustus 2024",
     },
     {
       image:
-        "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&q=80",
+        "https://ik.imagekit.io/waters2021/sehataqua/uploads/20200703084355_original.jpg?tr=w-1600,h-900,q-80,fo-auto,f-webp",
       title: "Penyuluhan Kesehatan",
       category: "Kesehatan",
-      date: "1 Des 2025",
+      date: "06 Maret 2020",
     },
     {
       image:
-        "https://images.unsplash.com/photo-1473798257550-1e0b36c23753?w=800&q=80",
+        "https://faktahukum.co.id/wp-content/uploads/2025/12/Sarana-Air-Bersih-700x400.jpg",
       title: "Konservasi Mata Air",
       category: "Lingkungan",
-      date: "25 Nov 2025",
+      date: "20 Desember 2025",
     },
     {
       image:
-        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&q=80",
-      title: "Workshop Kewirausahaan",
+        "https://faktahukum.co.id/wp-content/uploads/2024/04/WhatsApp-Image-2024-04-04-at-4.34.06-PM.jpeg",
+      title: "Santuni Anak Yatim",
       category: "Ekonomi",
-      date: "20 Nov 2025",
+      date: "04 Januari 2024",
     },
   ];
 

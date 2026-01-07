@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useToast } from "../context/ToastContext";
 import "./ProposalModal.css";
 
 const ProposalModal = ({
@@ -8,6 +9,7 @@ const ProposalModal = ({
   isLoading,
   editingProposal,
 }) => {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     case_id: "",
     proposal_name: "",
@@ -130,7 +132,7 @@ const ProposalModal = ({
 
     for (const [field, label] of Object.entries(requiredFields)) {
       if (!formData[field] || formData[field].toString().trim() === "") {
-        alert(`${label} harus diisi!`);
+        toast.warning(`${label} harus diisi!`, "Data Tidak Lengkap");
         return;
       }
     }
@@ -205,7 +207,7 @@ const ProposalModal = ({
                   name="case_id"
                   value={formData.case_id}
                   onChange={handleChange}
-                  placeholder="Contoh: CSR-2025-001"
+                  placeholder="Masukan no case id"
                   required
                 />
               </div>
@@ -291,8 +293,8 @@ const ProposalModal = ({
                   onChange={handleChange}
                 >
                   <option value="">Pilih bentuk donasi</option>
-                  <option value="Air Mineral, Sembako, Peralatan">
-                    Air Mineral, Sembako, Peralatan
+                  <option value="Air Mineral">
+                    Air Mineral 
                   </option>
                   <option value="Uang Tunai">Uang Tunai</option>
                   <option value="Barang Kebutuhan">Barang Kebutuhan</option>
@@ -337,7 +339,7 @@ const ProposalModal = ({
                   name="jumlah_produk"
                   value={formData.jumlah_produk}
                   onChange={handleChange}
-                  placeholder="Contoh: 100 dus @ 24 botol = 240"
+                  placeholder="Contoh: 100 dus "
                 />
               </div>
               <div className="form-group">
@@ -347,7 +349,7 @@ const ProposalModal = ({
                   name="budget"
                   value={formData.budget}
                   onChange={handleChange}
-                  placeholder="5000000"
+                  placeholder="Masukkan total harga dalam IDR"
                   required
                 />
               </div>

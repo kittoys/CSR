@@ -28,7 +28,7 @@ echo ""
 echo "════════════════════════════════════════════════════"
 echo "  📦 Step 1: Installing Backend Dependencies"
 echo "════════════════════════════════════════════════════"
-cd csr-backend
+cd backend
 if [ ! -d "node_modules" ]; then
     npm install
 else
@@ -39,7 +39,7 @@ echo ""
 echo "════════════════════════════════════════════════════"
 echo "  📦 Step 2: Installing Frontend Dependencies"
 echo "════════════════════════════════════════════════════"
-cd ../csr-frontend
+cd ../frontend
 if [ ! -d "node_modules" ]; then
     npm install
 else
@@ -55,11 +55,11 @@ echo ""
 echo "🚀 To start the application, open 2 terminals:"
 echo ""
 echo "Terminal 1 - Backend:"
-echo "  cd csr-backend"
+echo "  cd backend"
 echo "  npm start"
 echo ""
 echo "Terminal 2 - Frontend:"
-echo "  cd csr-frontend"
+echo "  cd frontend"
 echo "  npm start"
 echo ""
 echo "Then open: http://localhost:3000"

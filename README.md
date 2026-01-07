@@ -2,23 +2,29 @@
 
 Sistem manajemen program CSR dengan login admin, CRUD program/kategori, dashboard proposal lengkap dengan statistik dan auto-generated CASE ID.
 
+> 📚 **Dokumentasi Lengkap**: Lihat folder [docs/](docs/) untuk dokumentasi teknis lengkap
+
+---
+
 ## 📋 Fitur Utama
 
-- ✅ **Login Admin**: Sistem autentikasi untuk admin
-- ✅ **Manajemen Program**: Create, Read, Update, Delete program CSR dengan image upload
-- ✅ **Kategori**: Organisasi program berdasarkan kategori
-- ✅ **Proposal Dashboard**: Dashboard lengkap dengan statistik dan monitoring proposal
-- ✅ **Form Proposal**: Form input proposal terstruktur 3 section dengan auto-generated CASE ID (CSR-YYYY-###)
-- ✅ **Upload File**: Drag & drop file pendukung (PDF, DOC, DOCX, JPG, PNG) max 5MB
-- ✅ **Statistics**: Dashboard statistik dengan monthly trend dan status breakdown
-- ✅ **Export Data**: Cetak/export data proposal
-- ✅ **Responsive Design**: Desain mobile-friendly untuk seluruh halaman
-- ✅ **JWT Authentication**: Keamanan token-based
-- ✅ **Password Hashing**: Password di-hash dengan bcrypt
+- ✅ **Login Admin** - Sistem autentikasi untuk admin
+- ✅ **Manajemen Program** - Create, Read, Update, Delete program CSR dengan image upload
+- ✅ **Kategori** - Organisasi program berdasarkan kategori
+- ✅ **Proposal Dashboard** - Dashboard lengkap dengan statistik dan monitoring proposal
+- ✅ **Form Proposal** - Form input proposal terstruktur 3 section dengan auto-generated CASE ID (CSR-YYYY-###)
+- ✅ **Upload File** - Drag & drop file pendukung (PDF, DOC, DOCX, JPG, PNG) max 5MB
+- ✅ **Statistics** - Dashboard statistik dengan monthly trend dan status breakdown
+- ✅ **Export Data** - Cetak/export data proposal
+- ✅ **Responsive Design** - Desain mobile-friendly untuk seluruh halaman
+- ✅ **JWT Authentication** - Keamanan token-based
+- ✅ **Password Hashing** - Password di-hash dengan bcrypt
+
+---
 
 ## 🛠️ Tech Stack
 
-**Frontend:**
+### Frontend
 
 - React 19.2.3 + React Router 7.10.1
 - Axios 1.13.2 (HTTP client)
@@ -27,7 +33,7 @@ Sistem manajemen program CSR dengan login admin, CRUD program/kategori, dashboar
 - React Intersection Observer (Scroll animations)
 - CSS3 + Bootstrap Icons
 
-**Backend:**
+### Backend
 
 - Node.js + Express 5.2.1
 - MySQL2 3.16.0 (MySQL/MariaDB driver)
@@ -36,28 +42,35 @@ Sistem manajemen program CSR dengan login admin, CRUD program/kategori, dashboar
 - Multer 2.0.2 (File upload)
 - CORS 2.8.5
 
+---
+
 ## 📦 Prerequisites
 
-- Node.js v16+ ([download](https://nodejs.org/))
-- MySQL/MariaDB ([download](https://www.mysql.com/downloads/))
+- Node.js v16+ - [Download](https://nodejs.org/)
+- MySQL/MariaDB - [Download](https://www.mysql.com/downloads/)
 - Git
+
+---
 
 ## 🚀 Quick Start
 
 ### Option A: Otomatis dengan Script (Recommended)
 
 **Windows:**
+
 ```bash
 setup.bat
 ```
 
 **Linux/Mac:**
+
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
 
-Script akan otomatis:
+**Script akan otomatis:**
+
 - ✅ Setup database & seed data
 - ✅ Install dependencies backend & frontend
 - ✅ Start backend server (port 5000)
@@ -75,6 +88,7 @@ npm run seed-db
 ```
 
 Atau manual dengan MySQL CLI:
+
 ```bash
 mysql -u root -p < csr-backend/setup.sql
 ```
@@ -115,6 +129,8 @@ npm start
 
 Frontend akan running di `http://localhost:3000` dan auto-redirect ke `/login`
 
+---
+
 ## 🔐 Login Credentials
 
 Setelah setup selesai, gunakan:
@@ -122,9 +138,12 @@ Setelah setup selesai, gunakan:
 - **Email**: `admin@csr.com`
 - **Password**: `admin123`
 
+---
+
 ## 📊 Dashboard Features
 
 ### Admin Dashboard (`/admin`)
+
 - ✅ Manajemen Program CSR (Create, Read, Update, Delete)
 - ✅ Manajemen Kategori
 - ✅ Upload gambar program (drag & drop)
@@ -132,6 +151,7 @@ Setelah setup selesai, gunakan:
 - ✅ Responsive table dan cards view
 
 ### Proposal Dashboard (`/proposals`)
+
 - ✅ **Statistics Cards**: Total Proposals, In Progress, Waiting, Done, Total Budget
 - ✅ **Monthly Trend Chart**: Line chart dengan status breakdown
 - ✅ **Data Table**: Sortable, searchable, filterable
@@ -252,16 +272,16 @@ csr-frontend/
 
 ### Proposals
 
-| Method | Endpoint                      | Description                  | Auth        |
-| ------ | ----------------------------- | ---------------------------- | ----------- |
-| GET    | `/api/proposals`              | Get all proposals            | Yes (Admin) |
-| GET    | `/api/proposals/:id`          | Get proposal by ID           | Yes (Admin) |
-| GET    | `/api/proposals/stats/summary`| Get statistics summary       | No          |
-| GET    | `/api/proposals/stats/monthly`| Get monthly statistics       | No          |
-| POST   | `/api/proposals`              | Create proposal              | Yes (Admin) |
-| PUT    | `/api/proposals/:id`          | Update proposal              | Yes (Admin) |
-| PATCH  | `/api/proposals/:id/status`   | Update proposal status       | Yes (Admin) |
-| DELETE | `/api/proposals/:id`          | Delete proposal              | Yes (Admin) |
+| Method | Endpoint                       | Description            | Auth        |
+| ------ | ------------------------------ | ---------------------- | ----------- |
+| GET    | `/api/proposals`               | Get all proposals      | Yes (Admin) |
+| GET    | `/api/proposals/:id`           | Get proposal by ID     | Yes (Admin) |
+| GET    | `/api/proposals/stats/summary` | Get statistics summary | No          |
+| GET    | `/api/proposals/stats/monthly` | Get monthly statistics | No          |
+| POST   | `/api/proposals`               | Create proposal        | Yes (Admin) |
+| PUT    | `/api/proposals/:id`           | Update proposal        | Yes (Admin) |
+| PATCH  | `/api/proposals/:id/status`    | Update proposal status | Yes (Admin) |
+| DELETE | `/api/proposals/:id`           | Delete proposal        | Yes (Admin) |
 
 **Create Proposal Request:**
 
@@ -301,9 +321,9 @@ csr-frontend/
 
 ### Upload
 
-| Method | Endpoint       | Description     | Auth |
-| ------ | -------------- | --------------- | ---- |
-| POST   | `/api/upload`  | Upload image    | No   |
+| Method | Endpoint      | Description  | Auth |
+| ------ | ------------- | ------------ | ---- |
+| POST   | `/api/upload` | Upload image | No   |
 
 **Upload Request:**
 
@@ -397,7 +417,7 @@ npm run seed-db
 
 ### "Gagal memuat data. Pastikan server backend berjalan."
 
-**Solution**: 
+**Solution**:
 
 1. Cek apakah backend running di port 5000
 2. Cek apakah tabel `donation_proposals` ada:
@@ -424,7 +444,7 @@ REACT_APP_API_BASE=http://localhost:5000/api
 
 ### File Upload Error
 
-**Solution**: 
+**Solution**:
 
 1. Pastikan folder `csr-backend/uploads/` ada dan writable
 2. Check file size (max 5MB)
@@ -544,6 +564,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 **Status:** ✅ Production Ready
 
 ### Completed Features
+
 - ✅ User Authentication (Login/Register)
 - ✅ Program Management with Image Upload
 - ✅ Category Management
@@ -555,14 +576,23 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - ✅ Admin Protection Middleware
 - ✅ Complete Documentation
 
-## 📖 Additional Documentation
+---
 
-- 📘 [QUICK_START.md](QUICK_START.md) - Panduan quick start
-- 🔧 [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Panduan troubleshooting
-- ✅ [COMPLETION_REPORT.md](COMPLETION_REPORT.md) - Laporan completion setup
-- 🎯 [FEATURE_ADD_PROPOSAL.md](FEATURE_ADD_PROPOSAL.md) - Dokumentasi fitur proposal
-- 🎨 [DESIGN_SYSTEM_DOCUMENTATION.md](DESIGN_SYSTEM_DOCUMENTATION.md) - Design system
-- ✔️ [FEATURE_CHECKLIST.md](FEATURE_CHECKLIST.md) - Feature checklist
+## 📖 Dokumentasi Lengkap
+
+Semua dokumentasi teknis telah dipindahkan ke folder [docs/](docs/):
+
+- 📘 **[Quick Start Guide](docs/QUICK_START.md)** - Panduan cepat untuk memulai aplikasi
+- 🔧 **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Panduan mengatasi error umum
+- ⚙️ **[Backend Setup](docs/BACKEND_SETUP.md)** - Setup lengkap backend & database
+- ✨ **[Feature Documentation](docs/FEATURE_ADD_PROPOSAL.md)** - Dokumentasi fitur tambah proposal
+- 🎨 **[Design System](docs/DESIGN_SYSTEM_DOCUMENTATION.md)** - Dokumentasi sistem desain
+- ✅ **[Feature Checklist](docs/FEATURE_CHECKLIST.md)** - Checklist implementasi fitur
+- 📊 **[Completion Report](docs/COMPLETION_REPORT.md)** - Laporan penyelesaian setup
+
+> 💡 **Tip**: Mulai dengan [Quick Start Guide](docs/QUICK_START.md) untuk menjalankan aplikasi dengan cepat!
+
+---
 
 ## 📞 Support
 

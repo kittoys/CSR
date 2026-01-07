@@ -1,6 +1,8 @@
-# Setup Guide - Dashboard Proposal Donasi CSR
+# 📘 Setup Guide - Dashboard Proposal Donasi CSR
 
 Dokumentasi lengkap untuk menjalankan aplikasi CSR dengan fitur Dashboard Proposal Donasi.
+
+---
 
 ## 📋 Daftar Perubahan
 

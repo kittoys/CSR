@@ -1,6 +1,8 @@
-# CSR Backend Setup Guide
+# 📘 CSR Backend Setup Guide
 
-## Database Setup (MySQL)
+---
+
+## 📊 Database Setup (MySQL)
 
 ### 1. Install MySQL
 
@@ -53,7 +55,9 @@ SHOW TABLES;
 SELECT * FROM users;
 ```
 
-## Backend Setup
+---
+
+## 🛠️ Backend Setup
 
 ### 1. Install Dependencies
 
@@ -83,7 +87,9 @@ npm run dev
 
 Backend akan running di `http://localhost:5000`
 
-## Frontend Setup
+---
+
+## 🎨 Frontend Setup
 
 ### 1. Install Dependencies
 
@@ -106,7 +112,9 @@ npm start
 
 Frontend akan running di `http://localhost:3000`
 
-## Login Credentials
+---
+
+## 🔐 Login Credentials
 
 Setelah setup database selesai, gunakan credentials berikut:
 
@@ -115,7 +123,9 @@ Setelah setup database selesai, gunakan credentials berikut:
 
 > **Note**: Password sudah di-hash dengan bcrypt. Jika ingin mengubah password, gunakan script atau tool untuk hash password baru dengan bcrypt.
 
-## API Endpoints
+---
+
+## 🔌 API Endpoints
 
 ### Auth
 
@@ -134,7 +144,9 @@ Setelah setup database selesai, gunakan credentials berikut:
 
 - `GET /api/categories` - Get all categories
 
-## Troubleshooting
+---
+
+## ⚠️ Troubleshooting
 
 ### Error: connect ECONNREFUSED 127.0.0.1:3306
 

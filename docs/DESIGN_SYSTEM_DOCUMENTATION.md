@@ -1,6 +1,6 @@
 # 🎨 Design System & Redesign Documentation
 
-## Redesign Hero & Stats Section - Complete Implementation
+**Redesign Hero & Stats Section - Complete Implementation**
 
 Dokumentasi perubahan lengkap untuk Redesign Hero Section dan Stats Section dengan unified color palette, consistent typography, dan cohesive styling.
 

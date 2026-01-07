@@ -1,5 +1,7 @@
 # ✅ Fitur Tambah Proposal - SELESAI
 
+---
+
 ## 📋 Apa yang Ditambahkan
 
 Fitur lengkap untuk **menambah proposal donasi** dengan form yang comprehensive dan user-friendly.
@@ -42,6 +44,8 @@ Fitur lengkap untuk **menambah proposal donasi** dengan form yang comprehensive 
 - File Pendukung
   - Drag & drop area
   - Support: PDF, DOC, DOCX, JPG, PNG (Max 5MB)
+
+---
 
 ## 🔧 Technical Details
 

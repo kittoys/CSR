@@ -1,9 +1,10 @@
-✅ CHECKLIST - FITUR TAMBAH PROPOSAL DONASI
+# ✅ Checklist - Fitur Tambah Proposal Donasi
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-📊 DATABASE UPGRADES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 📊 DATABASE UPGRADES
+
+---
 
 ✅ Tabel donation_proposals upgraded dengan 5 field baru:
 ✅ bentuk_donasi VARCHAR(100)
@@ -20,10 +21,11 @@
 ✅ New columns accessible
 ✅ Total budget: Rp 73,500,000
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-🎨 FRONTEND COMPONENTS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 🎨 FRONTEND COMPONENTS
+
+---
 
 ✅ ProposalModal.jsx (Form Component)
 ✅ Section 1: Informasi Dasar (6 fields)
@@ -46,10 +48,11 @@
 ✅ Hover effects & transitions
 ✅ Custom scrollbar styling
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-🔧 BACKEND API UPDATES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 🔧 BACKEND API UPDATES
+
+---
 
 ✅ routes/proposals.js - Updated
 ✅ POST /api/proposals
@@ -73,10 +76,11 @@
 ✅ GET /api/proposals/stats/summary
 ✅ Statistics working
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-🧪 TESTING & VERIFICATION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 🧪 TESTING & VERIFICATION
+
+---
 
 ✅ Database Tests
 ✅ Connection: SUCCESS

@@ -1,6 +1,6 @@
 # ⚡ Quick Start Guide - CSR Monitoring Dashboard
 
-## ✅ Status: SEMUA SIAP DIGUNAKAN!
+**Status: SEMUA SIAP DIGUNAKAN!** ✅
 
 Aplikasi sudah dikonfigurasi dan siap dijalankan dengan data sample.
 
