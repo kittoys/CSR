@@ -41,6 +41,7 @@ docs/
 ├── QUICK_START.md                     # 🚀 Panduan cepat
 ├── BACKEND_SETUP.md                   # ⚙️ Setup backend
 ├── TROUBLESHOOTING.md                 # 🔧 Troubleshooting
+├── BUDGET_CHART_GUIDE.md              # 📊 Budget Chart Component
 ├── FEATURE_ADD_PROPOSAL.md            # ✨ Fitur tambah proposal
 ├── FITUR_TAMBAH_PROPOSAL.md           # ✨ Fitur tambah proposal (ID)
 ├── FEATURE_CHECKLIST.md               # ✅ Checklist fitur

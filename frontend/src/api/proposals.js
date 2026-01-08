@@ -60,7 +60,9 @@ export const getProposalStats = async (params = {}) => {
   return res.data;
 };
 
-export const getProposalMonthlyStats = async () => {
-  const res = await axios.get(`${API_BASE}/proposals/stats/monthly`);
+export const getProposalMonthlyStats = async (params = {}) => {
+  const res = await axios.get(`${API_BASE}/proposals/stats/monthly`, {
+    params: params,
+  });
   return res.data;
 };

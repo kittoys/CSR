@@ -25,10 +25,28 @@ const ProposalModal = ({
     proposal_date: new Date().toISOString().split("T")[0],
     status: "In Progress",
     bright_status: "",
-    file_pendukung: null,
+    file_proposal: null,
+    file_bukti_donasi: null,
   });
 
-  const [fileName, setFileName] = useState("");
+  const [proposalFileName, setProposalFileName] = useState("");
+  const [proofFileName, setProofFileName] = useState("");
+
+  // Helper function untuk format date ke YYYY-MM-DD
+  const formatDateForInput = (dateString) => {
+    if (!dateString) {
+      return new Date().toISOString().split("T")[0];
+    }
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return new Date().toISOString().split("T")[0];
+      }
+      return date.toISOString().split("T")[0];
+    } catch {
+      return new Date().toISOString().split("T")[0];
+    }
+  };
 
   // Update form saat modal dibuka dengan data editing
   useEffect(() => {
@@ -46,14 +64,18 @@ const ProposalModal = ({
         catatan: editingProposal.catatan || "",
         pic_name: editingProposal.pic_name || "",
         pic_email: editingProposal.pic_email || "",
-        proposal_date:
-          editingProposal.proposal_date ||
-          new Date().toISOString().split("T")[0],
+        proposal_date: formatDateForInput(editingProposal.proposal_date),
         status: editingProposal.status || "In Progress",
         bright_status: editingProposal.bright_status || "",
-        file_pendukung: null,
+        file_proposal: null,
+        file_bukti_donasi: null,
       });
-      setFileName(editingProposal.file_pendukung || "");
+      setProposalFileName(
+        editingProposal.proposal_file_name ||
+          editingProposal.file_pendukung ||
+          ""
+      );
+      setProofFileName(editingProposal.proof_file_name || "");
     } else {
       // Mode create: reset form
       setFormData({
@@ -71,9 +93,11 @@ const ProposalModal = ({
         proposal_date: new Date().toISOString().split("T")[0],
         status: "In Progress",
         bright_status: "",
-        file_pendukung: null,
+        file_proposal: null,
+        file_bukti_donasi: null,
       });
-      setFileName("");
+      setProposalFileName("");
+      setProofFileName("");
     }
   }, [editingProposal]);
 
@@ -85,28 +109,41 @@ const ProposalModal = ({
     }));
   };
 
-  const handleFileChange = (e) => {
+  const handleProposalFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFileName(file.name);
-      // Simpan objek File; backend akan menangani upload via FormData/multer
+      if (!validateFile(file)) return;
+      setProposalFileName(file.name);
       setFormData((prev) => ({
         ...prev,
-        file_pendukung: file,
+        file_proposal: file,
       }));
     }
   };
 
-  const handleDragDrop = (e) => {
+  const handleProofFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!validateFile(file)) return;
+      setProofFileName(file.name);
+      setFormData((prev) => ({
+        ...prev,
+        file_bukti_donasi: file,
+      }));
+    }
+  };
+
+  const handleProposalDragDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
-      setFileName(file.name);
+      if (!validateFile(file)) return;
+      setProposalFileName(file.name);
       setFormData((prev) => ({
         ...prev,
-        file_pendukung: file,
+        file_proposal: file,
       }));
     }
   };
@@ -114,6 +151,57 @@ const ProposalModal = ({
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
+  };
+
+  const handleProofDragDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (!validateFile(file)) return;
+      setProofFileName(file.name);
+      setFormData((prev) => ({
+        ...prev,
+        file_bukti_donasi: file,
+      }));
+    }
+  };
+
+  const validateFile = (file) => {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedMimes = new Set([
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "image/jpeg",
+      "image/png",
+    ]);
+    const allowedExts = new Set([
+      ".pdf",
+      ".doc",
+      ".docx",
+      ".jpg",
+      ".jpeg",
+      ".png",
+    ]);
+
+    if (file.size > maxSize) {
+      toast.warning("Ukuran file melebihi 5MB", "File Terlalu Besar");
+      return false;
+    }
+
+    const name = file.name.toLowerCase();
+    const hasValidMime = allowedMimes.has(file.type);
+    const hasValidExt = Array.from(allowedExts).some((ext) =>
+      name.endsWith(ext)
+    );
+    if (!hasValidMime && !hasValidExt) {
+      toast.warning("Tipe file tidak diizinkan", "Format Tidak Didukung");
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = (e) => {
@@ -137,6 +225,19 @@ const ProposalModal = ({
       }
     }
 
+    // Wajib unggah bukti jika status Done
+    if (formData.status === "Done") {
+      const hasExistingProof = !!proofFileName;
+      const hasNewProof = !!formData.file_bukti_donasi;
+      if (!hasExistingProof && !hasNewProof) {
+        toast.warning(
+          "Bukti pengambilan wajib diunggah untuk status Done",
+          "Data Tidak Lengkap"
+        );
+        return;
+      }
+    }
+
     onSubmit(formData);
     setFormData({
       case_id: "",
@@ -153,9 +254,11 @@ const ProposalModal = ({
       proposal_date: new Date().toISOString().split("T")[0],
       status: "In Progress",
       bright_status: "",
-      file_pendukung: null,
+      file_proposal: null,
+      file_bukti_donasi: null,
     });
-    setFileName("");
+    setProposalFileName("");
+    setProofFileName("");
   };
 
   if (!isOpen) return null;
@@ -188,19 +291,6 @@ const ProposalModal = ({
                 />
               </div>
               <div className="form-group">
-                <label>Email PIC</label>
-                <input
-                  type="email"
-                  name="pic_email"
-                  value={formData.pic_email}
-                  onChange={handleChange}
-                  placeholder="email@example.com"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
                 <label>ID CASE *</label>
                 <input
                   type="text"
@@ -210,9 +300,6 @@ const ProposalModal = ({
                   placeholder="Masukan no case id"
                   required
                 />
-              </div>
-              <div className="form-group">
-                {/* Empty space for layout balance */}
               </div>
             </div>
 
@@ -243,6 +330,16 @@ const ProposalModal = ({
 
             <div className="form-row">
               <div className="form-group">
+                <label>Email PIC</label>
+                <input
+                  type="email"
+                  name="pic_email"
+                  value={formData.pic_email}
+                  onChange={handleChange}
+                  placeholder="email@example.com"
+                />
+              </div>
+              <div className="form-group">
                 <label>Tanggal Proposal *</label>
                 <input
                   type="date"
@@ -252,6 +349,9 @@ const ProposalModal = ({
                   required
                 />
               </div>
+            </div>
+
+            <div className="form-row">
               <div className="form-group">
                 <label>Status *</label>
                 <select
@@ -293,9 +393,7 @@ const ProposalModal = ({
                   onChange={handleChange}
                 >
                   <option value="">Pilih bentuk donasi</option>
-                  <option value="Air Mineral">
-                    Air Mineral 
-                  </option>
+                  <option value="Air Mineral">Air Mineral</option>
                   <option value="Uang Tunai">Uang Tunai</option>
                   <option value="Barang Kebutuhan">Barang Kebutuhan</option>
                   <option value="Pendidikan">Pendidikan</option>
@@ -371,36 +469,85 @@ const ProposalModal = ({
               ></textarea>
             </div>
 
-            <div className="form-group">
-              <label>File Pendukung</label>
-              <div
-                className="file-upload-area"
-                onDrop={handleDragDrop}
-                onDragOver={handleDragOver}
-              >
-                <input
-                  type="file"
-                  id="file-input"
-                  onChange={handleFileChange}
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                  style={{ display: "none" }}
-                />
-                <label htmlFor="file-input" className="file-upload-label">
-                  <div className="file-upload-content">
-                    <div className="upload-icon">📥</div>
-                    <p className="upload-text">
-                      <strong>Pilih file atau drag & drop</strong>
-                    </p>
-                    <p className="upload-subtext">
-                      PDF, DOC, DOCX, JPG, PNG (Max 5MB)
-                    </p>
-                    {fileName && (
-                      <p className="file-selected">
-                        ✓ File dipilih: {fileName}
+            <div className="form-row">
+              <div className="form-group">
+                <label>File Proposal</label>
+                <div
+                  className="file-upload-area"
+                  onDrop={handleProposalDragDrop}
+                  onDragOver={handleDragOver}
+                >
+                  <input
+                    type="file"
+                    id="file-proposal-input"
+                    onChange={handleProposalFileChange}
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    style={{ display: "none" }}
+                  />
+                  <label
+                    htmlFor="file-proposal-input"
+                    className="file-upload-label"
+                  >
+                    <div className="file-upload-content">
+                      <div className="upload-icon">📥</div>
+                      <p className="upload-text">
+                        <strong>Pilih file proposal atau drag & drop</strong>
                       </p>
-                    )}
-                  </div>
+                      <p className="upload-subtext">
+                        PDF, DOC, DOCX, JPG, PNG (Max 5MB)
+                      </p>
+                      {proposalFileName && (
+                        <p className="file-selected">
+                          ✓ File proposal: {proposalFileName}
+                        </p>
+                      )}
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>
+                  {formData.status === "Done"
+                    ? "Bukti Donasi Diambil *"
+                    : "Bukti Donasi Diambil"}
                 </label>
+                <div
+                  className="file-upload-area"
+                  onDrop={handleProofDragDrop}
+                  onDragOver={handleDragOver}
+                >
+                  <input
+                    type="file"
+                    id="file-proof-input"
+                    onChange={handleProofFileChange}
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    style={{ display: "none" }}
+                  />
+                  <label
+                    htmlFor="file-proof-input"
+                    className="file-upload-label"
+                  >
+                    <div className="file-upload-content">
+                      <div className="upload-icon">📥</div>
+                      <p className="upload-text">
+                        <strong>
+                          {formData.status === "Done"
+                            ? "Unggah bukti pengambilan (wajib untuk status Done)"
+                            : "Pilih file bukti atau drag & drop"}
+                        </strong>
+                      </p>
+                      <p className="upload-subtext">
+                        PDF, DOC, DOCX, JPG, PNG (Max 5MB)
+                      </p>
+                      {proofFileName && (
+                        <p className="file-selected">
+                          ✓ File bukti: {proofFileName}
+                        </p>
+                      )}
+                    </div>
+                  </label>
+                </div>
               </div>
             </div>
           </div>

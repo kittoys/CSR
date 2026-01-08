@@ -77,11 +77,23 @@ CREATE TABLE IF NOT EXISTS donation_proposals (
   pic_name VARCHAR(255),
   pic_email VARCHAR(255),
   proposal_date DATE,
+  -- Legacy single file columns (tetap dipertahankan untuk kompatibilitas)
   file_pendukung VARCHAR(255),
   file_path VARCHAR(255),
+  -- Kolom baru untuk dua file terpisah
+  proposal_file_name VARCHAR(255),
+  proposal_file_path VARCHAR(255),
+  proof_file_name VARCHAR(255),
+  proof_file_path VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Tambahkan kolom baru jika DB sudah berjalan
+ALTER TABLE donation_proposals ADD COLUMN IF NOT EXISTS proposal_file_name VARCHAR(255);
+ALTER TABLE donation_proposals ADD COLUMN IF NOT EXISTS proposal_file_path VARCHAR(255);
+ALTER TABLE donation_proposals ADD COLUMN IF NOT EXISTS proof_file_name VARCHAR(255);
+ALTER TABLE donation_proposals ADD COLUMN IF NOT EXISTS proof_file_path VARCHAR(255);
 
 -- Clear old program data before inserting new data
 DELETE FROM csr_programs;

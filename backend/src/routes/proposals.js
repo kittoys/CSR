@@ -86,15 +86,50 @@ router.get("/stats/summary", async (req, res) => {
 // GET monthly trend (all months) with status breakdown
 router.get("/stats/monthly", async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT 
-          DATE_FORMAT(COALESCE(proposal_date, created_at), '%Y-%m-01') AS month,
-          status,
-          COUNT(*) AS count
-        FROM donation_proposals
-        GROUP BY month, status
-        ORDER BY month ASC`
-    );
+    const { month, year } = req.query;
+
+    console.log("📊 Monthly stats request - month:", month, "year:", year);
+
+    let whereClause = "";
+    const params = [];
+
+    if (month && year) {
+      // Filter by specific month and year
+      const monthInt = parseInt(month, 10);
+      whereClause =
+        "WHERE YEAR(COALESCE(proposal_date, created_at)) = ? AND MONTH(COALESCE(proposal_date, created_at)) = ?";
+      params.push(year, monthInt);
+      console.log(
+        "🔍 Monthly stats - Filtering by month:",
+        monthInt,
+        "year:",
+        year
+      );
+    } else if (year) {
+      // Filter by year only
+      whereClause = "WHERE YEAR(COALESCE(proposal_date, created_at)) = ?";
+      params.push(year);
+      console.log("🔍 Monthly stats - Filtering by year:", year);
+    } else {
+      console.log("🔍 Monthly stats - No filter, getting all data");
+    }
+
+    const query = `
+      SELECT 
+        DATE_FORMAT(COALESCE(proposal_date, created_at), '%Y-%m-01') AS month,
+        status,
+        COUNT(*) AS count,
+        SUM(budget) AS budget
+      FROM donation_proposals
+      ${whereClause}
+      GROUP BY month, status
+      ORDER BY month ASC
+    `;
+
+    console.log("📝 Monthly query:", query);
+    console.log("📝 Monthly params:", params);
+
+    const [rows] = await pool.query(query, params);
 
     const statusKey = {
       "In Progress": "in_progress",
@@ -131,6 +166,7 @@ router.get("/stats/monthly", async (req, res) => {
         done: 0,
       },
       total: 0,
+      total_budget: 0,
     }));
 
     rows.forEach((row) => {
@@ -141,6 +177,7 @@ router.get("/stats/monthly", async (req, res) => {
       if (key === "other") return;
       target.breakdown[key] = row.count;
       target.total += row.count;
+      target.total_budget += parseFloat(row.budget) || 0;
     });
 
     res.json(aggregated);
@@ -184,7 +221,12 @@ router.post(
   "/",
   verifyToken,
   isAdmin,
-  upload.single("file_pendukung"),
+  upload.fields([
+    { name: "file_proposal", maxCount: 1 },
+    { name: "file_bukti_donasi", maxCount: 1 },
+    // Fallback legacy field
+    { name: "file_pendukung", maxCount: 1 },
+  ]),
   async (req, res) => {
     const {
       case_id,
@@ -203,10 +245,32 @@ router.post(
       proposal_date,
     } = req.body;
 
-    // If file uploaded, build public path
-    const uploadedFile = req.file;
-    const file_pendukung = uploadedFile ? uploadedFile.originalname : null;
-    const file_path = uploadedFile ? `/uploads/${uploadedFile.filename}` : null;
+    // If files uploaded, build public paths
+    const files = req.files || {};
+    const proposalUploaded =
+      (files.file_proposal && files.file_proposal[0]) ||
+      (files.file_pendukung && files.file_pendukung[0]) ||
+      null;
+    const proofUploaded =
+      (files.file_bukti_donasi && files.file_bukti_donasi[0]) || null;
+
+    const proposal_file_name = proposalUploaded
+      ? proposalUploaded.originalname
+      : null;
+    const proposal_file_path = proposalUploaded
+      ? `/uploads/${proposalUploaded.filename}`
+      : null;
+    const proof_file_name = proofUploaded ? proofUploaded.originalname : null;
+    const proof_file_path = proofUploaded
+      ? `/uploads/${proofUploaded.filename}`
+      : null;
+
+    // Validasi: Jika status Done, bukti wajib diunggah
+    if ((status || "").trim() === "Done" && !proofUploaded) {
+      return res.status(400).json({
+        message: "Bukti pengambilan wajib diunggah untuk status Done",
+      });
+    }
 
     try {
       // Generate case_id otomatis jika tidak disediakan
@@ -222,8 +286,8 @@ router.post(
       }
 
       const [result] = await pool.query(
-        `INSERT INTO donation_proposals (case_id, proposal_name, organization, bentuk_donasi, tipe_proposal, product_detail, jumlah_produk, budget, catatan, status, bright_status, pic_name, pic_email, proposal_date, file_pendukung, file_path)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO donation_proposals (case_id, proposal_name, organization, bentuk_donasi, tipe_proposal, product_detail, jumlah_produk, budget, catatan, status, bright_status, pic_name, pic_email, proposal_date, proposal_file_name, proposal_file_path, proof_file_name, proof_file_path)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           finalCaseId,
           proposal_name,
@@ -239,8 +303,10 @@ router.post(
           pic_name,
           pic_email,
           proposal_date,
-          file_pendukung,
-          file_path,
+          proposal_file_name,
+          proposal_file_path,
+          proof_file_name,
+          proof_file_path,
         ]
       );
       res.status(201).json({
@@ -262,7 +328,11 @@ router.put(
   "/:id",
   verifyToken,
   isAdmin,
-  upload.single("file_pendukung"),
+  upload.fields([
+    { name: "file_proposal", maxCount: 1 },
+    { name: "file_bukti_donasi", maxCount: 1 },
+    { name: "file_pendukung", maxCount: 1 },
+  ]),
   async (req, res) => {
     const {
       case_id,
@@ -281,9 +351,43 @@ router.put(
       proposal_date,
     } = req.body;
 
-    const uploadedFile = req.file;
-    const file_pendukung = uploadedFile ? uploadedFile.originalname : null;
-    const file_path = uploadedFile ? `/uploads/${uploadedFile.filename}` : null;
+    const files = req.files || {};
+    const proposalUploaded =
+      (files.file_proposal && files.file_proposal[0]) ||
+      (files.file_pendukung && files.file_pendukung[0]) ||
+      null;
+    const proofUploaded =
+      (files.file_bukti_donasi && files.file_bukti_donasi[0]) || null;
+
+    const proposal_file_name = proposalUploaded
+      ? proposalUploaded.originalname
+      : null;
+    const proposal_file_path = proposalUploaded
+      ? `/uploads/${proposalUploaded.filename}`
+      : null;
+    const proof_file_name = proofUploaded ? proofUploaded.originalname : null;
+    const proof_file_path = proofUploaded
+      ? `/uploads/${proofUploaded.filename}`
+      : null;
+
+    // Validasi: Jika status Done, harus ada bukti baru atau sudah tersimpan
+    if ((status || "").trim() === "Done" && !proofUploaded) {
+      try {
+        const [rows] = await pool.query(
+          `SELECT proof_file_path FROM donation_proposals WHERE id = ?`,
+          [req.params.id]
+        );
+        const existingProof = rows[0]?.proof_file_path;
+        if (!existingProof) {
+          return res.status(400).json({
+            message:
+              "Bukti pengambilan wajib diunggah untuk status Done (belum ada bukti tersimpan)",
+          });
+        }
+      } catch (err) {
+        return res.status(500).json({ message: "Error validating proof file" });
+      }
+    }
 
     try {
       const fields = [
@@ -306,9 +410,13 @@ router.put(
       let query = `UPDATE donation_proposals
        SET case_id = ?, proposal_name = ?, organization = ?, bentuk_donasi = ?, tipe_proposal = ?, product_detail = ?, jumlah_produk = ?, budget = ?, catatan = ?, status = ?, bright_status = ?, pic_name = ?, pic_email = ?, proposal_date = ?`;
 
-      if (uploadedFile) {
-        query += `, file_pendukung = ?, file_path = ?`;
-        fields.push(file_pendukung, file_path);
+      if (proposalUploaded) {
+        query += `, proposal_file_name = ?, proposal_file_path = ?`;
+        fields.push(proposal_file_name, proposal_file_path);
+      }
+      if (proofUploaded) {
+        query += `, proof_file_name = ?, proof_file_path = ?`;
+        fields.push(proof_file_name, proof_file_path);
       }
 
       query += ` WHERE id = ?`;

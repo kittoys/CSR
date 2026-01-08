@@ -39,6 +39,23 @@ async function upgradeProposalTable() {
         name: "bright_status",
         def: "ADD COLUMN bright_status ENUM('Pending', 'Approved', 'Rejected') DEFAULT NULL",
       },
+      // Kolom baru untuk dua file terpisah
+      {
+        name: "proposal_file_name",
+        def: "ADD COLUMN proposal_file_name VARCHAR(255)",
+      },
+      {
+        name: "proposal_file_path",
+        def: "ADD COLUMN proposal_file_path VARCHAR(255)",
+      },
+      {
+        name: "proof_file_name",
+        def: "ADD COLUMN proof_file_name VARCHAR(255)",
+      },
+      {
+        name: "proof_file_path",
+        def: "ADD COLUMN proof_file_path VARCHAR(255)",
+      },
     ];
 
     for (const col of newColumns) {
