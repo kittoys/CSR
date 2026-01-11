@@ -1092,7 +1092,7 @@ const ProposalDashboard = () => {
                                   href={`${FILES_BASE}${proofLink}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="file-link"
+                                  className="file-link file-link--donation"
                                   title="Bukti Donasi Diambil"
                                 >
                                   📎 {proofName}

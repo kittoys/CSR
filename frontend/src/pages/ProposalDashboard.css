@@ -887,21 +887,39 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  color: #1f2937;
+  color: var(--color-blue);
   text-decoration: none;
   font-weight: 600;
   transition: all 0.2s ease;
-  background: #eef2ff;
-  border: 1px solid #e0e7ff;
+  background: var(--color-accent);
+  border: 1px solid  var(--color-blue);
   padding: 6px 10px;
   border-radius: 20px;
   line-height: 1;
 }
 
 .file-link:hover {
-  color: #111827;
-  background: #e0e7ff;
+  color: #ffffff;
+  background: var(--color-blue);
   border-color: #c7d2fe;
+}
+
+/* Donation-specific styling */
+.file-link--donation {
+  color: var(--color-emerald);
+  background: var(--color-accent);
+  border-color: var(--color-emerald);
+}
+
+.file-link--donation:hover {
+  color: var(--color-white);
+  background: var(--color-emerald);
+  border-color: var(--color-emerald);
+}
+
+.file-link--donation:focus {
+  outline: 2px solid var(--color-emerald);
+  outline-offset: 2px;
 }
 
 .no-file {
