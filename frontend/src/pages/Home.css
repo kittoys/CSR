@@ -200,6 +200,20 @@ body {
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: 90vh;
+    padding: var(--space-12) var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    min-height: 80vh;
+    padding: var(--space-10) var(--space-3);
+  }
+}
+
 .hero-content {
   position: relative;
   z-index: 10;
@@ -1632,6 +1646,60 @@ body {
 
   .impact-percentage {
     font-size: 3rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .section-subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+/* Additional responsive improvements for sections */
+@media (max-width: 1024px) {
+  .section-padding {
+    padding: var(--space-16) var(--space-6);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+
+  .programs-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 768px) {
+  .section-padding {
+    padding: var(--space-12) var(--space-4);
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .programs-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .cta-section {
+    padding: var(--space-16) var(--space-4);
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cta-buttons .btn {
+    width: 100%;
   }
 }
 

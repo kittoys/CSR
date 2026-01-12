@@ -2,7 +2,7 @@
 .programs-page {
   min-height: 100vh;
   background: var(--color-background);
-  padding-top:0px;
+  padding-top: 0px;
 }
 
 /* Header Section */
@@ -442,9 +442,18 @@
     padding: var(--space-2xl) var(--space-md);
   }
 
+  .programs-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .programs-header__description {
+    font-size: 1rem;
+  }
+
   .programs-toolbar__container {
     flex-direction: column;
     align-items: stretch;
+    padding: var(--space-sm);
   }
 
   .programs-filter-toggle,
@@ -452,9 +461,31 @@
     width: 100%;
   }
 
+  .programs-search {
+    min-width: 100%;
+  }
+
   .programs-results,
   .programs-content {
     padding-left: var(--space-md);
     padding-right: var(--space-md);
+  }
+
+  .programs-filters__content {
+    padding: var(--space-md);
+  }
+}
+
+@media (max-width: 360px) {
+  .programs-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .programs-header__description {
+    font-size: 0.9rem;
+  }
+
+  .programs-toolbar__container {
+    gap: var(--space-sm);
   }
 }

@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .admin__header h2 {
@@ -11,7 +13,14 @@
 .admin__grid {
   display: grid;
   grid-template-columns: 1.1fr 1.3fr;
-  gap: 16px;
+  gap: 1rem;
+  max-width: 100%;
+}
+
+@media (max-width: 1280px) {
+  .admin__grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* File Upload Styles */
@@ -80,6 +89,8 @@
   border-radius: 12px;
   padding: 18px;
   box-shadow: 0 4px 12px rgba(0, 119, 200, 0.08);
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .card-header {
@@ -130,9 +141,11 @@
   padding: 10px 12px;
   font-size: 0.95rem;
   width: 100%;
+  max-width: 100%;
   background: #ffffff;
   color: #111827;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .form-group input::placeholder,
@@ -187,11 +200,13 @@
 
 .table-card .table-wrapper {
   margin: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .admin-table table {
   width: 100%;
-  border-collapse: collapse;
+  table-layout: auto;
 }
 
 .admin-table th,
@@ -199,6 +214,7 @@
   padding: 10px;
   border-bottom: 1px solid #e5e7eb;
   text-align: left;
+  word-break: break-word;
 }
 
 .admin-table th {
@@ -249,13 +265,6 @@
 .btn-icon {
   border: 1px solid #e5e7eb;
   background: white;
-  border-radius: 8px;
-  padding: 8px 10px;
-  cursor: pointer;
-}
-
-.btn-edit:hover {
-  border-color: #16a34a;
 }
 
 .btn-delete:hover {
@@ -340,7 +349,7 @@ tr.selected {
   padding: 0.875rem 1.5rem !important;
   border: none !important;
   border-radius: 8px !important;
-  fontsize: 1rem !important;
+  font-size: 1rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   display: inline-flex !important;
@@ -443,18 +452,279 @@ tr.selected {
   .admin__grid {
     grid-template-columns: 1fr;
   }
+  
+  .admin__header h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin {
+    gap: 1rem;
+  }
+  
+  .admin__header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .table-card .table-wrapper {
+    margin: 0 -18px;
+    padding: 0 18px;
+  }
+  
+  .admin-table table {
+    min-width: 700px;
+    font-size: 0.85rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 6px;
+  }
+  
+  .thumb {
+    width: 48px;
+    height: 36px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-header h3 {
+    font-size: 1rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 0.9rem;
+    padding: 9px 11px;
+  }
+
+  .admin .btn-primary-submit,
+  .admin .btn-ghost-reset {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.95rem !important;
+  }
+
+  .admin .btn-bulk-delete {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+    width: 100%;
+  }
+
+  .cell-title {
+    font-size: 0.9rem;
+  }
+
+  .cell-desc {
+    font-size: 0.85rem;
+  }
+
+  .cell-dates {
+    font-size: 0.85rem;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-start;
+  }
+
+  .cell-dates span:nth-child(2) {
+    display: none;
+  }
 }
 
 @media (max-width: 640px) {
+  .admin {
+    padding: 0;
+  }
+
+  .admin__header {
+    padding: 0 4px;
+  }
+
+  .admin__header h2 {
+    font-size: 1.25rem;
+  }
+
   .card {
-    padding: 14px;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .form {
+    gap: 10px;
   }
 
   .form-actions {
     flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-actions button {
+    width: 100%;
   }
 
   .row-actions {
     flex-direction: row;
+    gap: 6px;
   }
+
+  .btn-icon {
+    padding: 6px 8px;
+    font-size: 0.9rem;
+  }
+
+  .image-preview {
+    max-height: 200px;
+  }
+
+  .admin .btn-cancel-edit {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin__header h2 {
+    font-size: 1.1rem;
+  }
+
+  .admin__header p {
+    font-size: 0.85rem;
+  }
+
+  .card-header h3 {
+    font-size: 0.95rem;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+  }
+
+  .admin-table table {
+    min-width: 600px;
+    font-size: 0.8rem;
+  }
+
+  .thumb {
+    width: 40px;
+    height: 30px;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .admin__header h2 {
+    font-size: 1rem;
+  }
+  
+  .admin__header p {
+    font-size: 0.8rem;
+  }
+  
+  .card-header h3 {
+    font-size: 0.9rem;
+  }
+  
+  .form-group label {
+    font-size: 0.8rem;
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 0.8rem;
+    padding: 7px 9px;
+  }
+  
+  .admin-table table {
+    min-width: 550px;
+  }
+  
+  .thumb {
+    width: 36px;
+    height: 27px;
+  }
+}
+
+/* Zoom support - handles browser zoom levels */
+@media (min-resolution: 150dpi) {
+  .admin__grid {
+    gap: 0.75rem;
+  }
+  
+  .card {
+    padding: 16px;
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    padding: 9px 11px;
+  }
+}
+
+@media (min-resolution: 200dpi) {
+  .admin__grid {
+    gap: 0.5rem;
+  }
+  
+  .card {
+    padding: 14px;
+  }
+}
+
+/* Container overflow protection for all zoom levels */
+.page {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.admin,
+.admin__grid,
+.card,
+.form,
+.table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Flexible image sizing */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Prevent text overflow */
+.cell-title,
+.cell-desc {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

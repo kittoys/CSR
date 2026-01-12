@@ -892,7 +892,7 @@
   font-weight: 600;
   transition: all 0.2s ease;
   background: var(--color-accent);
-  border: 1px solid  var(--color-blue);
+  border: 1px solid var(--color-blue);
   padding: 6px 10px;
   border-radius: 20px;
   line-height: 1;
@@ -1979,5 +1979,173 @@
   .donut-chart-container {
     gap: 20px;
     padding: 15px 10px;
+  }
+}
+
+/* Comprehensive responsive styles for ProposalDashboard */
+@media (max-width: 1024px) {
+  .dashboard-container {
+    padding: 32px 1.25rem;
+  }
+
+  .dashboard-header {
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 24px 1rem;
+  }
+
+  .dashboard-header {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-header .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .dashboard-header .btn.btn--primary.btn--lg {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+
+  .stats-filter-section {
+    padding: 16px 18px;
+  }
+
+  .stats-filter-controls {
+    gap: 12px;
+  }
+
+  .filter-select-small {
+    min-width: 120px;
+    font-size: 0.85rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .error-alert {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-container {
+    padding: 20px 0.75rem;
+  }
+
+  .dashboard-header {
+    padding: 16px 12px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .stats-filter-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stats-filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-select-small {
+    width: 100%;
+  }
+
+  .btn--lg {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 16px 0.5rem;
+  }
+
+  .dashboard-header {
+    padding: 12px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .dashboard-header .subtitle {
+    font-size: 0.8rem;
+  }
+
+  .stats-filter-section {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .stats-filter-header h3 {
+    font-size: 1rem;
+  }
+
+  .filter-badge {
+    padding: 4px 12px;
+    font-size: 0.75rem;
+  }
+
+  .filter-group label {
+    font-size: 0.75rem;
+  }
+
+  .filter-select-small {
+    padding: 7px 10px;
+    font-size: 0.8rem;
+  }
+
+  .error-alert {
+    padding: 10px;
+    font-size: 0.85rem;
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .dashboard-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .dashboard-header .btn.btn--primary.btn--lg {
+    padding: 10px 16px;
+    font-size: 0.85rem;
   }
 }
