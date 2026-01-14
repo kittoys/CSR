@@ -32,6 +32,7 @@ const AdminDashboard = () => {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [selectedPrograms, setSelectedPrograms] = useState([]);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     fetchPrograms();
@@ -140,6 +141,7 @@ const AdminDashboard = () => {
       setEditingId(null);
       setImageFile(null);
       setImagePreview("");
+      setShowForm(false);
       await fetchPrograms();
     } catch (err) {
       console.error("Error saving program:", err);
@@ -170,6 +172,8 @@ const AdminDashboard = () => {
     });
     setImageFile(null);
     setImagePreview(program.image_url || "");
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = async (id) => {
@@ -190,6 +194,7 @@ const AdminDashboard = () => {
     setForm(emptyForm);
     setImageFile(null);
     setImagePreview("");
+    setShowForm(false);
   };
 
   const handleSelectProgram = (id) => {
@@ -241,173 +246,185 @@ const AdminDashboard = () => {
   return (
     <div className="page admin">
       <div className="admin__header">
-        <div>
-          <p className="eyebrow">Admin</p>
-          <h2>Kelola Program CSR</h2>
-          <p className="muted">
-            Tambah, ubah, dan hapus program sebagai admin.
-          </p>
+        <div className="admin__header-content">
+          <div>
+            <p className="eyebrow">Admin</p>
+            <h2>Kelola Program CSR</h2>
+            <p className="muted">
+              Tambah, ubah, dan hapus program sebagai admin.
+            </p>
+          </div>
+          {!showForm && (
+            <button
+              className="btn-add-program"
+              onClick={() => setShowForm(true)}
+            >
+              <span>+</span> Tambah Program Baru
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="admin__grid">
-        <div className="card form-card">
-          <div className="card-header">
-            <h3>{editingId ? "Edit Program" : "Tambah Program"}</h3>
-            {editingId && (
+      {showForm && (
+        <div className="form-section">
+          <div className="card form-card">
+            <div className="card-header">
+              <h3>{editingId ? "Edit Program" : "Tambah Program"}</h3>
               <button className="btn-cancel-edit" onClick={handleCancel}>
-                Batal Edit
+                ✕ Tutup
               </button>
-            )}
-          </div>
-          <form className="form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Judul *</label>
-              <input
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                placeholder="Judul program"
-                required
-              />
             </div>
+            <form className="form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Judul *</label>
+                <input
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  placeholder="Judul program"
+                  required
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Deskripsi *</label>
-              <textarea
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                rows="3"
-                placeholder="Deskripsi singkat"
-                required
-              ></textarea>
-            </div>
+              <div className="form-group">
+                <label>Deskripsi *</label>
+                <textarea
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  rows="3"
+                  placeholder="Deskripsi singkat"
+                  required
+                ></textarea>
+              </div>
 
-            <div className="form-group">
-              <label>Link Sumber Berita (opsional)</label>
-              <input
-                type="url"
-                name="source_link"
-                value={form.source_link}
-                onChange={handleChange}
-                placeholder="https://contoh.com/berita"
-              />
-            </div>
+              <div className="form-group">
+                <label>Link Sumber Berita (opsional)</label>
+                <input
+                  type="url"
+                  name="source_link"
+                  value={form.source_link}
+                  onChange={handleChange}
+                  placeholder="https://contoh.com/berita"
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Upload Gambar (opsional)</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="form-file-input"
-              />
-              {imagePreview && (
-                <div className="image-preview-wrapper">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="image-preview"
-                  />
-                  <button
-                    type="button"
-                    className="btn-remove-image"
-                    onClick={handleRemoveImage}
-                    title="Hapus gambar"
+              <div className="form-group">
+                <label>Upload Gambar (opsional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="form-file-input"
+                />
+                {imagePreview && (
+                  <div className="image-preview-wrapper">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="image-preview"
+                    />
+                    <button
+                      type="button"
+                      className="btn-remove-image"
+                      onClick={handleRemoveImage}
+                      title="Hapus gambar"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Kategori</label>
+                  <select
+                    name="category_id"
+                    value={form.category_id}
+                    onChange={handleChange}
                   >
-                    ✕
-                  </button>
+                    <option value="">Pilih kategori</option>
+                    <option value="1">Lingkungan</option>
+                    <option value="2">Pendidikan</option>
+                    <option value="3">Kesehatan</option>
+                    <option value="4">Ekonomi</option>
+                  </select>
                 </div>
-              )}
-            </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label>Kategori</label>
-                <select
-                  name="category_id"
-                  value={form.category_id}
-                  onChange={handleChange}
+                <div className="form-group">
+                  <label>Lokasi</label>
+                  <input
+                    name="location"
+                    value={form.location}
+                    onChange={handleChange}
+                    placeholder="Lokasi program"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Mulai</label>
+                  <input
+                    type="date"
+                    name="start_date"
+                    value={form.start_date}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Selesai</label>
+                  <input
+                    type="date"
+                    name="end_date"
+                    value={form.end_date}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Status</label>
+                  <select
+                    name="status"
+                    value={form.status}
+                    onChange={handleChange}
+                  >
+                    {statusOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button
+                  type="submit"
+                  className="btn-primary-submit"
+                  disabled={saving}
                 >
-                  <option value="">Pilih kategori</option>
-                  <option value="1">Lingkungan</option>
-                  <option value="2">Pendidikan</option>
-                  <option value="3">Kesehatan</option>
-                  <option value="4">Ekonomi</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Lokasi</label>
-                <input
-                  name="location"
-                  value={form.location}
-                  onChange={handleChange}
-                  placeholder="Lokasi program"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Mulai</label>
-                <input
-                  type="date"
-                  name="start_date"
-                  value={form.start_date}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Selesai</label>
-                <input
-                  type="date"
-                  name="end_date"
-                  value={form.end_date}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Status</label>
-                <select
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
+                  {saving
+                    ? "Menyimpan..."
+                    : editingId
+                    ? "Simpan Perubahan"
+                    : "Tambah Program"}
+                </button>
+                <button
+                  type="button"
+                  className="btn-ghost-reset"
+                  disabled={saving}
+                  onClick={handleCancel}
                 >
-                  {statusOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                  Batal
+                </button>
               </div>
-            </div>
-
-            <div className="form-actions">
-              <button
-                type="submit"
-                className="btn-primary-submit"
-                disabled={saving}
-              >
-                {saving
-                  ? "Menyimpan..."
-                  : editingId
-                  ? "Simpan Perubahan"
-                  : "Tambah Program"}
-              </button>
-              <button
-                type="button"
-                className="btn-ghost-reset"
-                disabled={saving}
-                onClick={handleCancel}
-              >
-                Reset
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
+      )}
 
+      <div className="table-section">
         <div className="card table-card">
           <div className="card-header">
             <div>
