@@ -2,7 +2,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getAuthToken, logoutUser } from "../api/auth";
 import {
-  Droplets,
   Home,
   Briefcase,
   FileText,
@@ -12,7 +11,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+// Animations removed: framer-motion no longer used
 import "./Navbar.css";
 
 const Navbar = () => {
@@ -20,6 +19,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [logoSrc, setLogoSrc] = useState("/logo_CSR_AQUA.png");
 
   useEffect(() => {
     const onScroll = () => {
@@ -44,26 +44,22 @@ const Navbar = () => {
   if (token) {
     navLinks.push(
       { to: "/proposals", label: "Proposals", icon: FileText },
-      { to: "/admin", label: "Admin", icon: Shield }
+      { to: "/admin", label: "Admin", icon: Shield },
     );
   }
 
   return (
     <>
-      <motion.header
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}
-      >
+      <header className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
         <div className="navbar__container">
           <NavLink to="/" className="navbar__brand">
-            <motion.div
-              className="navbar__logo"
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Droplets size={28} />
-            </motion.div>
+            <div className="navbar__logo">
+              <img
+                src={logoSrc}
+                alt="CSR Aqua Logo"
+                onError={() => setLogoSrc("/logo_CSR_AQUA.png")}
+              />
+            </div>
             <span className="navbar__title">
               <span className="navbar__title-main">CSR AQUA</span>
               <span className="navbar__title-sub">Mekarsari</span>
@@ -87,15 +83,10 @@ const Navbar = () => {
             ))}
 
             {token ? (
-              <motion.button
-                onClick={handleLogout}
-                className="navbar__logout"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <button onClick={handleLogout} className="navbar__logout">
                 <LogOut size={18} />
                 <span>Logout</span>
-              </motion.button>
+              </button>
             ) : (
               <NavLink
                 to="/login"
@@ -112,90 +103,63 @@ const Navbar = () => {
           </nav>
 
           {/* Mobile Menu Button */}
-          <motion.button
+          <button
             className="navbar__toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            whileTap={{ scale: 0.9 }}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </motion.button>
+          </button>
         </div>
-      </motion.header>
+      </header>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <>
-            <motion.div
-              className="navbar__mobile-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMobileMenuOpen(false)}
-            />
-            <motion.nav
-              className="navbar__links navbar__links--mobile"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            >
-              {navLinks.map(({ to, label, icon: Icon, end }, index) => (
-                <motion.div
-                  key={to}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className="navbar__mobile-backdrop"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <nav className="navbar__links navbar__links--mobile">
+            {navLinks.map(({ to, label, icon: Icon, end }) => (
+              <div key={to}>
+                <NavLink
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    `navbar__link ${isActive ? "navbar__link--active" : ""}`
+                  }
+                  onClick={() => setMobileMenuOpen(false)}
                 >
-                  <NavLink
-                    to={to}
-                    end={end}
-                    className={({ isActive }) =>
-                      `navbar__link ${isActive ? "navbar__link--active" : ""}`
-                    }
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Icon size={20} />
-                    <span>{label}</span>
-                  </NavLink>
-                </motion.div>
-              ))}
+                  <Icon size={20} />
+                  <span>{label}</span>
+                </NavLink>
+              </div>
+            ))}
 
-              {token ? (
-                <motion.button
-                  onClick={handleLogout}
-                  className="navbar__logout"
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: navLinks.length * 0.1 }}
+            {token ? (
+              <button onClick={handleLogout} className="navbar__logout">
+                <LogOut size={20} />
+                <span>Logout</span>
+              </button>
+            ) : (
+              <div>
+                <NavLink
+                  to="/login"
+                  className={({ isActive }) =>
+                    `navbar__link navbar__link--login ${
+                      isActive ? "navbar__link--active" : ""
+                    }`
+                  }
+                  onClick={() => setMobileMenuOpen(false)}
                 >
-                  <LogOut size={20} />
-                  <span>Logout</span>
-                </motion.button>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: navLinks.length * 0.1 }}
-                >
-                  <NavLink
-                    to="/login"
-                    className={({ isActive }) =>
-                      `navbar__link navbar__link--login ${
-                        isActive ? "navbar__link--active" : ""
-                      }`
-                    }
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <LogIn size={20} />
-                    <span>Login</span>
-                  </NavLink>
-                </motion.div>
-              )}
-            </motion.nav>
-          </>
-        )}
-      </AnimatePresence>
+                  <LogIn size={20} />
+                  <span>Login</span>
+                </NavLink>
+              </div>
+            )}
+          </nav>
+        </>
+      )}
     </>
   );
 };

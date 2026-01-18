@@ -44,6 +44,9 @@ const Login = () => {
     <div className="login-page">
       <div className="login-container">
         <div className="login-card">
+          <div className="login-logo">
+            <img src="/logo_CSR_AQUA.png" alt="CSR Aqua Logo" />
+          </div>
           <h1 className="login-title">Masuk Admin CSR</h1>
           <p className="login-subtitle">
             Masukkan kredensial Anda untuk melanjutkan

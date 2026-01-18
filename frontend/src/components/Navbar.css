@@ -66,19 +66,25 @@
   justify-content: center;
   width: 45px;
   height: 45px;
-  background: var(--gradient-primary);
+  background: var(--gradient-white);
   border-radius: var(--radius-lg);
-  color: white;
-  box-shadow: var(--shadow-md);
 }
 
 .navbar__logo svg {
   display: block;
-  width: 28px;
-  height: 28px;
+  width: 45px;
+  height: 45px;
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
+}
+
+/* Support image logo inside the logo container */
+.navbar__logo img {
+  display: block;
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
 }
 
 .navbar__title {
@@ -328,6 +334,11 @@
     height: 26px;
   }
 
+  .navbar__logo img {
+    width: 26px;
+    height: 26px;
+  }
+
   .navbar__title-main {
     font-size: 1.125rem;
   }
@@ -364,6 +375,11 @@
   }
 
   .navbar__logo svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .navbar__logo img {
     width: 24px;
     height: 24px;
   }
@@ -406,6 +422,11 @@
   }
 
   .navbar__logo svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .navbar__logo img {
     width: 22px;
     height: 22px;
   }
