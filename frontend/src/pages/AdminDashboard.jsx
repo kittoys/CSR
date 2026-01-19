@@ -33,6 +33,8 @@ const AdminDashboard = () => {
   const [imagePreview, setImagePreview] = useState("");
   const [selectedPrograms, setSelectedPrograms] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
 
   useEffect(() => {
     fetchPrograms();
@@ -94,7 +96,7 @@ const AdminDashboard = () => {
     if (form.category_id && isNaN(Number(form.category_id))) {
       toast.warning(
         "Kategori harus berupa angka ID. Gunakan: 1=Lingkungan, 2=Pendidikan, 3=Kesehatan, 4=Ekonomi",
-        "Kategori Tidak Valid"
+        "Kategori Tidak Valid",
       );
       return;
     }
@@ -199,7 +201,7 @@ const AdminDashboard = () => {
 
   const handleSelectProgram = (id) => {
     setSelectedPrograms((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
     );
   };
 
@@ -236,6 +238,14 @@ const AdminDashboard = () => {
     { value: "completed", label: "Completed" },
   ];
 
+  // filter Programs berdasarkan status dan kategori
+  const filteredPrograms = programs.filter((program) => {
+    const statusMatch = !filterStatus || program.status === filterStatus;
+    const categoryMatch =
+      !filterCategory || program.category_id === Number(filterCategory);
+    return statusMatch && categoryMatch;
+  });
+
   // Resolve image URL: if stored as "/uploads/..." prefix backend host
   const resolveImageUrl = (url) => {
     if (!url) return "";
@@ -252,6 +262,8 @@ const AdminDashboard = () => {
             <h2>Kelola Program CSR</h2>
             <p className="muted">
               Tambah, ubah, dan hapus program sebagai admin.
+              <br />
+              <strong>Total Program: {programs.length}</strong>
             </p>
           </div>
           {!showForm && (
@@ -407,8 +419,8 @@ const AdminDashboard = () => {
                   {saving
                     ? "Menyimpan..."
                     : editingId
-                    ? "Simpan Perubahan"
-                    : "Tambah Program"}
+                      ? "Simpan Perubahan"
+                      : "Tambah Program"}
                 </button>
                 <button
                   type="button"
@@ -430,8 +442,40 @@ const AdminDashboard = () => {
             <div>
               <h3>Daftar Program</h3>
               <p className="muted small">
-                Pilih program untuk hapus massal atau edit/hapus individual.
+                Total: {filteredPrograms.length} dari {programs.length} program
               </p>
+            </div>
+            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                style={{
+                  padding: "0.5rem",
+                  borderRadius: "6px",
+                  border: "1px solid #e5e7eb",
+                }}
+              >
+                <option value="">Semua Status</option>
+                <option value="planned">Planned</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+              </select>
+
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                style={{
+                  padding: "0.5rem",
+                  borderRadius: "6px",
+                  border: "1px solid #e5e7eb",
+                }}
+              >
+                <option value="">Semua Kategori</option>
+                <option value="1">Lingkungan</option>
+                <option value="2">Pendidikan</option>
+                <option value="3">Kesehatan</option>
+                <option value="4">Ekonomi</option>
+              </select>
             </div>
             {selectedPrograms.length > 0 && (
               <button
@@ -458,8 +502,8 @@ const AdminDashboard = () => {
                       <input
                         type="checkbox"
                         checked={
-                          programs.length > 0 &&
-                          selectedPrograms.length === programs.length
+                          filteredPrograms.length > 0 &&
+                          selectedPrograms.length === filteredPrograms.length
                         }
                         onChange={handleSelectAll}
                         title="Pilih semua"
@@ -474,7 +518,7 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {programs.map((p) => (
+                  {filteredPrograms.map((p) => (
                     <tr
                       key={p.id}
                       className={
