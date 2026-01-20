@@ -47,7 +47,7 @@ const useScrollAnimation = (threshold = 0.2) => {
           }
         }
       },
-      { threshold }
+      { threshold },
     );
 
     if (currentElement) {
@@ -591,8 +591,7 @@ const GallerySection = () => {
 
   const galleryItems = [
     {
-      image:
-        "https://assets.espos.id/images/2024/02/Tanam-pohon-aqua.jpg",
+      image: "https://assets.espos.id/images/2024/02/Tanam-pohon-aqua.jpg",
       title: "Program Penghijauan",
       category: "Lingkungan",
       date: "24 Februari 2024",
@@ -706,7 +705,7 @@ const NewsSection = () => {
           console.log(
             `${i + 1}. ID:${p.id} | Created: ${
               p.created_at
-            } | Title: ${p.title?.substring(0, 50)}`
+            } | Title: ${p.title?.substring(0, 50)}`,
           );
         });
 
@@ -719,7 +718,7 @@ const NewsSection = () => {
             title: p.title,
             created_at: p.created_at,
             start_date: p.start_date,
-          }))
+          })),
         );
         setPrograms(latestPrograms);
       } catch (error) {
@@ -1031,15 +1030,33 @@ const FooterSection = () => {
           <div className="footer-social-section">
             <h4 className="footer-links-title">Ikuti Kami</h4>
             <div className="footer-social">
-              <button className="footer-social-link" aria-label="Facebook">
+              <a
+                href="https://www.facebook.com/Danone/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-link"
+                aria-label="Facebook"
+              >
                 <FacebookIcon className="w-5 h-5" />
-              </button>
-              <button className="footer-social-link" aria-label="Instagram">
+              </a>
+              <a
+                href="https://www.instagram.com/Danone/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-link"
+                aria-label="Instagram"
+              >
                 <InstagramIcon className="w-5 h-5" />
-              </button>
-              <button className="footer-social-link" aria-label="LinkedIn">
+              </a>
+              <a
+                href="https://www.linkedin.com/company/danone/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-link"
+                aria-label="LinkedIn"
+              >
                 <LinkedinIcon className="w-5 h-5" />
-              </button>
+              </a>
             </div>
           </div>
         </div>

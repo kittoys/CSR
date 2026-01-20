@@ -33,6 +33,11 @@ Sistem manajemen program CSR dengan login admin, CRUD program/kategori, dashboar
 - React Intersection Observer (Scroll animations)
 - CSS3 + Bootstrap Icons
 
+## 🆕 Changelog (Januari 2026)
+
+- Admin Dashboard: filter status & kategori diperbaiki; counter total program mengikuti hasil filter.
+- Kebersihan repo: menghapus file bawaan CRA yang tidak dipakai (App.test.js, setupTests.js, reportWebVitals.js, README duplikat frontend).
+
 ### Backend
 
 - Node.js + Express 5.2.1
@@ -148,6 +153,7 @@ Setelah setup selesai, gunakan:
 - ✅ Manajemen Kategori
 - ✅ Upload gambar program (drag & drop)
 - ✅ Filter program berdasarkan status dan kategori
+- ✅ Counter total program yang tampil dan mengikuti filter
 - ✅ Responsive table dan cards view
 
 ### Proposal Dashboard (`/proposals`)
