@@ -8,21 +8,28 @@
 .dashboard-container {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  padding: 1.25rem 1rem 1rem;
 }
 
 .dashboard-header {
   background: var(--color-surface);
-  padding: 2rem;
+  min-height: 112px;
+  padding: 1.25rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(0, 119, 200, 0.12);
+  border: 1px solid rgba(0, 119, 200, 0.12);
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 119, 200, 0.06);
-  gap: 1.5rem;
+  gap: 1rem;
   max-width: 1600px;
   margin: 0 auto;
   flex-wrap: wrap;
+}
+
+.dashboard-header::before,
+.dashboard-header::after {
+  content: none !important;
 }
 
 .dashboard-header .btn.btn--primary.btn--lg {
@@ -56,7 +63,7 @@
 }
 
 .dashboard-header h1 {
-  font-size: 1.875rem;
+  font-size: 1.65rem;
   font-weight: 700;
   margin: 0;
   color: var(--color-dark);
@@ -65,9 +72,9 @@
 
 .dashboard-header .subtitle {
   font-size: 0.9rem;
-  color: var(--color-muted);
+  color: #475569;
   margin: 0.375rem 0 0 0;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .btn--lg {
@@ -120,10 +127,17 @@
 .stats-filter-section {
   background: white;
   border-radius: 12px;
-  padding: 20px 24px;
-  margin-bottom: 20px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #f0f0f0;
+  border: 1px solid #e2e8f0;
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-filter-section::before,
+.stats-filter-section::after {
+  content: none !important;
 }
 
 .stats-filter-header {
@@ -142,7 +156,10 @@
   color: #1f2937;
 }
 
-.filter-badge {
+.stats-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: linear-gradient(135deg, #0077c8 0%, #00a9e0 100%);
   color: white;
   padding: 6px 16px;
@@ -150,6 +167,10 @@
   font-size: 0.85rem;
   font-weight: 600;
   box-shadow: 0 2px 4px rgba(0, 119, 200, 0.2);
+}
+
+.stats-filter-badge svg {
+  flex-shrink: 0;
 }
 
 .stats-filter-controls {
@@ -166,16 +187,16 @@
 }
 
 .filter-group label {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  color: #4b5563;
+  color: #475569;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
 }
 
 .filter-select-small {
   padding: 8px 12px;
-  border: 2px solid #e5e7eb;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
   font-size: 0.9rem;
   background-color: white;
@@ -202,16 +223,27 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 18px;
-  padding: 20px 0;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  padding: 14px 0;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-container {
+    padding: 1rem 0.75rem 0.875rem;
+  }
+
+  .dashboard-header {
+    min-height: 96px;
+    padding: 1rem;
+  }
 }
 
 .stat-card {
   background: white;
   border-radius: 14px;
-  padding: 18px 16px;
+  padding: 16px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -261,19 +293,20 @@
 }
 
 .stat-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.35px;
   margin: 0 0 4px 0;
 }
 
 .stat-value {
-  font-size: 1.8rem;
+  font-size: clamp(1.55rem, 2vw, 1.95rem);
   font-weight: 800;
-  color: #0f172a;
+  color: #0b1f3a;
   margin: 0;
+  line-height: 1.2;
 }
 
 .proposals-section {
@@ -394,7 +427,7 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #f0f0f0;
+  border: 1px solid #e2e8f0;
   padding: 24px;
   height: 100%;
   transition: all 0.3s ease;
@@ -445,6 +478,24 @@
 }
 
 @media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+  }
+
+  .stat-value {
+    font-size: clamp(1.35rem, 4.2vw, 1.75rem);
+  }
+
   .chart-card {
     padding: 16px;
   }
@@ -456,6 +507,23 @@
 }
 
 @media (max-width: 480px) {
+  .dashboard-header {
+    padding: 0.875rem;
+    min-height: auto;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.45rem;
+  }
+
+  .dashboard-header .subtitle {
+    font-size: 0.82rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
   .chart-card {
     padding: 12px;
   }
@@ -2136,7 +2204,7 @@
     font-size: 1rem;
   }
 
-  .filter-badge {
+  .stats-filter-badge {
     padding: 4px 12px;
     font-size: 0.75rem;
   }

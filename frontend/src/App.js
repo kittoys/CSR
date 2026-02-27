@@ -1,4 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
@@ -10,30 +17,69 @@ import ProposalDashboard from "./pages/ProposalDashboard";
 import { ToastProvider } from "./context/ToastContext";
 import "./App.css";
 
+const PRIVATE_SIDEBAR_STORAGE_KEY = "csr:privateSidebarHidden";
+
+const AppContent = () => {
+  const location = useLocation();
+  const [isPrivateSidebarHidden, setIsPrivateSidebarHidden] = useState(() => {
+    return localStorage.getItem(PRIVATE_SIDEBAR_STORAGE_KEY) === "1";
+  });
+  const isLoginPage = /^\/login(\/|$)/.test(location.pathname);
+  const isPrivatePage =
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/proposals");
+  const mainClassName = `app-main ${isLoginPage ? "app-main--no-navbar" : ""} ${isPrivatePage ? "app-main--with-sidebar" : ""}`;
+
+  useEffect(() => {
+    localStorage.setItem(
+      PRIVATE_SIDEBAR_STORAGE_KEY,
+      isPrivateSidebarHidden ? "1" : "0",
+    );
+  }, [isPrivateSidebarHidden]);
+
+  return (
+    <div
+      className={`app-shell ${
+        isPrivatePage && isPrivateSidebarHidden
+          ? "app-shell--sidebar-hidden"
+          : ""
+      }`}
+    >
+      {!isLoginPage && (
+        <Navbar
+          mode={isPrivatePage ? "private" : "public"}
+          isSidebarHidden={isPrivateSidebarHidden}
+          onToggleSidebar={() =>
+            setIsPrivateSidebarHidden((prevHidden) => !prevHidden)
+          }
+        />
+      )}
+      <main className={mainClassName}>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/admin"
+            element={<ProtectedRoute element={<AdminDashboard />} />}
+          />
+          <Route
+            path="/proposals"
+            element={<ProtectedRoute element={<ProposalDashboard />} />}
+          />
+          <Route path="/" element={<Home />} />
+          <Route path="/programs" element={<Programs />} />
+          <Route path="/programs/:id" element={<ProgramDetail />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+    </div>
+  );
+};
+
 function App() {
   return (
     <ToastProvider>
       <BrowserRouter>
-        <div className="app-shell">
-          <Navbar />
-          <main className="app-main">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/admin"
-                element={<ProtectedRoute element={<AdminDashboard />} />}
-              />
-              <Route
-                path="/proposals"
-                element={<ProtectedRoute element={<ProposalDashboard />} />}
-              />
-              <Route path="/" element={<Home />} />
-              <Route path="/programs" element={<Programs />} />
-              <Route path="/programs/:id" element={<ProgramDetail />} />
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </Routes>
-          </main>
-        </div>
+        <AppContent />
       </BrowserRouter>
     </ToastProvider>
   );

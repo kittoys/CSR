@@ -42,7 +42,7 @@ mysql -u root -p
 Di MySQL command line, jalankan:
 
 ```sql
-SOURCE C:\Users\HYPE AMD\CSR\csr-backend\setup.sql;
+SOURCE C:\Users\HYPE AMD\CSR\backend\setup.sql;
 ```
 
 Atau gunakan MySQL Workbench/DBeaver untuk import file `setup.sql`.
@@ -62,7 +62,7 @@ SELECT * FROM users;
 ### 1. Install Dependencies
 
 ```bash
-cd csr-backend
+cd backend
 npm install
 ```
 
@@ -94,7 +94,7 @@ Backend akan running di `http://localhost:5000`
 ### 1. Install Dependencies
 
 ```bash
-cd csr-frontend
+cd frontend
 npm install
 ```
 

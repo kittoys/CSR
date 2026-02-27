@@ -1,4 +1,6 @@
 .app-shell {
+  --private-sidebar-width: 262px;
+  --private-sidebar-gap: 16px;
   min-height: 100vh;
   background: var(--color-background);
   color: var(--color-text);
@@ -15,6 +17,36 @@
   box-sizing: border-box;
 }
 
+.app-main--no-navbar {
+  padding-top: 0;
+}
+
+.app-main--with-sidebar {
+  padding: 1rem 1rem 1.25rem
+    calc(var(--private-sidebar-width) + var(--private-sidebar-gap));
+  transition: padding var(--transition-base);
+}
+
+.app-shell--sidebar-hidden .app-main--with-sidebar {
+  padding-left: 3.25rem;
+}
+
+@media (max-width: 1280px) {
+  .app-shell {
+    --private-sidebar-width: 244px;
+  }
+
+  .app-main--with-sidebar {
+    padding-right: 0.875rem;
+  }
+}
+
+@media (max-width: 991px) {
+  .app-main--with-sidebar {
+    padding: 84px 0 0;
+  }
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -26,7 +58,10 @@
   text-decoration: none;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .btn--primary {

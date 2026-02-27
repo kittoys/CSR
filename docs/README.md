@@ -9,6 +9,7 @@ Folder ini berisi semua dokumentasi terkait CSR (Corporate Social Responsibility
 - **[QUICK_START.md](QUICK_START.md)** - Panduan cepat untuk menjalankan aplikasi
 - **[BACKEND_SETUP.md](BACKEND_SETUP.md)** - Setup lengkap untuk backend
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Panduan mengatasi error umum
+- **[CATATAN_PERUHABAHAN.md](CATATAN_PERUHABAHAN.md)** - Catatan perubahan harian
 
 ---
 
@@ -41,12 +42,12 @@ docs/
 ├── QUICK_START.md                     # 🚀 Panduan cepat
 ├── BACKEND_SETUP.md                   # ⚙️ Setup backend
 ├── TROUBLESHOOTING.md                 # 🔧 Troubleshooting
-├── BUDGET_CHART_GUIDE.md              # 📊 Budget Chart Component
 ├── FEATURE_ADD_PROPOSAL.md            # ✨ Fitur tambah proposal
 ├── FITUR_TAMBAH_PROPOSAL.md           # ✨ Fitur tambah proposal (ID)
 ├── FEATURE_CHECKLIST.md               # ✅ Checklist fitur
 ├── COMPLETION_REPORT.md               # 📊 Laporan penyelesaian
 ├── SETUP_PROPOSAL.md                  # 📝 Setup proposal
+├── CATATAN_PERUHABAHAN.md             # 📝 Catatan perubahan
 └── DESIGN_SYSTEM_DOCUMENTATION.md     # 🎨 Design system
 ```
 
@@ -55,7 +56,6 @@ docs/
 ## 🔗 Link Berguna
 
 - [Dokumentasi Utama (../README.md)](../README.md)
-- [Frontend README (../frontend/README.md)](../frontend/README.md)
 
 ---
 

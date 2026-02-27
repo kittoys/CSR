@@ -26,7 +26,7 @@ Dokumentasi lengkap untuk menjalankan aplikasi CSR dengan fitur Dashboard Propos
 - ✅ Dibuat `src/components/ProposalModal.jsx` - Form modal untuk tambah proposal
 - ✅ Dibuat `src/components/ProposalModal.css` - Styling modal
 - ✅ Ditambahkan route `/proposals` di `src/App.js`
-- ✅ Ditambahkan link "Proposals" di `src/components/Navbar.jsx`
+- ✅ Ditambahkan menu private "Proposal" di `src/components/Navbar.jsx`
 
 ## 🚀 Cara Menjalankan
 
@@ -38,7 +38,7 @@ mysql -u root -p
 ```
 
 ```sql
-SOURCE C:\Users\HYPE AMD\CSR\csr-backend\setup.sql;
+SOURCE C:\Users\HYPE AMD\CSR\backend\setup.sql;
 ```
 
 Atau gunakan MySQL Workbench untuk import file `setup.sql`.
@@ -46,7 +46,7 @@ Atau gunakan MySQL Workbench untuk import file `setup.sql`.
 ### 2. Jalankan Backend
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-backend
+cd c:\Users\HYPE AMD\CSR\backend
 npm install
 npm start
 ```
@@ -56,7 +56,7 @@ Backend akan berjalan di `http://localhost:5000`
 ### 3. Jalankan Frontend
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-frontend
+cd c:\Users\HYPE AMD\CSR\frontend
 npm install
 npm start
 ```
@@ -108,12 +108,12 @@ Password: admin123
 ## 📂 Struktur File Baru
 
 ```
-csr-backend/
+backend/
   src/
     routes/
       proposals.js          (BARU) - API routes untuk proposal
 
-csr-frontend/
+frontend/
   src/
     api/
       proposals.js          (BARU) - API client untuk proposal
@@ -145,7 +145,7 @@ csr-frontend/
 
 - Pastikan MySQL service sudah berjalan
 - Import kembali `setup.sql` ke database
-- Cek konfigurasi database di `csr-backend/src/config/db.js`
+- Cek konfigurasi database di `backend/src/config/db.js`
 
 ### Login gagal
 

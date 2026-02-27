@@ -17,6 +17,7 @@ Sistem manajemen program CSR dengan login admin, CRUD program/kategori, dashboar
 - ✅ **Statistics** - Dashboard statistik dengan monthly trend dan status breakdown
 - ✅ **Export Data** - Cetak/export data proposal
 - ✅ **Responsive Design** - Desain mobile-friendly untuk seluruh halaman
+- ✅ **Pemisahan Layout** - Halaman publik terpisah dari dashboard internal admin
 - ✅ **JWT Authentication** - Keamanan token-based
 - ✅ **Password Hashing** - Password di-hash dengan bcrypt
 
@@ -33,10 +34,16 @@ Sistem manajemen program CSR dengan login admin, CRUD program/kategori, dashboar
 - React Intersection Observer (Scroll animations)
 - CSS3 + Bootstrap Icons
 
-## 🆕 Changelog (Januari 2026)
+## 🆕 Changelog (Januari–Februari 2026)
 
 - Admin Dashboard: filter status & kategori diperbaiki; counter total program mengikuti hasil filter.
 - Kebersihan repo: menghapus file bawaan CRA yang tidak dipakai (App.test.js, setupTests.js, reportWebVitals.js, README duplikat frontend).
+- Pemisahan routing publik (`/`, `/programs`) dan internal (`/admin`, `/proposals`) dengan mode layout berbeda.
+- Navbar internal diubah menjadi sidebar dashboard (desktop) + mobile drawer.
+- Sidebar internal mendukung collapse/expand dan state disimpan di `localStorage`.
+- Ditambahkan quick link halaman publik dari sidebar admin, membuka tab baru.
+- Perapihan responsivitas dan keterbacaan dashboard proposal/admin.
+- Perbaikan konflik class CSS `filter-badge` agar style antar halaman tidak bentrok.
 
 ### Backend
 
@@ -86,7 +93,7 @@ chmod +x setup.sh
 #### 1. Database Setup
 
 ```bash
-cd csr-backend
+cd backend
 npm install
 npm run setup-db
 npm run seed-db
@@ -95,13 +102,13 @@ npm run seed-db
 Atau manual dengan MySQL CLI:
 
 ```bash
-mysql -u root -p < csr-backend/setup.sql
+mysql -u root -p < backend/setup.sql
 ```
 
 #### 2. Backend Setup
 
 ```bash
-cd csr-backend
+cd backend
 
 # Copy environment variables (jika belum ada .env)
 # cp .env.example .env
@@ -123,7 +130,7 @@ Backend akan running di `http://localhost:5000`
 Di terminal baru:
 
 ```bash
-cd csr-frontend
+cd frontend
 
 # Install dependencies
 npm install
@@ -132,7 +139,7 @@ npm install
 npm start
 ```
 
-Frontend akan running di `http://localhost:3000` dan auto-redirect ke `/login`
+Frontend akan running di `http://localhost:3000` (halaman publik di `/`, login admin di `/login`)
 
 ---
 
@@ -175,7 +182,7 @@ Setelah setup selesai, gunakan:
 ## 📁 Project Structure
 
 ```
-csr-backend/
+backend/
 ├── src/
 │   ├── config/
 │   │   └── db.js                  # MySQL connection pool
@@ -203,7 +210,7 @@ csr-backend/
 ├── .env                           # Environment variables
 └── package.json
 
-csr-frontend/
+frontend/
 ├── src/
 │   ├── api/
 │   │   ├── auth.js                # Auth API calls
@@ -222,7 +229,7 @@ csr-frontend/
 │   │   ├── ProgramCard.jsx        # Program card component
 │   │   ├── ProposalModal.jsx      # Proposal form modal (3 sections)
 │   │   └── ProtectedRoute.jsx     # Route protection
-│   ├── App.jsx                    # Main app with routing
+│   ├── App.js                     # Main app with routing
 │   └── index.js                   # Entry point
 ├── public/                        # Static files
 └── package.json
@@ -416,7 +423,7 @@ brew services start mysql
 **Solution**: Jalankan setup database
 
 ```bash
-cd csr-backend
+cd backend
 npm run setup-db
 npm run seed-db
 ```
@@ -428,7 +435,7 @@ npm run seed-db
 1. Cek apakah backend running di port 5000
 2. Cek apakah tabel `donation_proposals` ada:
    ```bash
-   cd csr-backend
+   cd backend
    node scripts/checkDatabase.js
    ```
 3. Test API endpoints:
@@ -452,7 +459,7 @@ REACT_APP_API_BASE=http://localhost:5000/api
 
 **Solution**:
 
-1. Pastikan folder `csr-backend/uploads/` ada dan writable
+1. Pastikan folder `backend/uploads/` ada dan writable
 2. Check file size (max 5MB)
 3. Check file type (allowed: PDF, DOC, DOCX, JPG, PNG)
 
@@ -469,7 +476,7 @@ taskkill /PID <PID> /F
 lsof -ti:5000 | xargs kill -9
 ```
 
-Untuk troubleshooting lengkap, lihat [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+Untuk troubleshooting lengkap, lihat [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
 
 ## 🔒 Security Notes
 
@@ -565,8 +572,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🎯 Project Status
 
-**Last Updated:** January 4, 2026  
-**Version:** 1.0.0  
+**Last Updated:** February 27, 2026  
+**Version:** 1.1.0  
 **Status:** ✅ Production Ready
 
 ### Completed Features
@@ -579,6 +586,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - ✅ File Upload System
 - ✅ Monthly Trend Analytics
 - ✅ Responsive Design
+- ✅ Public vs Admin Layout Separation
 - ✅ Admin Protection Middleware
 - ✅ Complete Documentation
 

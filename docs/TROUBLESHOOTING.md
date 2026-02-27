@@ -59,7 +59,7 @@ Sudah ada 7 proposal untuk testing:
 **Terminal 1 - Jalankan Backend:**
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-backend
+cd c:\Users\HYPE AMD\CSR\backend
 npm start
 ```
 
@@ -74,7 +74,7 @@ Server running on port 5000
 **Terminal 2 - Jalankan Frontend:**
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-frontend
+cd c:\Users\HYPE AMD\CSR\frontend
 npm start
 ```
 
@@ -86,7 +86,7 @@ Frontend akan terbuka di `http://localhost:3000`
 2. Login dengan:
    - **Email:** admin@csr.com
    - **Password:** admin123
-3. Klik menu **"Proposals"** di navbar
+3. Buka **sidebar private**, lalu klik menu **"Proposal"**
 4. Dashboard Proposal akan menampilkan:
    - ✅ 7 proposal dari sample data
    - ✅ Statistik (Total, In Progress, Siap Diambil, Done, Total Budget)
@@ -98,7 +98,7 @@ Frontend akan terbuka di `http://localhost:3000`
 Jika ingin memverifikasi database kapan saja:
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-backend
+cd c:\Users\HYPE AMD\CSR\backend
 node scripts/checkDatabase.js
 ```
 
@@ -139,7 +139,6 @@ node scripts/testDb.js
    ```
 
 3. **Cek browser console (F12) untuk melihat error:**
-
    - Buka DevTools (F12)
    - Lihat tab "Network" untuk melihat API request
    - Lihat tab "Console" untuk error messages
@@ -151,7 +150,7 @@ node scripts/testDb.js
    mysql -u root -p -e "DROP DATABASE csr_db;"
 
    # Jalankan setup ulang
-   cd c:\Users\HYPE AMD\CSR\csr-backend
+   cd c:\Users\HYPE AMD\CSR\backend
    npm run setup-db
    ```
 

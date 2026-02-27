@@ -44,7 +44,7 @@ Tabel `donation_proposals` belum dibuat di database MySQL
 - ✅ `src/components/ProposalModal.jsx` - Form modal
 - ✅ `src/components/ProposalModal.css` - Styling modal
 - ✅ `src/App.js` - Updated dengan route /proposals
-- ✅ `src/components/Navbar.jsx` - Added Proposals link
+- ✅ `src/components/Navbar.jsx` - Added private menu Proposal (sidebar/drawer)
 
 ### Helper Scripts
 
@@ -127,7 +127,7 @@ CREATE TABLE donation_proposals (
 ### Terminal 1 - Backend
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-backend
+cd c:\Users\HYPE AMD\CSR\backend
 npm start
 ```
 
@@ -136,7 +136,7 @@ Expected: `Server running on port 5000`
 ### Terminal 2 - Frontend
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-frontend
+cd c:\Users\HYPE AMD\CSR\frontend
 npm start
 ```
 
@@ -151,7 +151,7 @@ Password: admin123
 
 ### Access Dashboard
 
-Click "Proposals" in navbar → Dashboard Proposal Donasi
+Login, lalu buka menu private "Proposal" di sidebar/drawer → Dashboard Proposal Donasi
 
 ---
 

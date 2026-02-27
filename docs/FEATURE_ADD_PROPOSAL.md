@@ -8,7 +8,7 @@
 
 ### 1️⃣ Database (Backend)
 
-**File:** `csr-backend/setup.sql` & `scripts/upgradeProposalTable.js`
+**File:** `backend/setup.sql` & `backend/scripts/upgradeProposalTable.js`
 
 ✅ **Field Baru Ditambahkan:**
 
@@ -26,7 +26,7 @@
 
 ### 2️⃣ Frontend Components
 
-**File:** `csr-frontend/src/components/ProposalModal.jsx`
+**File:** `frontend/src/components/ProposalModal.jsx`
 
 ✅ **Form Terstruktur 3 Sections:**
 
@@ -64,7 +64,7 @@
 
 ### 3️⃣ Styling
 
-**File:** `csr-frontend/src/components/ProposalModal.css`
+**File:** `frontend/src/components/ProposalModal.css`
 
 ✅ **Modern Design:**
 
@@ -87,7 +87,7 @@
 
 ### 4️⃣ Backend API
 
-**File:** `csr-backend/src/routes/proposals.js`
+**File:** `backend/src/routes/proposals.js`
 
 ✅ **POST /api/proposals** - Create
 
@@ -196,7 +196,7 @@ Sudah ada 7 sample proposals di database:
 ### Terminal 1 - Backend
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-backend
+cd c:\Users\HYPE AMD\CSR\backend
 npm start
 ```
 
@@ -205,7 +205,7 @@ Expected: `Server running on port 5000`
 ### Terminal 2 - Frontend
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-frontend
+cd c:\Users\HYPE AMD\CSR\frontend
 npm start
 ```
 
@@ -214,7 +214,7 @@ Expected: Browser opens http://localhost:3000
 ### Test Tambah Proposal
 
 1. Login dengan `admin@csr.com` / `admin123`
-2. Klik menu "Proposals" → Dashboard Proposal
+2. Buka menu private "Proposal" (sidebar/mobile drawer) → Dashboard Proposal
 3. Klik button "+ Tambah Proposal"
 4. Isi form dengan data test:
    - Nama: "Program Santunan"

@@ -8,6 +8,7 @@ import {
   CheckSquare,
   Wallet,
   Printer,
+  CalendarDays,
 } from "lucide-react";
 import {
   getProposals,
@@ -41,18 +42,18 @@ const ProposalDashboard = () => {
   const [filterPeriod, setFilterPeriod] = useState("all");
   const currentMonth = new Date().getMonth() + 1;
   const [selectedMonth, setSelectedMonth] = useState(
-    currentMonth < 10 ? `0${currentMonth}` : `${currentMonth}`
+    currentMonth < 10 ? `0${currentMonth}` : `${currentMonth}`,
   );
   const [selectedYear, setSelectedYear] = useState(
-    new Date().getFullYear().toString()
+    new Date().getFullYear().toString(),
   );
   // Filter untuk tabel proposal
   const [tableFilterPeriod, setTableFilterPeriod] = useState("all");
   const [tableSelectedMonth, setTableSelectedMonth] = useState(
-    currentMonth < 10 ? `0${currentMonth}` : `${currentMonth}`
+    currentMonth < 10 ? `0${currentMonth}` : `${currentMonth}`,
   );
   const [tableSelectedYear, setTableSelectedYear] = useState(
-    new Date().getFullYear().toString()
+    new Date().getFullYear().toString(),
   );
 
   const fetchStats = useCallback(async () => {
@@ -65,7 +66,7 @@ const ProposalDashboard = () => {
           "📊 Fetching stats for month:",
           selectedMonth,
           "year:",
-          selectedYear
+          selectedYear,
         );
       } else if (filterPeriod === "year" && selectedYear) {
         params.year = selectedYear;
@@ -128,7 +129,7 @@ const ProposalDashboard = () => {
     if (!token) {
       toast.warning(
         "Silakan login di halaman Login dengan:\n- Email: admin@csr.com\n- Password: admin123",
-        "Login Diperlukan"
+        "Login Diperlukan",
       );
       setIsLoading(false);
       setIsModalOpen(false);
@@ -224,13 +225,13 @@ const ProposalDashboard = () => {
     const count = selectedIds.size;
     if (
       window.confirm(
-        `Apakah Anda yakin ingin menghapus ${count} proposal terpilih? Tindakan ini tidak dapat dibatalkan.`
+        `Apakah Anda yakin ingin menghapus ${count} proposal terpilih? Tindakan ini tidak dapat dibatalkan.`,
       )
     ) {
       setIsDeleting(true);
       try {
         await Promise.all(
-          Array.from(selectedIds).map((id) => deleteProposal(id))
+          Array.from(selectedIds).map((id) => deleteProposal(id)),
         );
         setSelectedIds(new Set());
         await fetchProposals();
@@ -267,7 +268,7 @@ const ProposalDashboard = () => {
       filteredProposals,
       filterStatus,
       formatCurrency,
-      formatDate
+      formatDate,
     );
 
     printWindow.document.write(htmlContent);
@@ -289,7 +290,7 @@ const ProposalDashboard = () => {
       stats,
       monthlyStats,
       getFilterLabel,
-      formatCurrency
+      formatCurrency,
     );
 
     printWindow.document.write(htmlContent);
@@ -311,7 +312,7 @@ const ProposalDashboard = () => {
       const proposalYear = proposalDate.getFullYear().toString();
       const proposalMonth = String(proposalDate.getMonth() + 1).padStart(
         2,
-        "0"
+        "0",
       );
 
       if (tableFilterPeriod === "month") {
@@ -372,7 +373,7 @@ const ProposalDashboard = () => {
 
   const maxMonthlyBudget = monthlyStats.reduce(
     (max, m) => Math.max(max, m.total_budget || 0),
-    0
+    0,
   );
 
   const getMonthOptions = () => {
@@ -405,7 +406,7 @@ const ProposalDashboard = () => {
   const getFilterLabel = () => {
     if (filterPeriod === "month" && selectedMonth) {
       const monthName = getMonthOptions().find(
-        (m) => m.value === selectedMonth
+        (m) => m.value === selectedMonth,
       )?.label;
       return `${monthName} ${selectedYear}`;
     } else if (filterPeriod === "year" && selectedYear) {
@@ -441,7 +442,10 @@ const ProposalDashboard = () => {
         <div className="stats-filter-section">
           <div className="stats-filter-header">
             <h3>Statistik Proposal</h3>
-            <span className="filter-badge">{getFilterLabel()}</span>
+            <span className="stats-filter-badge">
+              <CalendarDays size={14} aria-hidden="true" />
+              {getFilterLabel()}
+            </span>
           </div>
           <div className="stats-filter-controls">
             <div className="filter-group">
@@ -454,7 +458,7 @@ const ProposalDashboard = () => {
                     setSelectedMonth(
                       new Date().getMonth() + 1 < 10
                         ? `0${new Date().getMonth() + 1}`
-                        : `${new Date().getMonth() + 1}`
+                        : `${new Date().getMonth() + 1}`,
                     );
                   }
                 }}
@@ -723,7 +727,7 @@ const ProposalDashboard = () => {
                             d={createArc(99.9, currentAngle)}
                             className={`donut-segment ${singleClass}`}
                             title={`Total: ${total}`}
-                          />
+                          />,
                         );
                       } else {
                         // Multiple statuses, render each segment
@@ -734,9 +738,9 @@ const ProposalDashboard = () => {
                               d={createArc(inProgressPct, currentAngle)}
                               className="donut-segment donut-segment--progress"
                               title={`In Progress: ${inProgress} (${inProgressPct.toFixed(
-                                1
+                                1,
                               )}%)`}
-                            />
+                            />,
                           );
                           currentAngle += (inProgressPct / 100) * 360;
                         }
@@ -748,9 +752,9 @@ const ProposalDashboard = () => {
                               d={createArc(waitingPct, currentAngle)}
                               className="donut-segment donut-segment--waiting"
                               title={`Siap Diambil: ${waiting} (${waitingPct.toFixed(
-                                1
+                                1,
                               )}%)`}
-                            />
+                            />,
                           );
                           currentAngle += (waitingPct / 100) * 360;
                         }
@@ -762,9 +766,9 @@ const ProposalDashboard = () => {
                               d={createArc(completedPct, currentAngle)}
                               className="donut-segment donut-segment--done"
                               title={`Done: ${completed} (${completedPct.toFixed(
-                                1
+                                1,
                               )}%)`}
-                            />
+                            />,
                           );
                         }
                       }
@@ -1029,7 +1033,7 @@ const ProposalDashboard = () => {
                       <td className="cell-status">
                         <span
                           className={`status-badge ${getStatusClass(
-                            proposal.status
+                            proposal.status,
                           )}`}
                         >
                           {proposal.status}
@@ -1038,7 +1042,7 @@ const ProposalDashboard = () => {
                       <td className="cell-bright-status">
                         <span
                           className={`status-badge ${getBrightStatusClass(
-                            proposal.bright_status
+                            proposal.bright_status,
                           )}`}
                         >
                           {proposal.bright_status || "-"}
@@ -1080,7 +1084,7 @@ const ProposalDashboard = () => {
                                 >
                                   📄 {proposalName}
                                 </a>
-                              </div>
+                              </div>,
                             );
                           }
 
@@ -1097,7 +1101,7 @@ const ProposalDashboard = () => {
                                 >
                                   📎 {proofName}
                                 </a>
-                              </div>
+                              </div>,
                             );
                           }
 

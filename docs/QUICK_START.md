@@ -11,7 +11,7 @@ Aplikasi sudah dikonfigurasi dan siap dijalankan dengan data sample.
 **Buka Terminal 1:**
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-backend
+cd c:\Users\HYPE AMD\CSR\backend
 npm start
 ```
 
@@ -28,7 +28,7 @@ Server running on port 5000
 **Buka Terminal 2:**
 
 ```bash
-cd c:\Users\HYPE AMD\CSR\csr-frontend
+cd c:\Users\HYPE AMD\CSR\frontend
 npm start
 ```
 
@@ -37,6 +37,9 @@ Tunggu sampai browser otomatis membuka `http://localhost:3000`
 ---
 
 ## 🔐 Langkah 3: Login
+
+1. Buka `http://localhost:3000/login`
+2. Gunakan kredensial berikut
 
 **Gunakan kredensial:**
 
@@ -51,8 +54,9 @@ Klik tombol **"Masuk"**
 
 Setelah login berhasil:
 
-1. Lihat menu di atas, klik **"Proposals"**
-2. Dashboard akan menampilkan:
+1. Buka menu sidebar (halaman private)
+2. Klik **"Proposal"**
+3. Dashboard akan menampilkan:
    - ✅ **5 Statistik Cards** (Total, In Progress, Siap Diambil, Done, Total Budget)
    - ✅ **Daftar 7 Proposal** dengan semua data
    - ✅ **Tombol "+ Tambah Proposal"** untuk tambah proposal baru
@@ -118,24 +122,24 @@ Dashboard sudah berisi 7 proposal:
 **Cek Backend:**
 
 ```bash
-cd csr-backend
+cd backend
 node scripts/testAPI.js
 ```
 
 **Cek Database:**
 
 ```bash
-cd csr-backend
+cd backend
 node scripts/checkDatabase.js
 ```
 
 ### Error: "Cannot find module..."
 
 ```bash
-cd csr-frontend
+cd frontend
 npm install
 
-cd ../csr-backend
+cd ../backend
 npm install
 ```
 
