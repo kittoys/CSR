@@ -415,6 +415,9 @@ const ProposalDashboard = () => {
     return "Keseluruhan";
   };
 
+  const statsPanelKey = `${filterPeriod}-${selectedYear}-${selectedMonth}`;
+  const tablePanelKey = `${tableFilterPeriod}-${tableSelectedYear}-${tableSelectedMonth}-${filterStatus}`;
+
   return (
     <div className="proposal-dashboard">
       <div className="dashboard-header">
@@ -506,66 +509,76 @@ const ProposalDashboard = () => {
           </div>
         </div>
 
-        {stats && (
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div
-                className="stat-icon stat-icon--proposals"
-                aria-hidden="true"
-              >
-                <Archive size={22} />
+        <div key={statsPanelKey} className="proposal-switch-panel">
+          {stats && (
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div
+                  className="stat-icon stat-icon--proposals"
+                  aria-hidden="true"
+                >
+                  <Archive size={22} />
+                </div>
+                <div className="stat-content">
+                  <p className="stat-label">TOTAL PROPOSALS</p>
+                  <h3 className="stat-value">{stats.total_proposals || 0}</h3>
+                </div>
               </div>
-              <div className="stat-content">
-                <p className="stat-label">TOTAL PROPOSALS</p>
-                <h3 className="stat-value">{stats.total_proposals || 0}</h3>
+
+              <div className="stat-card">
+                <div
+                  className="stat-icon stat-icon--progress"
+                  aria-hidden="true"
+                >
+                  <Hourglass size={22} />
+                </div>
+                <div className="stat-content">
+                  <p className="stat-label">IN PROGRESS</p>
+                  <h3 className="stat-value">{stats.in_progress || 0}</h3>
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div
+                  className="stat-icon stat-icon--waiting"
+                  aria-hidden="true"
+                >
+                  <Package size={22} />
+                </div>
+                <div className="stat-content">
+                  <p className="stat-label">SIAP DIAMBIL</p>
+                  <h3 className="stat-value">{stats.waiting || 0}</h3>
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon stat-icon--done" aria-hidden="true">
+                  <CheckSquare size={22} />
+                </div>
+                <div className="stat-content">
+                  <p className="stat-label">DONE</p>
+                  <h3 className="stat-value">{stats.completed || 0}</h3>
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div
+                  className="stat-icon stat-icon--budget"
+                  aria-hidden="true"
+                >
+                  <Wallet size={22} />
+                </div>
+                <div className="stat-content">
+                  <p className="stat-label">TOTAL BUDGET</p>
+                  <h3 className="stat-value stat-value--budget">
+                    {formatCurrency(stats.total_budget || 0)}
+                  </h3>
+                </div>
               </div>
             </div>
+          )}
 
-            <div className="stat-card">
-              <div className="stat-icon stat-icon--progress" aria-hidden="true">
-                <Hourglass size={22} />
-              </div>
-              <div className="stat-content">
-                <p className="stat-label">IN PROGRESS</p>
-                <h3 className="stat-value">{stats.in_progress || 0}</h3>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon stat-icon--waiting" aria-hidden="true">
-                <Package size={22} />
-              </div>
-              <div className="stat-content">
-                <p className="stat-label">SIAP DIAMBIL</p>
-                <h3 className="stat-value">{stats.waiting || 0}</h3>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon stat-icon--done" aria-hidden="true">
-                <CheckSquare size={22} />
-              </div>
-              <div className="stat-content">
-                <p className="stat-label">DONE</p>
-                <h3 className="stat-value">{stats.completed || 0}</h3>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon stat-icon--budget" aria-hidden="true">
-                <Wallet size={22} />
-              </div>
-              <div className="stat-content">
-                <p className="stat-label">TOTAL BUDGET</p>
-                <h3 className="stat-value stat-value--budget">
-                  {formatCurrency(stats.total_budget || 0)}
-                </h3>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="charts-container">
+          <div className="charts-container">
           <div className="chart-card chart-card--bar">
             <div className="chart-header">
               <div>
@@ -864,6 +877,7 @@ const ProposalDashboard = () => {
               </div>
             </div>
           )}
+          </div>
         </div>
 
         <div className="proposals-section">
@@ -969,7 +983,7 @@ const ProposalDashboard = () => {
             )}
           </div>
 
-          <div className="table-wrapper">
+          <div key={tablePanelKey} className="table-wrapper proposal-switch-panel proposal-switch-panel--fast">
             <table className="proposals-table">
               <thead>
                 <tr>

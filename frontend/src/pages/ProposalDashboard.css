@@ -11,6 +11,35 @@
   padding: 1.25rem 1rem 1rem;
 }
 
+.proposal-switch-panel {
+  animation: proposal-panel-in 0.32s ease;
+}
+
+.proposal-switch-panel--fast {
+  animation-duration: 0.24s;
+}
+
+@keyframes proposal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(1px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proposal-switch-panel,
+  .proposal-switch-panel--fast {
+    animation: none;
+  }
+}
+
 .dashboard-header {
   background: var(--color-surface);
   min-height: 112px;
@@ -39,12 +68,12 @@
   color: #ffffff;
   font-weight: 600;
   transition: all 0.3s ease;
-  background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+  background: linear-gradient(135deg, #0077c8 0%, #00a9e0 100%);
   border: none;
   padding: 0.875rem 1.5rem;
   border-radius: 10px;
   line-height: 1.5;
-  box-shadow: 0 4px 14px rgba(8, 145, 178, 0.3);
+  box-shadow: 0 4px 14px rgba(0, 119, 200, 0.3);
   white-space: nowrap;
   min-width: fit-content;
   cursor: pointer;
@@ -58,8 +87,8 @@
 
 .dashboard-header .btn.btn--primary.btn--lg:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(8, 145, 178, 0.4);
-  background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+  box-shadow: 0 8px 20px rgba(0, 119, 200, 0.4);
+  background: linear-gradient(135deg, #0062a7 0%, #0095c8 100%);
 }
 
 .dashboard-header h1 {
@@ -2234,5 +2263,272 @@
   .dashboard-header .btn.btn--primary.btn--lg {
     padding: 10px 16px;
     font-size: 0.85rem;
+  }
+}
+
+/* Final layout balancing overrides */
+.proposal-dashboard {
+  --dashboard-max-width: 1600px;
+  --dashboard-gutter: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.proposal-dashboard .dashboard-header,
+.proposal-dashboard .dashboard-container {
+  width: min(
+    var(--dashboard-max-width),
+    calc(100% - (var(--dashboard-gutter) * 2))
+  );
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.proposal-dashboard .dashboard-header {
+  padding: clamp(1rem, 1.8vw, 1.25rem) clamp(1rem, 2vw, 1.5rem);
+}
+
+.proposal-dashboard .dashboard-container {
+  padding: 1rem 0 1rem;
+}
+
+.proposal-dashboard .stats-filter-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.proposal-dashboard .filter-group {
+  min-width: 0;
+}
+
+.proposal-dashboard .filter-select-small,
+.proposal-dashboard .filter-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.proposal-dashboard .proposals-section {
+  padding: clamp(1rem, 2.4vw, 2rem);
+  margin: clamp(1rem, 2vw, 1.5rem) 0;
+}
+
+.proposal-dashboard .filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.proposal-dashboard .search-box {
+  min-width: 0;
+  grid-column: span 2;
+}
+
+.proposal-dashboard .charts-container {
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+  gap: clamp(1rem, 2vw, 1.5rem);
+  margin: clamp(1rem, 2vw, 1.5rem) 0;
+}
+
+.proposal-dashboard .chart-card {
+  padding: clamp(0.9rem, 1.8vw, 1.5rem);
+}
+
+@media (max-width: 1200px) {
+  .proposal-dashboard .charts-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .proposal-dashboard {
+    --dashboard-gutter: 0.75rem;
+  }
+
+  .proposal-dashboard .dashboard-container {
+    padding: 0.85rem 0;
+  }
+
+  .proposal-dashboard .dashboard-header {
+    gap: 0.75rem;
+  }
+
+  .proposal-dashboard .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .proposal-dashboard .search-box {
+    grid-column: auto;
+  }
+
+  .proposal-dashboard .proposals-table th,
+  .proposal-dashboard .proposals-table td {
+    padding: 10px 8px;
+  }
+}
+
+/* Mobile card view for proposal table */
+@media (max-width: 768px) {
+  .proposal-dashboard .table-wrapper {
+    overflow: visible;
+    border: none;
+    background: transparent;
+    max-height: none;
+  }
+
+  .proposal-dashboard .proposals-table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .proposal-dashboard .proposals-table thead {
+    display: none;
+  }
+
+  .proposal-dashboard .proposals-table,
+  .proposal-dashboard .proposals-table tbody,
+  .proposal-dashboard .proposals-table tr,
+  .proposal-dashboard .proposals-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .proposal-dashboard .proposals-table tr {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+
+  .proposal-dashboard .proposals-table td {
+    border-bottom: 1px dashed #e5e7eb;
+    padding: 0.5rem 0;
+    min-height: 34px;
+    display: grid;
+    grid-template-columns: 118px 1fr;
+    align-items: start;
+    gap: 0.5rem;
+  }
+
+  .proposal-dashboard .proposals-table td:last-child {
+    border-bottom: none;
+  }
+
+  .proposal-dashboard .proposals-table td::before {
+    content: "";
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 0;
+    line-height: 1.35;
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(1)::before {
+    content: "Pilih";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(2)::before {
+    content: "Case ID";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(3)::before {
+    content: "Nama Proposal";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(4)::before {
+    content: "Organisasi";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(5)::before {
+    content: "Detail Produk";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(6)::before {
+    content: "Budget";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(7)::before {
+    content: "Status";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(8)::before {
+    content: "Pengajuan Bright";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(9)::before {
+    content: "PIC";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(10)::before {
+    content: "Tanggal";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(11)::before {
+    content: "File";
+  }
+
+  .proposal-dashboard .proposals-table td:nth-child(12)::before {
+    content: "Aksi";
+  }
+
+  .proposal-dashboard .cell-checkbox {
+    text-align: left;
+    width: 100%;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+    grid-template-columns: 118px 1fr;
+  }
+
+  .proposal-dashboard .cell-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+
+  .proposal-dashboard .case-id {
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .proposal-dashboard .cell-file span,
+  .proposal-dashboard .file-item {
+    align-items: flex-start;
+  }
+
+  .proposal-dashboard .action-buttons {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .proposal-dashboard .empty-state {
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+  }
+}
+
+@media (max-width: 480px) {
+  .proposal-dashboard .proposals-table tr {
+    padding: 0.45rem 0.625rem;
+    border-radius: 10px;
+  }
+
+  .proposal-dashboard .proposals-table td {
+    grid-template-columns: 96px 1fr;
+    gap: 0.4rem;
+    padding: 0.45rem 0;
+  }
+
+  .proposal-dashboard .proposals-table td::before {
+    font-size: 0.68rem;
+  }
+
+  .proposal-dashboard .cell-checkbox {
+    grid-template-columns: 96px 1fr;
   }
 }

@@ -958,6 +958,7 @@ h6 {
 
   /* Exception for icon-only buttons */
   button.navbar__toggle,
+  button.sidebar-mobile__toggle,
   button[class*="__icon"],
   button[class*="-icon"] {
     min-height: auto;

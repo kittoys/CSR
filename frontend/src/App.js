@@ -12,8 +12,9 @@ import Home from "./pages/Home";
 import Programs from "./pages/Programs";
 import ProgramDetail from "./pages/ProgramDetail";
 import Login from "./pages/Login";
-import AdminDashboard from "./pages/AdminDashboard";
+import ProgramDashboard from "./pages/ProgramDashboard";
 import ProposalDashboard from "./pages/ProposalDashboard";
+import ChartDashboard from "./pages/chart";
 import { ToastProvider } from "./context/ToastContext";
 import "./App.css";
 
@@ -26,9 +27,12 @@ const AppContent = () => {
   });
   const isLoginPage = /^\/login(\/|$)/.test(location.pathname);
   const isPrivatePage =
-    location.pathname.startsWith("/admin") ||
-    location.pathname.startsWith("/proposals");
-  const mainClassName = `app-main ${isLoginPage ? "app-main--no-navbar" : ""} ${isPrivatePage ? "app-main--with-sidebar" : ""}`;
+    /^\/program(\/|$)/.test(location.pathname) ||
+    /^\/admin(\/|$)/.test(location.pathname) ||
+    /^\/proposals(\/|$)/.test(location.pathname) ||
+    /^\/chart(\/|$)/.test(location.pathname);
+  const shouldHideNavbar = isLoginPage;
+  const mainClassName = `app-main ${shouldHideNavbar ? "app-main--no-navbar" : ""} ${isPrivatePage ? "app-main--with-sidebar" : ""}`;
 
   useEffect(() => {
     localStorage.setItem(
@@ -45,7 +49,7 @@ const AppContent = () => {
           : ""
       }`}
     >
-      {!isLoginPage && (
+      {!shouldHideNavbar && (
         <Navbar
           mode={isPrivatePage ? "private" : "public"}
           isSidebarHidden={isPrivateSidebarHidden}
@@ -58,12 +62,17 @@ const AppContent = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
-            path="/admin"
-            element={<ProtectedRoute element={<AdminDashboard />} />}
+            path="/program"
+            element={<ProtectedRoute element={<ProgramDashboard />} />}
           />
+          <Route path="/admin" element={<Navigate to="/program" replace />} />
           <Route
             path="/proposals"
             element={<ProtectedRoute element={<ProposalDashboard />} />}
+          />
+          <Route
+            path="/chart"
+            element={<ProtectedRoute element={<ChartDashboard />} />}
           />
           <Route path="/" element={<Home />} />
           <Route path="/programs" element={<Programs />} />

@@ -1,16 +1,16 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAuthToken, logoutUser } from "../api/auth";
 import {
   Home,
   Briefcase,
   FileText,
   Shield,
+  BarChart3,
   LogOut,
   Menu,
   X,
-  PanelLeftClose,
-  PanelLeftOpen,
+  ChevronLeft,
 } from "lucide-react";
 // Animations removed: framer-motion no longer used
 import "./Navbar.css";
@@ -25,6 +25,7 @@ const Navbar = ({
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logoSrc, setLogoSrc] = useState("/logo_CSR_AQUA.png");
+  const edgeOpenTimeoutRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -41,11 +42,34 @@ const Navbar = ({
     navigate("/login");
   };
 
+  const clearEdgeOpenTimeout = () => {
+    if (edgeOpenTimeoutRef.current) {
+      clearTimeout(edgeOpenTimeoutRef.current);
+      edgeOpenTimeoutRef.current = null;
+    }
+  };
+
+  const handleEdgeOpen = () => {
+    if (!isSidebarHidden || !onToggleSidebar) return;
+    if (window.innerWidth <= 991) return;
+
+    clearEdgeOpenTimeout();
+    edgeOpenTimeoutRef.current = setTimeout(() => {
+      onToggleSidebar();
+      edgeOpenTimeoutRef.current = null;
+    }, 120);
+  };
+
+  useEffect(() => {
+    return () => clearEdgeOpenTimeout();
+  }, []);
+
   const navLinks =
     mode === "private"
       ? [
-          { to: "/proposals", label: "Proposals", icon: FileText },
-          { to: "/admin", label: "Admin", icon: Shield },
+          { to: "/proposals", label: "Dashboard", icon: FileText },
+          { to: "/program", label: "Program", icon: Shield },
+          { to: "/chart", label: "Chart", icon: BarChart3 },
         ]
       : [
           { to: "/", label: "Home", icon: Home, end: true },
@@ -66,7 +90,7 @@ const Navbar = ({
           className={`sidebar ${isSidebarHidden ? "sidebar--hidden" : ""}`}
         >
           <div className="sidebar__top">
-            <NavLink to="/admin" className="sidebar__brand">
+            <NavLink to="/program" className="sidebar__brand">
               <div className="sidebar__logo">
                 <img
                   src={logoSrc}
@@ -87,7 +111,7 @@ const Navbar = ({
               aria-label="Sembunyikan sidebar"
               title="Sembunyikan sidebar"
             >
-              <PanelLeftClose size={18} />
+              <ChevronLeft size={18} />
             </button>
           </div>
 
@@ -134,19 +158,26 @@ const Navbar = ({
         </aside>
 
         {isSidebarHidden && (
-          <button
-            type="button"
-            className="sidebar__reopen"
-            onClick={onToggleSidebar}
-            aria-label="Tampilkan sidebar"
-            title="Tampilkan sidebar"
+          <div
+            className="sidebar__reopen-zone"
+            aria-hidden="true"
+            onMouseEnter={handleEdgeOpen}
+            onMouseLeave={clearEdgeOpenTimeout}
           >
-            <PanelLeftOpen size={18} />
-          </button>
+            <button
+              type="button"
+              className="sidebar__reopen"
+              onClick={onToggleSidebar}
+              aria-label="Tampilkan sidebar"
+              title="Tampilkan sidebar"
+            >
+              <Menu size={16} />
+            </button>
+          </div>
         )}
 
         <header className="sidebar-mobile">
-          <NavLink to="/admin" className="sidebar-mobile__brand">
+          <NavLink to="/program" className="sidebar-mobile__brand">
             <div className="sidebar-mobile__logo">
               <img
                 src={logoSrc}

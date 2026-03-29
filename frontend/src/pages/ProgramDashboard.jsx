@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   getPrograms,
   createProgram,
@@ -7,7 +8,7 @@ import {
 } from "../api/programs";
 import { getCategories } from "../api/categories";
 import { useToast } from "../context/ToastContext";
-import "./AdminDashboard.css";
+import "./ProgramDashboard.css";
 
 const emptyForm = {
   title: "",
@@ -21,7 +22,7 @@ const emptyForm = {
   source_link: "",
 };
 
-const AdminDashboard = () => {
+const ProgramDashboard = () => {
   const toast = useToast();
   const [programs, setPrograms] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -35,6 +36,7 @@ const AdminDashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     fetchPrograms();
@@ -252,10 +254,16 @@ const AdminDashboard = () => {
     return url;
   };
 
+  const panelTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : { duration: 0.32, ease: "easeOut" };
+
+  const tablePanelKey = `${filterStatus}-${filterCategory}-${loading}-${filteredPrograms.length}`;
+
   return (
-    <div className="page admin">
-      <div className="admin__header">
-        <div className="admin__header-content">
+    <div className="page program">
+      <div className="program__header">
+        <div className="program__header-content">
           <div>
             <p className="eyebrow">Program</p>
             <h2>Kelola Program CSR</h2>
@@ -276,9 +284,17 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {showForm && (
-        <div className="form-section">
-          <div className="card form-card">
+      <AnimatePresence mode="wait" initial={false}>
+        {showForm && (
+          <motion.div
+            key={editingId ? `edit-${editingId}` : "new-program"}
+            className="form-section"
+            initial={{ opacity: 0, y: -14, scale: 0.995, filter: "blur(1px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -10, scale: 0.995, filter: "blur(1px)" }}
+            transition={panelTransition}
+          >
+            <div className="card form-card">
             <div className="card-header">
               <h3>{editingId ? "Edit Program" : "Tambah Program"}</h3>
               <button className="btn-cancel-edit" onClick={handleCancel}>
@@ -431,9 +447,10 @@ const AdminDashboard = () => {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="table-section">
         <div className="card table-card">
@@ -488,13 +505,21 @@ const AdminDashboard = () => {
           </div>
 
           {error && <div className="alert">{error}</div>}
-          {loading ? (
-            <p className="muted">Memuat...</p>
-          ) : programs.length === 0 ? (
-            <p className="muted">Belum ada program.</p>
-          ) : (
-            <div className="table-wrapper admin-table">
-              <table>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={tablePanelKey}
+              initial={{ opacity: 0, y: 12, filter: "blur(1px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, filter: "blur(1px)" }}
+              transition={panelTransition}
+            >
+              {loading ? (
+                <p className="muted">Memuat...</p>
+              ) : programs.length === 0 ? (
+                <p className="muted">Belum ada program.</p>
+              ) : (
+                <div className="table-wrapper program-table">
+                  <table>
                 <thead>
                   <tr>
                     <th className="th-checkbox">
@@ -587,14 +612,16 @@ const AdminDashboard = () => {
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>
   );
 };
 
-export default AdminDashboard;
+export default ProgramDashboard;

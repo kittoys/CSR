@@ -1,4 +1,4 @@
-.admin {
+.program {
   display: flex;
   flex-direction: column;
   gap: 1.125rem;
@@ -8,7 +8,7 @@
   overflow-x: hidden;
 }
 
-.admin__header {
+.program__header {
   min-height: 112px;
   padding: 1rem 1.25rem;
   display: flex;
@@ -20,7 +20,7 @@
   padding-bottom: 0.75rem;
 }
 
-.admin__header-content {
+.program__header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -29,13 +29,13 @@
   width: 100%;
 }
 
-.admin__header h2 {
+.program__header h2 {
   margin: 0.25rem 0;
   font-size: 1.65rem;
   font-weight: 700;
 }
 
-.admin__header .muted {
+.program__header .muted {
   margin-top: 0.25rem;
   line-height: 1.6;
 }
@@ -88,7 +88,7 @@
   width: 100%;
 }
 
-.admin__grid {
+.program__grid {
   display: grid;
   grid-template-columns: 450px 1fr;
   gap: 1rem;
@@ -97,20 +97,20 @@
 }
 
 @media (max-width: 1440px) {
-  .admin__grid {
+  .program__grid {
     grid-template-columns: 420px 1fr;
   }
 }
 
 @media (max-width: 1280px) {
-  .admin__grid {
+  .program__grid {
     grid-template-columns: 1fr 1.2fr;
     gap: 1.25rem;
   }
 }
 
 @media (max-width: 1024px) {
-  .admin__grid {
+  .program__grid {
     grid-template-columns: 1fr;
   }
 }
@@ -187,12 +187,12 @@
 }
 
 @media (max-width: 1024px) {
-  .admin {
+  .program {
     padding: 0.75rem 0.75rem 1rem;
     gap: 1rem;
   }
 
-  .admin__header {
+  .program__header {
     min-height: 96px;
     padding: 0.875rem 1rem;
   }
@@ -363,15 +363,15 @@
   background: #9ca3af;
 }
 
-.admin-table table {
+.program-table table {
   width: 100%;
   min-width: 900px;
   table-layout: fixed;
   border-collapse: collapse;
 }
 
-.admin-table th,
-.admin-table td {
+.program-table th,
+.program-table td {
   padding: 1rem 0.75rem;
   border-bottom: 1px solid #f3f4f6;
   text-align: left;
@@ -379,51 +379,51 @@
 }
 
 /* Column widths */
-.admin-table th:nth-child(1),
-.admin-table td:nth-child(1) {
+.program-table th:nth-child(1),
+.program-table td:nth-child(1) {
   width: 50px;
   text-align: center;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
 
-.admin-table th:nth-child(2),
-.admin-table td:nth-child(2) {
+.program-table th:nth-child(2),
+.program-table td:nth-child(2) {
   width: 90px;
   padding-left: 0.5rem;
   padding-right: 0.75rem;
 }
 
-.admin-table th:nth-child(3),
-.admin-table td:nth-child(3) {
+.program-table th:nth-child(3),
+.program-table td:nth-child(3) {
   width: auto;
   min-width: 280px;
 }
 
-.admin-table th:nth-child(4),
-.admin-table td:nth-child(4) {
+.program-table th:nth-child(4),
+.program-table td:nth-child(4) {
   width: 115px;
 }
 
-.admin-table th:nth-child(5),
-.admin-table td:nth-child(5) {
+.program-table th:nth-child(5),
+.program-table td:nth-child(5) {
   width: 110px;
 }
 
-.admin-table th:nth-child(6),
-.admin-table td:nth-child(6) {
+.program-table th:nth-child(6),
+.program-table td:nth-child(6) {
   width: 145px;
 }
 
-.admin-table th:nth-child(7),
-.admin-table td:nth-child(7) {
+.program-table th:nth-child(7),
+.program-table td:nth-child(7) {
   width: 110px;
   text-align: center;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
 
-.admin-table th {
+.program-table th {
   font-size: 0.75rem;
   color: #6b7280;
   font-weight: 700;
@@ -437,11 +437,11 @@
   z-index: 10;
 }
 
-.admin-table tbody tr {
+.program-table tbody tr {
   transition: background-color 0.2s ease;
 }
 
-.admin-table tbody tr:hover {
+.program-table tbody tr:hover {
   background: #f9fafb;
 }
 
@@ -747,25 +747,25 @@ tr.selected {
 }
 
 @media (max-width: 1024px) {
-  .admin__grid {
+  .program__grid {
     grid-template-columns: 1fr;
   }
 
-  .admin__header h2 {
+  .program__header h2 {
     font-size: 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
-  .admin {
+  .program {
     gap: 1rem;
   }
 
-  .admin__header h2 {
+  .program__header h2 {
     font-size: 1.5rem;
   }
 
-  .admin__header-content {
+  .program__header-content {
     flex-direction: column;
     align-items: stretch;
   }
@@ -786,19 +786,19 @@ tr.selected {
     max-height: none;
   }
 
-  .admin-table table {
+  .program-table table {
     min-width: 800px;
     font-size: 0.85rem;
   }
 
-  .admin-table th,
-  .admin-table td {
+  .program-table th,
+  .program-table td {
     padding: 0.75rem 0.5rem;
   }
 
   /* Adjust column widths for tablet */
-  .admin-table th:nth-child(3),
-  .admin-table td:nth-child(3) {
+  .program-table th:nth-child(3),
+  .program-table td:nth-child(3) {
     min-width: 200px;
   }
 
@@ -833,13 +833,13 @@ tr.selected {
     padding: 9px 11px;
   }
 
-  .admin .btn-primary-submit,
-  .admin .btn-ghost-reset {
+  .program .btn-primary-submit,
+  .program .btn-ghost-reset {
     padding: 0.75rem 1.25rem !important;
     font-size: 0.95rem !important;
   }
 
-  .admin .btn-bulk-delete {
+  .program .btn-bulk-delete {
     padding: 0.5rem 1rem !important;
     font-size: 0.9rem !important;
     width: 100%;
@@ -866,16 +866,16 @@ tr.selected {
 }
 
 @media (max-width: 640px) {
-  .admin {
+  .program {
     padding: 0.5rem;
   }
 
-  .admin__header {
+  .program__header {
     padding: 0.75rem;
     padding-bottom: 1rem;
   }
 
-  .admin__header h2 {
+  .program__header h2 {
     font-size: 1.25rem;
   }
 
@@ -895,60 +895,60 @@ tr.selected {
     padding: 0;
   }
 
-  .admin-table {
+  .program-table {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  .admin-table table {
+  .program-table table {
     min-width: 650px;
     font-size: 0.8rem;
   }
 
-  .admin-table th,
-  .admin-table td {
+  .program-table th,
+  .program-table td {
     padding: 0.625rem 0.375rem;
   }
 
   /* Compact columns for mobile */
-  .admin-table th:nth-child(1),
-  .admin-table td:nth-child(1) {
+  .program-table th:nth-child(1),
+  .program-table td:nth-child(1) {
     width: 40px;
     padding-left: 0.5rem;
   }
 
-  .admin-table th:nth-child(2),
-  .admin-table td:nth-child(2) {
+  .program-table th:nth-child(2),
+  .program-table td:nth-child(2) {
     width: 60px;
   }
 
-  .admin-table th:nth-child(3),
-  .admin-table td:nth-child(3) {
+  .program-table th:nth-child(3),
+  .program-table td:nth-child(3) {
     min-width: 180px;
   }
 
-  .admin-table th:nth-child(4),
-  .admin-table td:nth-child(4) {
+  .program-table th:nth-child(4),
+  .program-table td:nth-child(4) {
     width: 90px;
   }
 
-  .admin-table th:nth-child(5),
-  .admin-table td:nth-child(5) {
+  .program-table th:nth-child(5),
+  .program-table td:nth-child(5) {
     width: 85px;
   }
 
-  .admin-table th:nth-child(6),
-  .admin-table td:nth-child(6) {
+  .program-table th:nth-child(6),
+  .program-table td:nth-child(6) {
     width: 100px;
   }
 
-  .admin-table th:nth-child(7),
-  .admin-table td:nth-child(7) {
+  .program-table th:nth-child(7),
+  .program-table td:nth-child(7) {
     width: 85px;
     padding-right: 0.5rem;
   }
 
-  .admin-table th {
+  .program-table th {
     font-size: 0.7rem;
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
@@ -1016,26 +1016,26 @@ tr.selected {
     max-height: 200px;
   }
 
-  .admin .btn-cancel-edit {
+  .program .btn-cancel-edit {
     padding: 0.4rem 0.8rem !important;
     font-size: 0.85rem !important;
   }
 }
 
 @media (max-width: 480px) {
-  .admin {
+  .program {
     padding: 0.375rem;
   }
 
-  .admin__header {
+  .program__header {
     padding: 0.625rem;
   }
 
-  .admin__header h2 {
+  .program__header h2 {
     font-size: 1.125rem;
   }
 
-  .admin__header p {
+  .program__header p {
     font-size: 0.85rem;
   }
 
@@ -1069,17 +1069,17 @@ tr.selected {
   }
 
   /* Ultra compact table for small phones */
-  .admin-table table {
+  .program-table table {
     min-width: 580px;
     font-size: 0.75rem;
   }
 
-  .admin-table th,
-  .admin-table td {
+  .program-table th,
+  .program-table td {
     padding: 0.5rem 0.25rem;
   }
 
-  .admin-table th {
+  .program-table th {
     font-size: 0.65rem;
   }
 
@@ -1119,19 +1119,19 @@ tr.selected {
 }
 
 @media (max-width: 360px) {
-  .admin {
+  .program {
     padding: 0.25rem;
   }
 
-  .admin__header {
+  .program__header {
     padding: 0.5rem;
   }
 
-  .admin__header h2 {
+  .program__header h2 {
     font-size: 1rem;
   }
 
-  .admin__header p {
+  .program__header p {
     font-size: 0.8rem;
   }
 
@@ -1160,17 +1160,17 @@ tr.selected {
   }
 
   /* Minimal table for very small screens */
-  .admin-table table {
+  .program-table table {
     min-width: 520px;
     font-size: 0.7rem;
   }
 
-  .admin-table th,
-  .admin-table td {
+  .program-table th,
+  .program-table td {
     padding: 0.375rem 0.25rem;
   }
 
-  .admin-table th {
+  .program-table th {
     font-size: 0.6rem;
   }
 
@@ -1202,7 +1202,7 @@ tr.selected {
 
 /* Zoom support - handles browser zoom levels */
 @media (min-resolution: 150dpi) {
-  .admin__grid {
+  .program__grid {
     gap: 0.75rem;
   }
 
@@ -1218,7 +1218,7 @@ tr.selected {
 }
 
 @media (min-resolution: 200dpi) {
-  .admin__grid {
+  .program__grid {
     gap: 0.5rem;
   }
 
@@ -1233,7 +1233,7 @@ tr.selected {
   overflow-x: hidden;
 }
 
-.admin,
+.program,
 .card,
 .form {
   max-width: 100%;
