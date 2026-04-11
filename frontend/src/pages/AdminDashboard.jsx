@@ -6,7 +6,9 @@ import {
   deleteProgram,
 } from "../api/programs";
 import { getCategories } from "../api/categories";
+import { Download } from "lucide-react";
 import { useToast } from "../context/ToastContext";
+import { exportRowsToCsv, exportRowsToExcel } from "../utils/exportSpreadsheet";
 import "./AdminDashboard.css";
 
 const emptyForm = {
@@ -245,6 +247,72 @@ const AdminDashboard = () => {
     return statusMatch && categoryMatch;
   });
 
+  const programExportColumns = [
+    { label: "No", width: 6, value: (_program, index) => index + 1 },
+    { label: "Judul", width: 28, value: (program) => program.title || "-" },
+    {
+      label: "Kategori",
+      width: 18,
+      value: (program) => program.category_name || program.category_id || "-",
+    },
+    { label: "Status", width: 14, value: (program) => program.status || "-" },
+    {
+      label: "Periode",
+      width: 24,
+      value: (program) => {
+        const startDate = program.start_date
+          ? program.start_date.slice(0, 10)
+          : "-";
+        const endDate = program.end_date ? program.end_date.slice(0, 10) : "-";
+        return `${startDate} → ${endDate}`;
+      },
+    },
+    { label: "Lokasi", width: 22, value: (program) => program.location || "-" },
+    {
+      label: "Sumber Link",
+      width: 32,
+      value: (program) => program.source_link || "-",
+    },
+  ];
+
+  const handleExportCsv = () => {
+    if (filteredPrograms.length === 0) {
+      toast.warning("Tidak ada data program untuk diekspor", "Export CSV");
+      return;
+    }
+
+    exportRowsToCsv({
+      filename: `program-admin-${filterStatus || "semua"}-${filterCategory || "semua-kategori"}`,
+      columns: programExportColumns,
+      rows: filteredPrograms,
+    });
+
+    toast.success("Data program berhasil diekspor ke CSV");
+  };
+
+  const handleExportExcel = () => {
+    if (filteredPrograms.length === 0) {
+      toast.warning("Tidak ada data program untuk diekspor", "Export Excel");
+      return;
+    }
+
+    exportRowsToExcel({
+      filename: `program-admin-${filterStatus || "semua"}-${filterCategory || "semua-kategori"}`,
+      sheetName: "Program",
+      title: "Laporan Program CSR",
+      subtitle: `Status: ${filterStatus || "Semua"} | Kategori: ${filterCategory || "Semua"}`,
+      summary: [
+        { label: "Total Program", value: filteredPrograms.length },
+        { label: "Status", value: filterStatus || "Semua" },
+        { label: "Kategori", value: filterCategory || "Semua" },
+      ],
+      columns: programExportColumns,
+      rows: filteredPrograms,
+    });
+
+    toast.success("Data program berhasil diekspor ke Excel");
+  };
+
   // Resolve image URL: if stored as "/uploads/..." prefix backend host
   const resolveImageUrl = (url) => {
     if (!url) return "";
@@ -475,6 +543,22 @@ const AdminDashboard = () => {
                 <option value="3">Kesehatan</option>
                 <option value="4">Ekonomi</option>
               </select>
+              <button
+                className="btn btn--ghost btn-with-icon"
+                onClick={handleExportCsv}
+                title="Export program ke CSV"
+              >
+                <Download size={16} />
+                <span>CSV</span>
+              </button>
+              <button
+                className="btn btn--secondary btn-with-icon"
+                onClick={handleExportExcel}
+                title="Export program ke Excel"
+              >
+                <Download size={16} />
+                <span>Excel</span>
+              </button>
             </div>
             {selectedPrograms.length > 0 && (
               <button

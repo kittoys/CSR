@@ -8,6 +8,7 @@ import {
   CheckSquare,
   Wallet,
   Printer,
+  Download,
   CalendarDays,
 } from "lucide-react";
 import {
@@ -20,6 +21,7 @@ import {
 } from "../api/proposals";
 import { generatePrintTableHTML } from "../utils/PrintTableTemplate";
 import { generatePrintChartHTML } from "../utils/PrintChartTemplate";
+import { exportRowsToCsv, exportRowsToExcel } from "../utils/exportSpreadsheet";
 import { useToast } from "../context/ToastContext";
 import "./ProposalDashboard.css";
 
@@ -297,6 +299,52 @@ const ProposalDashboard = () => {
     printWindow.document.close();
   };
 
+  const handleExportCsv = () => {
+    if (filteredProposals.length === 0) {
+      toast.warning("Tidak ada data proposal untuk diekspor", "Export CSV");
+      return;
+    }
+
+    exportRowsToCsv({
+      filename: `proposal-${getFilterLabel()}`,
+      columns: proposalExportColumns,
+      rows: filteredProposals,
+    });
+
+    toast.success("Data proposal berhasil diekspor ke CSV");
+  };
+
+  const handleExportExcel = () => {
+    if (filteredProposals.length === 0) {
+      toast.warning("Tidak ada data proposal untuk diekspor", "Export Excel");
+      return;
+    }
+
+    exportRowsToExcel({
+      filename: `proposal-${getFilterLabel()}`,
+      sheetName: "Proposal",
+      title: "Laporan Proposal CSR",
+      subtitle: `Filter: ${getFilterLabel()} | Status: ${filterStatus}`,
+      summary: [
+        { label: "Total Proposal", value: filteredProposals.length },
+        {
+          label: "Total Budget",
+          value: formatCurrency(
+            filteredProposals.reduce(
+              (sum, item) => sum + (Number(item.budget) || 0),
+              0,
+            ),
+          ),
+        },
+        { label: "Status", value: filterStatus },
+      ],
+      columns: proposalExportColumns,
+      rows: filteredProposals,
+    });
+
+    toast.success("Data proposal berhasil diekspor ke Excel");
+  };
+
   const filteredProposals = proposals.filter((proposal) => {
     const statusMatch =
       filterStatus === "Semua Status" || proposal.status === filterStatus;
@@ -375,6 +423,56 @@ const ProposalDashboard = () => {
     (max, m) => Math.max(max, m.total_budget || 0),
     0,
   );
+
+  const proposalExportColumns = [
+    {
+      label: "No",
+      width: 6,
+      value: (_proposal, index) => index + 1,
+    },
+    {
+      label: "CASE ID",
+      width: 14,
+      value: (proposal) => proposal.case_id || "-",
+    },
+    {
+      label: "Nama Proposal",
+      width: 28,
+      value: (proposal) => proposal.proposal_name || "-",
+    },
+    {
+      label: "Organisasi",
+      width: 24,
+      value: (proposal) => proposal.organization || "-",
+    },
+    {
+      label: "Detail Produk",
+      width: 34,
+      value: (proposal) => proposal.product_detail || "-",
+    },
+    {
+      label: "Budget",
+      width: 16,
+      value: (proposal) => formatCurrency(proposal.budget || 0),
+    },
+    { label: "Status", width: 16, value: (proposal) => proposal.status || "-" },
+    {
+      label: "Pengajuan Bright",
+      width: 16,
+      value: (proposal) => proposal.bright_status || "-",
+    },
+    {
+      label: "PIC",
+      width: 28,
+      value: (proposal) =>
+        `${proposal.pic_name || "-"}${proposal.pic_email ? ` (${proposal.pic_email})` : ""}`,
+    },
+    {
+      label: "Tanggal",
+      width: 14,
+      value: (proposal) => formatDate(proposal.proposal_date),
+    },
+  ];
 
   const getMonthOptions = () => {
     const months = [
@@ -562,10 +660,7 @@ const ProposalDashboard = () => {
               </div>
 
               <div className="stat-card">
-                <div
-                  className="stat-icon stat-icon--budget"
-                  aria-hidden="true"
-                >
+                <div className="stat-icon stat-icon--budget" aria-hidden="true">
                   <Wallet size={22} />
                 </div>
                 <div className="stat-content">
@@ -579,77 +674,14 @@ const ProposalDashboard = () => {
           )}
 
           <div className="charts-container">
-          <div className="chart-card chart-card--bar">
-            <div className="chart-header">
-              <div>
-                <h2>Tren Budget Per Bulan</h2>
-                <p className="chart-subtitle">
-                  Total budget proposal per bulan
-                </p>
-                {stats && stats.total_budget > 0 && (
-                  <div className="chart-budget-badge">
-                    <span className="budget-label">Total Budget:</span>
-                    <span className="budget-value">
-                      {formatCurrency(stats.total_budget)}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="chart-header-right">
-                <button
-                  className="btn btn--print-chart btn-with-icon"
-                  onClick={handlePrintChart}
-                  title="Print Grafik"
-                >
-                  <Printer size={16} />
-                  <span>Print Grafik</span>
-                </button>
-              </div>
-            </div>
-
-            {monthlyStats.length === 0 ? (
-              <div className="chart-empty">
-                Belum ada data untuk 6 bulan terakhir
-              </div>
-            ) : (
-              <div className="chart-body">
-                {monthlyStats.map((m) => {
-                  const budget = m.total_budget || 0;
-                  // Minimum height 30px, maksimum 220px untuk bar
-                  const barHeight = maxMonthlyBudget
-                    ? Math.max(30, (budget / maxMonthlyBudget) * 220)
-                    : 30;
-
-                  return (
-                    <div className="chart-column" key={m.month}>
-                      <div
-                        className="bar-stack bar-stack--budget"
-                        style={{ height: `${barHeight}px` }}
-                        title={`${m.label}\nBudget: ${formatCurrency(budget)}`}
-                      >
-                        <div
-                          className="bar-segment segment-budget"
-                          style={{ height: "100%" }}
-                        ></div>
-                      </div>
-                      <div className="bar-budget">{formatCurrency(budget)}</div>
-                      <div className="bar-label">{m.label}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {stats && (
-            <div className="chart-card chart-card--donut">
+            <div className="chart-card chart-card--bar">
               <div className="chart-header">
                 <div>
-                  <h2>Distribusi Status</h2>
+                  <h2>Tren Budget Per Bulan</h2>
                   <p className="chart-subtitle">
-                    Persentase status proposal saat ini
+                    Total budget proposal per bulan
                   </p>
-                  {stats.total_budget > 0 && (
+                  {stats && stats.total_budget > 0 && (
                     <div className="chart-budget-badge">
                       <span className="budget-label">Total Budget:</span>
                       <span className="budget-value">
@@ -658,225 +690,294 @@ const ProposalDashboard = () => {
                     </div>
                   )}
                 </div>
+                <div className="chart-header-right">
+                  <button
+                    className="btn btn--print-chart btn-with-icon"
+                    onClick={handlePrintChart}
+                    title="Print Grafik"
+                  >
+                    <Printer size={16} />
+                    <span>Print Grafik</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="chart-body">
-                <div className="donut-chart-container">
-                  <svg viewBox="0 0 200 200" className="donut-chart">
-                    {(() => {
-                      const total = stats.total_proposals || 0;
-                      if (total === 0) {
+              {monthlyStats.length === 0 ? (
+                <div className="chart-empty">
+                  Belum ada data untuk 6 bulan terakhir
+                </div>
+              ) : (
+                <div className="chart-body">
+                  {monthlyStats.map((m) => {
+                    const budget = m.total_budget || 0;
+                    // Minimum height 30px, maksimum 220px untuk bar
+                    const barHeight = maxMonthlyBudget
+                      ? Math.max(30, (budget / maxMonthlyBudget) * 220)
+                      : 30;
+
+                    return (
+                      <div className="chart-column" key={m.month}>
+                        <div
+                          className="bar-stack bar-stack--budget"
+                          style={{ height: `${barHeight}px` }}
+                          title={`${m.label}\nBudget: ${formatCurrency(budget)}`}
+                        >
+                          <div
+                            className="bar-segment segment-budget"
+                            style={{ height: "100%" }}
+                          ></div>
+                        </div>
+                        <div className="bar-budget">
+                          {formatCurrency(budget)}
+                        </div>
+                        <div className="bar-label">{m.label}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {stats && (
+              <div className="chart-card chart-card--donut">
+                <div className="chart-header">
+                  <div>
+                    <h2>Distribusi Status</h2>
+                    <p className="chart-subtitle">
+                      Persentase status proposal saat ini
+                    </p>
+                    {stats.total_budget > 0 && (
+                      <div className="chart-budget-badge">
+                        <span className="budget-label">Total Budget:</span>
+                        <span className="budget-value">
+                          {formatCurrency(stats.total_budget)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="chart-body">
+                  <div className="donut-chart-container">
+                    <svg viewBox="0 0 200 200" className="donut-chart">
+                      {(() => {
+                        const total = stats.total_proposals || 0;
+                        if (total === 0) {
+                          return (
+                            <text
+                              x="100"
+                              y="100"
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              className="donut-no-data"
+                            >
+                              Tidak ada data
+                            </text>
+                          );
+                        }
+
+                        const inProgress = stats.in_progress || 0;
+                        const waiting = stats.waiting || 0;
+                        const completed = stats.completed || 0;
+
+                        const inProgressPct = (inProgress / total) * 100;
+                        const waitingPct = (waiting / total) * 100;
+                        const completedPct = (completed / total) * 100;
+
+                        const radius = 70;
+                        const innerRadius = 45;
+
+                        let currentAngle = -90;
+
+                        const createArc = (percentage, startAngle) => {
+                          const angle = (percentage / 100) * 360;
+                          const endAngle = startAngle + angle;
+
+                          const startRad = (startAngle * Math.PI) / 180;
+                          const endRad = (endAngle * Math.PI) / 180;
+
+                          const x1 = 100 + radius * Math.cos(startRad);
+                          const y1 = 100 + radius * Math.sin(startRad);
+                          const x2 = 100 + radius * Math.cos(endRad);
+                          const y2 = 100 + radius * Math.sin(endRad);
+
+                          const x3 = 100 + innerRadius * Math.cos(endRad);
+                          const y3 = 100 + innerRadius * Math.sin(endRad);
+                          const x4 = 100 + innerRadius * Math.cos(startRad);
+                          const y4 = 100 + innerRadius * Math.sin(startRad);
+
+                          const largeArc = angle > 180 ? 1 : 0;
+
+                          return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+                        };
+
+                        const segments = [];
+
+                        // Jika hanya ada satu jenis status, tampilkan sebagai lingkaran penuh
+                        const hasMultipleStatuses =
+                          (inProgress > 0 ? 1 : 0) +
+                            (waiting > 0 ? 1 : 0) +
+                            (completed > 0 ? 1 : 0) >
+                          1;
+
+                        if (!hasMultipleStatuses) {
+                          // Hanya satu status, tampilkan sebagai lingkaran penuh
+                          let singleClass = "";
+                          if (inProgress > 0)
+                            singleClass = "donut-segment--progress";
+                          else if (waiting > 0)
+                            singleClass = "donut-segment--waiting";
+                          else if (completed > 0)
+                            singleClass = "donut-segment--done";
+
+                          // Gunakan 99.9% untuk menghindari masalah rendering lingkaran penuh
+                          segments.push(
+                            <path
+                              key="single"
+                              d={createArc(99.9, currentAngle)}
+                              className={`donut-segment ${singleClass}`}
+                              title={`Total: ${total}`}
+                            />,
+                          );
+                        } else {
+                          // Multiple statuses, render each segment
+                          if (inProgressPct > 0) {
+                            segments.push(
+                              <path
+                                key="progress"
+                                d={createArc(inProgressPct, currentAngle)}
+                                className="donut-segment donut-segment--progress"
+                                title={`In Progress: ${inProgress} (${inProgressPct.toFixed(
+                                  1,
+                                )}%)`}
+                              />,
+                            );
+                            currentAngle += (inProgressPct / 100) * 360;
+                          }
+
+                          if (waitingPct > 0) {
+                            segments.push(
+                              <path
+                                key="waiting"
+                                d={createArc(waitingPct, currentAngle)}
+                                className="donut-segment donut-segment--waiting"
+                                title={`Siap Diambil: ${waiting} (${waitingPct.toFixed(
+                                  1,
+                                )}%)`}
+                              />,
+                            );
+                            currentAngle += (waitingPct / 100) * 360;
+                          }
+
+                          if (completedPct > 0) {
+                            segments.push(
+                              <path
+                                key="completed"
+                                d={createArc(completedPct, currentAngle)}
+                                className="donut-segment donut-segment--done"
+                                title={`Done: ${completed} (${completedPct.toFixed(
+                                  1,
+                                )}%)`}
+                              />,
+                            );
+                          }
+                        }
+
                         return (
-                          <text
-                            x="100"
-                            y="100"
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                            className="donut-no-data"
-                          >
-                            Tidak ada data
-                          </text>
+                          <>
+                            {segments}
+                            <text
+                              x="100"
+                              y="92"
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              className="donut-total-label"
+                            >
+                              Total
+                            </text>
+                            <text
+                              x="100"
+                              y="108"
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              className="donut-total-value"
+                            >
+                              {total}
+                            </text>
+                          </>
                         );
-                      }
+                      })()}
+                    </svg>
 
-                      const inProgress = stats.in_progress || 0;
-                      const waiting = stats.waiting || 0;
-                      const completed = stats.completed || 0;
-
-                      const inProgressPct = (inProgress / total) * 100;
-                      const waitingPct = (waiting / total) * 100;
-                      const completedPct = (completed / total) * 100;
-
-                      const radius = 70;
-                      const innerRadius = 45;
-
-                      let currentAngle = -90;
-
-                      const createArc = (percentage, startAngle) => {
-                        const angle = (percentage / 100) * 360;
-                        const endAngle = startAngle + angle;
-
-                        const startRad = (startAngle * Math.PI) / 180;
-                        const endRad = (endAngle * Math.PI) / 180;
-
-                        const x1 = 100 + radius * Math.cos(startRad);
-                        const y1 = 100 + radius * Math.sin(startRad);
-                        const x2 = 100 + radius * Math.cos(endRad);
-                        const y2 = 100 + radius * Math.sin(endRad);
-
-                        const x3 = 100 + innerRadius * Math.cos(endRad);
-                        const y3 = 100 + innerRadius * Math.sin(endRad);
-                        const x4 = 100 + innerRadius * Math.cos(startRad);
-                        const y4 = 100 + innerRadius * Math.sin(startRad);
-
-                        const largeArc = angle > 180 ? 1 : 0;
-
-                        return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4} ${y4} Z`;
-                      };
-
-                      const segments = [];
-
-                      // Jika hanya ada satu jenis status, tampilkan sebagai lingkaran penuh
-                      const hasMultipleStatuses =
-                        (inProgress > 0 ? 1 : 0) +
-                          (waiting > 0 ? 1 : 0) +
-                          (completed > 0 ? 1 : 0) >
-                        1;
-
-                      if (!hasMultipleStatuses) {
-                        // Hanya satu status, tampilkan sebagai lingkaran penuh
-                        let singleClass = "";
-                        if (inProgress > 0)
-                          singleClass = "donut-segment--progress";
-                        else if (waiting > 0)
-                          singleClass = "donut-segment--waiting";
-                        else if (completed > 0)
-                          singleClass = "donut-segment--done";
-
-                        // Gunakan 99.9% untuk menghindari masalah rendering lingkaran penuh
-                        segments.push(
-                          <path
-                            key="single"
-                            d={createArc(99.9, currentAngle)}
-                            className={`donut-segment ${singleClass}`}
-                            title={`Total: ${total}`}
-                          />,
-                        );
-                      } else {
-                        // Multiple statuses, render each segment
-                        if (inProgressPct > 0) {
-                          segments.push(
-                            <path
-                              key="progress"
-                              d={createArc(inProgressPct, currentAngle)}
-                              className="donut-segment donut-segment--progress"
-                              title={`In Progress: ${inProgress} (${inProgressPct.toFixed(
-                                1,
-                              )}%)`}
-                            />,
-                          );
-                          currentAngle += (inProgressPct / 100) * 360;
-                        }
-
-                        if (waitingPct > 0) {
-                          segments.push(
-                            <path
-                              key="waiting"
-                              d={createArc(waitingPct, currentAngle)}
-                              className="donut-segment donut-segment--waiting"
-                              title={`Siap Diambil: ${waiting} (${waitingPct.toFixed(
-                                1,
-                              )}%)`}
-                            />,
-                          );
-                          currentAngle += (waitingPct / 100) * 360;
-                        }
-
-                        if (completedPct > 0) {
-                          segments.push(
-                            <path
-                              key="completed"
-                              d={createArc(completedPct, currentAngle)}
-                              className="donut-segment donut-segment--done"
-                              title={`Done: ${completed} (${completedPct.toFixed(
-                                1,
-                              )}%)`}
-                            />,
-                          );
-                        }
-                      }
-
-                      return (
-                        <>
-                          {segments}
-                          <text
-                            x="100"
-                            y="92"
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                            className="donut-total-label"
-                          >
-                            Total
-                          </text>
-                          <text
-                            x="100"
-                            y="108"
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                            className="donut-total-value"
-                          >
-                            {total}
-                          </text>
-                        </>
-                      );
-                    })()}
-                  </svg>
-
-                  <div className="donut-legend">
-                    <div className="donut-legend-item">
-                      <span className="donut-legend-dot donut-legend-dot--progress"></span>
-                      <div className="donut-legend-content">
-                        <span className="donut-legend-label">In Progress</span>
-                        <span className="donut-legend-value">
-                          {stats.in_progress || 0}
-                          <span className="donut-legend-percent">
-                            {stats.total_proposals
-                              ? (
-                                  ((stats.in_progress || 0) /
-                                    stats.total_proposals) *
-                                  100
-                                ).toFixed(1)
-                              : 0}
-                            %
+                    <div className="donut-legend">
+                      <div className="donut-legend-item">
+                        <span className="donut-legend-dot donut-legend-dot--progress"></span>
+                        <div className="donut-legend-content">
+                          <span className="donut-legend-label">
+                            In Progress
                           </span>
-                        </span>
+                          <span className="donut-legend-value">
+                            {stats.in_progress || 0}
+                            <span className="donut-legend-percent">
+                              {stats.total_proposals
+                                ? (
+                                    ((stats.in_progress || 0) /
+                                      stats.total_proposals) *
+                                    100
+                                  ).toFixed(1)
+                                : 0}
+                              %
+                            </span>
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="donut-legend-item">
-                      <span className="donut-legend-dot donut-legend-dot--waiting"></span>
-                      <div className="donut-legend-content">
-                        <span className="donut-legend-label">Siap Diambil</span>
-                        <span className="donut-legend-value">
-                          {stats.waiting || 0}
-                          <span className="donut-legend-percent">
-                            {stats.total_proposals
-                              ? (
-                                  ((stats.waiting || 0) /
-                                    stats.total_proposals) *
-                                  100
-                                ).toFixed(1)
-                              : 0}
-                            %
+                      <div className="donut-legend-item">
+                        <span className="donut-legend-dot donut-legend-dot--waiting"></span>
+                        <div className="donut-legend-content">
+                          <span className="donut-legend-label">
+                            Siap Diambil
                           </span>
-                        </span>
+                          <span className="donut-legend-value">
+                            {stats.waiting || 0}
+                            <span className="donut-legend-percent">
+                              {stats.total_proposals
+                                ? (
+                                    ((stats.waiting || 0) /
+                                      stats.total_proposals) *
+                                    100
+                                  ).toFixed(1)
+                                : 0}
+                              %
+                            </span>
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="donut-legend-item">
-                      <span className="donut-legend-dot donut-legend-dot--done"></span>
-                      <div className="donut-legend-content">
-                        <span className="donut-legend-label">Done</span>
-                        <span className="donut-legend-value">
-                          {stats.completed || 0}
-                          <span className="donut-legend-percent">
-                            {stats.total_proposals
-                              ? (
-                                  ((stats.completed || 0) /
-                                    stats.total_proposals) *
-                                  100
-                                ).toFixed(1)
-                              : 0}
-                            %
+                      <div className="donut-legend-item">
+                        <span className="donut-legend-dot donut-legend-dot--done"></span>
+                        <div className="donut-legend-content">
+                          <span className="donut-legend-label">Done</span>
+                          <span className="donut-legend-value">
+                            {stats.completed || 0}
+                            <span className="donut-legend-percent">
+                              {stats.total_proposals
+                                ? (
+                                    ((stats.completed || 0) /
+                                      stats.total_proposals) *
+                                    100
+                                  ).toFixed(1)
+                                : 0}
+                              %
+                            </span>
                           </span>
-                        </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
           </div>
         </div>
 
@@ -884,6 +985,22 @@ const ProposalDashboard = () => {
           <div className="section-header">
             <h2>Daftar Proposal</h2>
             <div className="section-header-actions">
+              <button
+                className="btn btn--secondary btn-with-icon"
+                onClick={handleExportCsv}
+                title="Export proposal ke CSV"
+              >
+                <Download size={16} />
+                <span>CSV</span>
+              </button>
+              <button
+                className="btn btn--secondary btn-with-icon"
+                onClick={handleExportExcel}
+                title="Export proposal ke Excel"
+              >
+                <Download size={16} />
+                <span>Excel</span>
+              </button>
               <button
                 className="btn btn--print btn-with-icon"
                 onClick={handlePrint}
@@ -983,7 +1100,10 @@ const ProposalDashboard = () => {
             )}
           </div>
 
-          <div key={tablePanelKey} className="table-wrapper proposal-switch-panel proposal-switch-panel--fast">
+          <div
+            key={tablePanelKey}
+            className="table-wrapper proposal-switch-panel proposal-switch-panel--fast"
+          >
             <table className="proposals-table">
               <thead>
                 <tr>

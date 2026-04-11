@@ -34,10 +34,10 @@
   background: var(--color-surface);
   border-radius: 12px;
   padding: 2.5rem;
-  box-shadow: 0 20px 40px rgba(0, 119, 200, 0.2);
+  box-shadow: 0 20px 40px rgba(var(--color-primary-rgb), 0.2);
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(0, 119, 200, 0.08);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.1);
 }
 
 .login-logo {
@@ -102,9 +102,9 @@
 }
 
 .alert--error {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  background: rgba(var(--color-error-rgb), 0.12);
+  color: var(--color-error);
+  border: 1px solid rgba(var(--color-error-rgb), 0.24);
 }
 
 .alert--error::before {
@@ -133,18 +133,18 @@
 
 .form-group input {
   padding: 0.875rem 1rem;
-  border: 2px solid rgba(0, 119, 200, 0.18);
+  border: 2px solid rgba(var(--color-primary-rgb), 0.22);
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.2s ease;
-  background: #ffffff;
-  color: #111827;
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .form-group input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(0, 119, 200, 0.15);
+  box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.18);
   transform: translateY(-1px);
 }
 
@@ -152,7 +152,7 @@
   background: var(--color-light-gray);
   color: var(--color-muted);
   cursor: not-allowed;
-  border-color: rgba(0, 119, 200, 0.15);
+  border-color: rgba(var(--color-primary-rgb), 0.15);
 }
 
 .btn {
@@ -178,9 +178,9 @@
     var(--color-primary) 0%,
     var(--color-support) 100%
   );
-  background-color: #0077c8;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 119, 200, 0.28);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.28);
   font-weight: 700;
   letter-spacing: 0.5px;
   font-size: 1rem;
@@ -202,20 +202,20 @@
 
 .btn--primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 119, 200, 0.35);
-  color: white;
+  box-shadow: 0 6px 16px rgba(var(--color-primary-rgb), 0.35);
+  color: var(--color-on-primary);
 }
 
 .btn--primary:active:not(:disabled) {
   transform: translateY(0);
-  color: white;
+  color: var(--color-on-primary);
 }
 
 .btn--primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
-  color: white;
+  color: var(--color-on-primary);
 }
 
 .btn--full {

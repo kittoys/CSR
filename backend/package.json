@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "node -e \"console.log('Backend build step: no transpilation required')\"",
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "setup-db": "node scripts/setupDb.js",
@@ -11,7 +12,7 @@
     "create-admin": "node scripts/createAdmin.js",
     "create-proposals-table": "node scripts/createDonationProposals.js",
     "test-db": "node scripts/testDb.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,7 @@
     "react-chartjs-2": "^5.3.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "supertest": "^7.2.2"
   }
 }

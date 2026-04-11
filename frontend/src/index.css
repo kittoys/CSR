@@ -5,41 +5,69 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap");
 
 :root {
-  /* Primary Brand Colors - Blue-Green Aqua Palette */
-  --color-primary: #0077c8;
-  --color-primary-light: #3498db;
-  --color-primary-dark: #005a9c;
-  --color-secondary: #00d4aa;
-  --color-secondary-light: #4fedd2;
-  --color-secondary-dark: #00a884;
+  /* Primary Brand Colors - Harmonized Aqua-Blue Palette */
+  --color-primary: #0b6bbd;
+  --color-primary-light: #2f84cf;
+  --color-primary-dark: #084d8a;
+  --color-secondary: #0f9f8b;
+  --color-secondary-light: #36bba8;
+  --color-secondary-dark: #0b7b6c;
 
   /* Accent Colors */
-  --color-accent-1: #ff6b9d;
-  --color-accent-2: #ffc93c;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
+  --color-accent-1: #e35d8f;
+  --color-accent-2: #f4b94a;
+  --color-success: #0f9f6e;
+  --color-warning: #b7791f;
+  --color-error: #cf3344;
+  --color-info: #2e7bcf;
 
-  /* Neutral Colors */
-  --color-dark: #0f172a;
-  --color-text: #1e293b;
-  --color-text-light: #475569;
-  --color-muted: #64748b;
-  --color-border: #e2e8f0;
+  /* Neutral Colors - Light Theme (default) */
+  --color-dark: #0f1e33;
+  --color-text: #1b2b42;
+  --color-text-light: #4b5f79;
+  --color-muted: #6f8097;
+  --color-border: #d7e2ee;
   --color-surface: #ffffff;
-  --color-background: #f8fafc;
-  --color-background-alt: #f1f5f9;
+  --color-background: #f4f8fc;
+  --color-background-alt: #eaf1f8;
+  --color-background-elevated: #ffffff;
+  --color-light-gray: #f4f8fc;
+  --color-support: #178ec9;
+
+  /* Functional foreground colors */
+  --color-on-primary: #ffffff;
+  --color-on-secondary: #ffffff;
+  --color-focus-ring: #2f84cf;
+
+  /* RGB tokens for transparent overlays */
+  --color-primary-rgb: 11, 107, 189;
+  --color-secondary-rgb: 15, 159, 139;
+  --color-on-primary-rgb: 255, 255, 255;
+  --color-error-rgb: 207, 51, 68;
+  --color-backdrop-rgb: 12, 24, 40;
+
+  /* Chart Colors - Light Theme */
+  --chart-bar-primary: #0b6bbd;
+  --chart-bar-gradient-start: #0f4f85;
+  --chart-bar-gradient-end: #178ec9;
+  --chart-bar-bg: #edf2f7;
+  --chart-bar-border: #d8e2ee;
+  --chart-donut-progress: #d69e2e;
+  --chart-donut-waiting: #2e7bcf;
+  --chart-donut-done: #10a073;
+  --chart-text: #1b2b42;
+  --chart-text-secondary: #5f738c;
 
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #0077c8 0%, #00d4aa 100%);
+  --gradient-primary: linear-gradient(135deg, #0b6bbd 0%, #0f9f8b 100%);
   --gradient-hero: linear-gradient(
     135deg,
-    #0c4a6e 0%,
-    #0e7490 50%,
-    #0891b2 100%
+    #0f4f85 0%,
+    #0f6f9a 50%,
+    #178ec9 100%
   );
-  --gradient-card: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  --gradient-card: linear-gradient(135deg, #ffffff 0%, #f4f8fc 100%);
+  --gradient-white: linear-gradient(135deg, #ffffff 0%, #eef5fd 100%);
   --gradient-overlay: linear-gradient(
     180deg,
     rgba(0, 0, 0, 0.7) 0%,
@@ -58,7 +86,11 @@
   /* Neumorphism Shadows */
   --shadow-neu-light: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
   --shadow-neu-dark: inset 8px 8px 16px #d1d9e6, inset -8px -8px 16px #ffffff;
+}
 
+/* Base styles with theme support */
+:root,
+.light-theme {
   /* Spacing Scale */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -135,6 +167,19 @@ body {
   font-weight: 400;
   letter-spacing: -0.011em;
   box-sizing: border-box;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* Smooth theme transitions for interactive elements */
+*,
+*::before,
+*::after {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 /* Ensure all elements respect box-sizing */
@@ -247,29 +292,29 @@ h6 {
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-  color: white;
-  box-shadow: 0 4px 15px rgba(8, 145, 178, 0.3);
+  background: var(--gradient-primary);
+  color: var(--color-on-primary);
+  box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.28);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn--primary:hover {
-  box-shadow: 0 12px 30px rgba(6, 182, 212, 0.4);
+  box-shadow: 0 12px 30px rgba(var(--color-primary-rgb), 0.35);
   transform: translateY(-3px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn--secondary {
-  background: white;
-  color: #0891b2;
-  border: 2px solid #0891b2;
-  box-shadow: 0 2px 8px rgba(8, 145, 178, 0.15);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.15);
 }
 
 .btn--secondary:hover {
-  background: #0891b2;
-  color: white;
-  box-shadow: 0 8px 20px rgba(8, 145, 178, 0.3);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.3);
   transform: translateY(-3px);
 }
 
@@ -423,7 +468,7 @@ h6 {
 
 /* Focus Visible */
 *:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus-ring);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -1165,4 +1210,12 @@ video,
 iframe {
   max-width: 100% !important;
   height: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
 }

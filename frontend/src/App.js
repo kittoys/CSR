@@ -16,6 +16,7 @@ import ProgramDashboard from "./pages/ProgramDashboard";
 import ProposalDashboard from "./pages/ProposalDashboard";
 import ChartDashboard from "./pages/chart";
 import { ToastProvider } from "./context/ToastContext";
+import { DashboardProvider } from "./context/DashboardContext";
 import "./App.css";
 
 const PRIVATE_SIDEBAR_STORAGE_KEY = "csr:privateSidebarHidden";
@@ -87,9 +88,11 @@ const AppContent = () => {
 function App() {
   return (
     <ToastProvider>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
+      <DashboardProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </DashboardProvider>
     </ToastProvider>
   );
 }

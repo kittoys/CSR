@@ -93,9 +93,10 @@ const Login = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: "linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)",
-                color: "#ffffff",
-                boxShadow: "0 4px 12px rgba(0, 119, 200, 0.28)",
+                background:
+                  "linear-gradient(135deg, var(--color-primary) 0%, var(--color-support) 100%)",
+                color: "var(--color-on-primary)",
+                boxShadow: "0 4px 12px rgba(var(--color-primary-rgb), 0.28)",
                 transition: "all 0.2s ease",
                 lineHeight: "1.5",
                 textAlign: "center",
@@ -106,13 +107,13 @@ const Login = () => {
                 if (!loading) {
                   e.currentTarget.style.transform = "translateY(-2px)";
                   e.currentTarget.style.boxShadow =
-                    "0 6px 16px rgba(0, 119, 200, 0.35)";
+                    "0 6px 16px rgba(var(--color-primary-rgb), 0.35)";
                 }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
                 e.currentTarget.style.boxShadow =
-                  "0 4px 12px rgba(0, 119, 200, 0.28)";
+                  "0 4px 12px rgba(var(--color-primary-rgb), 0.28)";
               }}
             >
               {loading ? "Sedang masuk..." : "Masuk"}

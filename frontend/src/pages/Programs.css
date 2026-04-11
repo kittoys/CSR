@@ -12,7 +12,7 @@
   background: var(--gradient-hero);
   padding: 4rem 1.5rem;
   text-align: center;
-  color: white;
+  color: var(--color-on-primary);
   position: relative;
   overflow: hidden;
 }
@@ -26,7 +26,7 @@
   bottom: 0;
   background: radial-gradient(
     circle at 30% 50%,
-    rgba(255, 255, 255, 0.1) 0%,
+    rgba(var(--color-on-primary-rgb), 0.1) 0%,
     transparent 50%
   );
   pointer-events: none;
@@ -44,10 +44,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1.25rem;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(var(--color-on-primary-rgb), 0.2);
   backdrop-filter: blur(8px);
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(var(--color-on-primary-rgb), 0.3);
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -66,7 +66,7 @@
 .programs-header__description {
   font-size: 1.125rem;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(var(--color-on-primary-rgb), 0.95);
   max-width: 600px;
   margin: 0 auto;
 }
@@ -78,7 +78,7 @@
   position: sticky;
   top: 80px;
   z-index: 100;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(var(--color-backdrop-rgb), 0.08);
 }
 
 .programs-toolbar__container {
@@ -106,7 +106,7 @@
 
 .programs-search:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.12);
   padding: var(--space-sm) var(--space-lg);
   transition: all var(--transition-base);
 }
@@ -170,7 +170,7 @@
 .programs-filter-toggle:hover,
 .programs-filter-toggle.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
   border-color: var(--color-primary);
 }
 
@@ -217,7 +217,7 @@
 
 .programs-view-toggle button.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
 }
 
 /* Filter Panel */
@@ -269,12 +269,12 @@
 
 .filter-chip:hover {
   border-color: var(--color-primary);
-  background: rgba(0, 119, 200, 0.05);
+  background: rgba(var(--color-primary-rgb), 0.07);
 }
 
 .filter-chip.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
   border-color: var(--color-primary);
   box-shadow: var(--shadow-md);
 }
@@ -286,7 +286,7 @@
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-lg);
   background: var(--color-error);
-  color: white;
+  color: var(--color-on-primary);
   border: none;
   border-radius: var(--radius-lg);
   font-weight: 600;
@@ -296,7 +296,8 @@
 }
 
 .filter-clear:hover {
-  background: #dc2626;
+  background: var(--color-error);
+  filter: brightness(0.92);
   box-shadow: var(--shadow-md);
 }
 

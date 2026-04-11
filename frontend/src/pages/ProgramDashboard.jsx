@@ -7,7 +7,9 @@ import {
   deleteProgram,
 } from "../api/programs";
 import { getCategories } from "../api/categories";
+import { Download } from "lucide-react";
 import { useToast } from "../context/ToastContext";
+import { exportRowsToCsv, exportRowsToExcel } from "../utils/exportSpreadsheet";
 import "./ProgramDashboard.css";
 
 const emptyForm = {
@@ -247,6 +249,72 @@ const ProgramDashboard = () => {
     return statusMatch && categoryMatch;
   });
 
+  const programExportColumns = [
+    { label: "No", width: 6, value: (_program, index) => index + 1 },
+    { label: "Judul", width: 28, value: (program) => program.title || "-" },
+    {
+      label: "Kategori",
+      width: 18,
+      value: (program) => program.category_name || program.category_id || "-",
+    },
+    { label: "Status", width: 14, value: (program) => program.status || "-" },
+    {
+      label: "Periode",
+      width: 24,
+      value: (program) => {
+        const startDate = program.start_date
+          ? program.start_date.slice(0, 10)
+          : "-";
+        const endDate = program.end_date ? program.end_date.slice(0, 10) : "-";
+        return `${startDate} → ${endDate}`;
+      },
+    },
+    { label: "Lokasi", width: 22, value: (program) => program.location || "-" },
+    {
+      label: "Sumber Link",
+      width: 32,
+      value: (program) => program.source_link || "-",
+    },
+  ];
+
+  const handleExportCsv = () => {
+    if (filteredPrograms.length === 0) {
+      toast.warning("Tidak ada data program untuk diekspor", "Export CSV");
+      return;
+    }
+
+    exportRowsToCsv({
+      filename: `program-${filterStatus || "semua"}-${filterCategory || "semua-kategori"}`,
+      columns: programExportColumns,
+      rows: filteredPrograms,
+    });
+
+    toast.success("Data program berhasil diekspor ke CSV");
+  };
+
+  const handleExportExcel = () => {
+    if (filteredPrograms.length === 0) {
+      toast.warning("Tidak ada data program untuk diekspor", "Export Excel");
+      return;
+    }
+
+    exportRowsToExcel({
+      filename: `program-${filterStatus || "semua"}-${filterCategory || "semua-kategori"}`,
+      sheetName: "Program",
+      title: "Laporan Program CSR",
+      subtitle: `Status: ${filterStatus || "Semua"} | Kategori: ${filterCategory || "Semua"}`,
+      summary: [
+        { label: "Total Program", value: filteredPrograms.length },
+        { label: "Status", value: filterStatus || "Semua" },
+        { label: "Kategori", value: filterCategory || "Semua" },
+      ],
+      columns: programExportColumns,
+      rows: filteredPrograms,
+    });
+
+    toast.success("Data program berhasil diekspor ke Excel");
+  };
+
   // Resolve image URL: if stored as "/uploads/..." prefix backend host
   const resolveImageUrl = (url) => {
     if (!url) return "";
@@ -295,158 +363,158 @@ const ProgramDashboard = () => {
             transition={panelTransition}
           >
             <div className="card form-card">
-            <div className="card-header">
-              <h3>{editingId ? "Edit Program" : "Tambah Program"}</h3>
-              <button className="btn-cancel-edit" onClick={handleCancel}>
-                ✕ Tutup
-              </button>
-            </div>
-            <form className="form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Judul *</label>
-                <input
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  placeholder="Judul program"
-                  required
-                />
+              <div className="card-header">
+                <h3>{editingId ? "Edit Program" : "Tambah Program"}</h3>
+                <button className="btn-cancel-edit" onClick={handleCancel}>
+                  ✕ Tutup
+                </button>
               </div>
+              <form className="form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Judul *</label>
+                  <input
+                    name="title"
+                    value={form.title}
+                    onChange={handleChange}
+                    placeholder="Judul program"
+                    required
+                  />
+                </div>
 
-              <div className="form-group">
-                <label>Deskripsi *</label>
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                  rows="3"
-                  placeholder="Deskripsi singkat"
-                  required
-                ></textarea>
-              </div>
+                <div className="form-group">
+                  <label>Deskripsi *</label>
+                  <textarea
+                    name="description"
+                    value={form.description}
+                    onChange={handleChange}
+                    rows="3"
+                    placeholder="Deskripsi singkat"
+                    required
+                  ></textarea>
+                </div>
 
-              <div className="form-group">
-                <label>Link Sumber Berita (opsional)</label>
-                <input
-                  type="url"
-                  name="source_link"
-                  value={form.source_link}
-                  onChange={handleChange}
-                  placeholder="https://contoh.com/berita"
-                />
-              </div>
+                <div className="form-group">
+                  <label>Link Sumber Berita (opsional)</label>
+                  <input
+                    type="url"
+                    name="source_link"
+                    value={form.source_link}
+                    onChange={handleChange}
+                    placeholder="https://contoh.com/berita"
+                  />
+                </div>
 
-              <div className="form-group">
-                <label>Upload Gambar (opsional)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="form-file-input"
-                />
-                {imagePreview && (
-                  <div className="image-preview-wrapper">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="image-preview"
-                    />
-                    <button
-                      type="button"
-                      className="btn-remove-image"
-                      onClick={handleRemoveImage}
-                      title="Hapus gambar"
+                <div className="form-group">
+                  <label>Upload Gambar (opsional)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="form-file-input"
+                  />
+                  {imagePreview && (
+                    <div className="image-preview-wrapper">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="image-preview"
+                      />
+                      <button
+                        type="button"
+                        className="btn-remove-image"
+                        onClick={handleRemoveImage}
+                        title="Hapus gambar"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Kategori</label>
+                    <select
+                      name="category_id"
+                      value={form.category_id}
+                      onChange={handleChange}
                     >
-                      ✕
-                    </button>
+                      <option value="">Pilih kategori</option>
+                      <option value="1">Lingkungan</option>
+                      <option value="2">Pendidikan</option>
+                      <option value="3">Kesehatan</option>
+                      <option value="4">Ekonomi</option>
+                    </select>
                   </div>
-                )}
-              </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Kategori</label>
-                  <select
-                    name="category_id"
-                    value={form.category_id}
-                    onChange={handleChange}
+                  <div className="form-group">
+                    <label>Lokasi</label>
+                    <input
+                      name="location"
+                      value={form.location}
+                      onChange={handleChange}
+                      placeholder="Lokasi program"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Mulai</label>
+                    <input
+                      type="date"
+                      name="start_date"
+                      value={form.start_date}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Selesai</label>
+                    <input
+                      type="date"
+                      name="end_date"
+                      value={form.end_date}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select
+                      name="status"
+                      value={form.status}
+                      onChange={handleChange}
+                    >
+                      {statusOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button
+                    type="submit"
+                    className="btn-primary-submit"
+                    disabled={saving}
                   >
-                    <option value="">Pilih kategori</option>
-                    <option value="1">Lingkungan</option>
-                    <option value="2">Pendidikan</option>
-                    <option value="3">Kesehatan</option>
-                    <option value="4">Ekonomi</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Lokasi</label>
-                  <input
-                    name="location"
-                    value={form.location}
-                    onChange={handleChange}
-                    placeholder="Lokasi program"
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Mulai</label>
-                  <input
-                    type="date"
-                    name="start_date"
-                    value={form.start_date}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Selesai</label>
-                  <input
-                    type="date"
-                    name="end_date"
-                    value={form.end_date}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Status</label>
-                  <select
-                    name="status"
-                    value={form.status}
-                    onChange={handleChange}
+                    {saving
+                      ? "Menyimpan..."
+                      : editingId
+                        ? "Simpan Perubahan"
+                        : "Tambah Program"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-ghost-reset"
+                    disabled={saving}
+                    onClick={handleCancel}
                   >
-                    {statusOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    Batal
+                  </button>
                 </div>
-              </div>
-
-              <div className="form-actions">
-                <button
-                  type="submit"
-                  className="btn-primary-submit"
-                  disabled={saving}
-                >
-                  {saving
-                    ? "Menyimpan..."
-                    : editingId
-                      ? "Simpan Perubahan"
-                      : "Tambah Program"}
-                </button>
-                <button
-                  type="button"
-                  className="btn-ghost-reset"
-                  disabled={saving}
-                  onClick={handleCancel}
-                >
-                  Batal
-                </button>
-              </div>
-            </form>
+              </form>
             </div>
           </motion.div>
         )}
@@ -492,6 +560,22 @@ const ProgramDashboard = () => {
                 <option value="3">Kesehatan</option>
                 <option value="4">Ekonomi</option>
               </select>
+              <button
+                className="btn btn--ghost btn-with-icon"
+                onClick={handleExportCsv}
+                title="Export program ke CSV"
+              >
+                <Download size={16} />
+                <span>CSV</span>
+              </button>
+              <button
+                className="btn btn--secondary btn-with-icon"
+                onClick={handleExportExcel}
+                title="Export program ke Excel"
+              >
+                <Download size={16} />
+                <span>Excel</span>
+              </button>
             </div>
             {selectedPrograms.length > 0 && (
               <button
@@ -520,102 +604,103 @@ const ProgramDashboard = () => {
               ) : (
                 <div className="table-wrapper program-table">
                   <table>
-                <thead>
-                  <tr>
-                    <th className="th-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={
-                          filteredPrograms.length > 0 &&
-                          selectedPrograms.length === filteredPrograms.length
-                        }
-                        onChange={handleSelectAll}
-                        title="Pilih semua"
-                      />
-                    </th>
-                    <th>Gambar</th>
-                    <th>Judul</th>
-                    <th>Kategori</th>
-                    <th>Status</th>
-                    <th>Periode</th>
-                    <th>Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredPrograms.map((p) => (
-                    <tr
-                      key={p.id}
-                      className={
-                        selectedPrograms.includes(p.id) ? "selected" : ""
-                      }
-                    >
-                      <td className="td-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={selectedPrograms.includes(p.id)}
-                          onChange={() => handleSelectProgram(p.id)}
-                        />
-                      </td>
-                      <td>
-                        {p.image_url ? (
-                          <img
-                            src={resolveImageUrl(p.image_url)}
-                            alt={p.title}
-                            className="thumb"
+                    <thead>
+                      <tr>
+                        <th className="th-checkbox">
+                          <input
+                            type="checkbox"
+                            checked={
+                              filteredPrograms.length > 0 &&
+                              selectedPrograms.length ===
+                                filteredPrograms.length
+                            }
+                            onChange={handleSelectAll}
+                            title="Pilih semua"
                           />
-                        ) : (
-                          <div className="thumb thumb--placeholder">—</div>
-                        )}
-                      </td>
-                      <td>
-                        <div className="cell-title">{p.title}</div>
-                        <div className="cell-desc">
-                          {p.description?.slice(0, 80) || "-"}
-                        </div>
-                      </td>
-                      <td>{p.category_name || p.category_id || "-"}</td>
-                      <td>
-                        <span
-                          className={`badge badge--${p.status || "planned"}`}
+                        </th>
+                        <th>Gambar</th>
+                        <th>Judul</th>
+                        <th>Kategori</th>
+                        <th>Status</th>
+                        <th>Periode</th>
+                        <th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredPrograms.map((p) => (
+                        <tr
+                          key={p.id}
+                          className={
+                            selectedPrograms.includes(p.id) ? "selected" : ""
+                          }
                         >
-                          {p.status || "planned"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="cell-dates">
-                          <span>
-                            {p.start_date ? p.start_date.slice(0, 10) : "-"}
-                          </span>
-                          <span>→</span>
-                          <span>
-                            {p.end_date ? p.end_date.slice(0, 10) : "-"}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="row-actions">
-                          <button
-                            className="btn-icon btn-edit"
-                            onClick={() => handleEdit(p)}
-                            title="Edit"
-                          >
-                            ✎
-                          </button>
-                          <button
-                            className="btn-icon btn-delete"
-                            onClick={() => handleDelete(p.id)}
-                            title="Hapus"
-                          >
-                            🗑
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                          <td className="td-checkbox">
+                            <input
+                              type="checkbox"
+                              checked={selectedPrograms.includes(p.id)}
+                              onChange={() => handleSelectProgram(p.id)}
+                            />
+                          </td>
+                          <td>
+                            {p.image_url ? (
+                              <img
+                                src={resolveImageUrl(p.image_url)}
+                                alt={p.title}
+                                className="thumb"
+                              />
+                            ) : (
+                              <div className="thumb thumb--placeholder">—</div>
+                            )}
+                          </td>
+                          <td>
+                            <div className="cell-title">{p.title}</div>
+                            <div className="cell-desc">
+                              {p.description?.slice(0, 80) || "-"}
+                            </div>
+                          </td>
+                          <td>{p.category_name || p.category_id || "-"}</td>
+                          <td>
+                            <span
+                              className={`badge badge--${p.status || "planned"}`}
+                            >
+                              {p.status || "planned"}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="cell-dates">
+                              <span>
+                                {p.start_date ? p.start_date.slice(0, 10) : "-"}
+                              </span>
+                              <span>→</span>
+                              <span>
+                                {p.end_date ? p.end_date.slice(0, 10) : "-"}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="row-actions">
+                              <button
+                                className="btn-icon btn-edit"
+                                onClick={() => handleEdit(p)}
+                                title="Edit"
+                              >
+                                ✎
+                              </button>
+                              <button
+                                className="btn-icon btn-delete"
+                                onClick={() => handleDelete(p.id)}
+                                title="Hapus"
+                              >
+                                🗑
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
