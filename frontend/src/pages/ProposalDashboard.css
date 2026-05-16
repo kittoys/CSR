@@ -915,6 +915,12 @@
   color: #059669;
 }
 
+.cell-bright-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .status-badge {
   display: inline-block;
   padding: 6px 14px;
