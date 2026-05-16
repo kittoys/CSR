@@ -42,6 +42,8 @@
   /* RGB tokens for transparent overlays */
   --color-primary-rgb: 11, 107, 189;
   --color-secondary-rgb: 15, 159, 139;
+  --color-success-rgb: 15, 159, 110;
+  --color-info-rgb: 46, 123, 207;
   --color-on-primary-rgb: 255, 255, 255;
   --color-error-rgb: 207, 51, 68;
   --color-backdrop-rgb: 12, 24, 40;

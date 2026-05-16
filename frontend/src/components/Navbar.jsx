@@ -5,8 +5,10 @@ import {
   Home,
   Briefcase,
   FileText,
-  Shield,
-  BarChart3,
+  Droplets,
+  Building2,
+  ScrollText,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -68,8 +70,10 @@ const Navbar = ({
     mode === "private"
       ? [
           { to: "/proposals", label: "Dashboard", icon: FileText },
-          { to: "/program", label: "Program", icon: Shield },
-          { to: "/chart", label: "Chart", icon: BarChart3 },
+          { to: "/foc-bulanan", label: "FOC Bulanan", icon: Droplets },
+          { to: "/program", label: "Data program", icon: Building2 },
+          { to: "/chart", label: "Laporan", icon: ScrollText },
+          { to: "/setting", label: "Setting", icon: Settings },
         ]
       : [
           { to: "/", label: "Home", icon: Home, end: true },

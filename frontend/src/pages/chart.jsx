@@ -26,7 +26,20 @@ ChartJS.register(
   BarElement,
 );
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Agu",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Des",
+];
 
 const CHART_PALETTE = {
   bar: "rgba(0, 119, 200, 0.85)",
@@ -161,7 +174,13 @@ const ChartDashboard = () => {
       proposalCount: monthlyStats.map((item) => Number(item.total || 0)),
       budgetTotal: monthlyStats.map((item) => Number(item.total_budget || 0)),
     };
-  }, [monthlyStats, parsedSummary.total, parsedSummary.totalBudget, selectedMonth, selectedYear]);
+  }, [
+    monthlyStats,
+    parsedSummary.total,
+    parsedSummary.totalBudget,
+    selectedMonth,
+    selectedYear,
+  ]);
 
   const barData = {
     labels: monthlySeries.labels,
@@ -224,6 +243,24 @@ const ChartDashboard = () => {
       },
     ],
   };
+
+  // Compact monthly donut: show months' budget totals as a small donut
+  const monthlyDonutData = {
+    labels: monthlySeries.labels,
+    datasets: [
+      {
+        label: "Budget Per Bulan",
+        data: monthlySeries.budgetTotal,
+        backgroundColor: monthlySeries.labels.map(
+          (_, i) => CHART_PALETTE.doughnut[i % CHART_PALETTE.doughnut.length],
+        ),
+        borderColor: "#ffffff",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const [isMonthDetailOpen, setIsMonthDetailOpen] = useState(false);
 
   const tabButtons = [
     { key: "data", label: "Data Proposal" },
@@ -304,7 +341,10 @@ const ChartDashboard = () => {
       </section>
 
       {(isLoading || errorMessage) && (
-        <section className="chart-filter card-animate" style={{ marginBottom: "1rem" }}>
+        <section
+          className="chart-filter card-animate"
+          style={{ marginBottom: "1rem" }}
+        >
           <div className="chart-filter__title">
             <Filter size={18} />
             <h2>{isLoading ? "Memuat data proposal..." : errorMessage}</h2>
@@ -313,7 +353,10 @@ const ChartDashboard = () => {
       )}
 
       <section key={activeTab} className="chart-grid chart-grid--switch">
-        <article className="chart-card card-animate" style={{ gridColumn: "1 / -1" }}>
+        <article
+          className="chart-card card-animate"
+          style={{ gridColumn: "1 / -1" }}
+        >
           <div className="chart-card__header">
             <h3>Menampilkan: {activeTabLabel}</h3>
           </div>
@@ -351,6 +394,80 @@ const ChartDashboard = () => {
               />
             </div>
           </article>
+        )}
+
+        {/* Compact monthly donut card (click to view details) */}
+        {(activeTab === "data" || activeTab === "anggaran") && (
+          <article
+            className="chart-card card-animate chart-card--compact chart-delay-1"
+            onClick={() => setIsMonthDetailOpen(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) =>
+              (e.key === "Enter" || e.key === " ") && setIsMonthDetailOpen(true)
+            }
+            aria-label="Buka detail tren bulanan"
+          >
+            <div className="chart-card__header">
+              <h3>Tren Bulan (ringkas)</h3>
+            </div>
+            <div className="chart-canvas chart-canvas--compact">
+              <Doughnut
+                data={monthlyDonutData}
+                options={{
+                  ...baseOptions,
+                  plugins: {
+                    ...baseOptions.plugins,
+                    legend: { position: "bottom" },
+                  },
+                  animation: { duration: 900 },
+                }}
+              />
+            </div>
+          </article>
+        )}
+
+        {/* Month detail modal */}
+        {isMonthDetailOpen && (
+          <div
+            className="modal-overlay"
+            onClick={() => setIsMonthDetailOpen(false)}
+          >
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>Detail Tren Bulanan</h2>
+                <button
+                  className="modal-close"
+                  onClick={() => setIsMonthDetailOpen(false)}
+                >
+                  ✕
+                </button>
+              </div>
+              <div style={{ padding: 20, minWidth: 640 }}>
+                <div style={{ height: 360 }}>
+                  <Line
+                    data={lineData}
+                    options={{ ...baseOptions, animation: { duration: 900 } }}
+                  />
+                </div>
+                <div style={{ marginTop: 12 }}>
+                  <h4>Rincian per bulan</h4>
+                  <ul>
+                    {monthlySeries.labels.map((lbl, idx) => (
+                      <li key={lbl}>
+                        {lbl}:{" "}
+                        {new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          maximumFractionDigits: 0,
+                        }).format(monthlySeries.budgetTotal[idx] || 0)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {(activeTab === "data" || activeTab === "status") && (

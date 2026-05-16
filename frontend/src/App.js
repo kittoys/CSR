@@ -15,6 +15,8 @@ import Login from "./pages/Login";
 import ProgramDashboard from "./pages/ProgramDashboard";
 import ProposalDashboard from "./pages/ProposalDashboard";
 import ChartDashboard from "./pages/chart";
+import FocBulanan from "./pages/FocBulanan";
+import SettingsPanel from "./pages/SettingsPanel";
 import { ToastProvider } from "./context/ToastContext";
 import { DashboardProvider } from "./context/DashboardContext";
 import "./App.css";
@@ -31,7 +33,9 @@ const AppContent = () => {
     /^\/program(\/|$)/.test(location.pathname) ||
     /^\/admin(\/|$)/.test(location.pathname) ||
     /^\/proposals(\/|$)/.test(location.pathname) ||
-    /^\/chart(\/|$)/.test(location.pathname);
+    /^\/chart(\/|$)/.test(location.pathname) ||
+    /^\/foc-bulanan(\/|$)/.test(location.pathname) ||
+    /^\/setting(\/|$)/.test(location.pathname);
   const shouldHideNavbar = isLoginPage;
   const mainClassName = `app-main ${shouldHideNavbar ? "app-main--no-navbar" : ""} ${isPrivatePage ? "app-main--with-sidebar" : ""}`;
 
@@ -74,6 +78,14 @@ const AppContent = () => {
           <Route
             path="/chart"
             element={<ProtectedRoute element={<ChartDashboard />} />}
+          />
+          <Route
+            path="/foc-bulanan"
+            element={<ProtectedRoute element={<FocBulanan />} />}
+          />
+          <Route
+            path="/setting"
+            element={<ProtectedRoute element={<SettingsPanel />} />}
           />
           <Route path="/" element={<Home />} />
           <Route path="/programs" element={<Programs />} />

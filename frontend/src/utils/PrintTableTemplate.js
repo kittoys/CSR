@@ -2,7 +2,7 @@ export const generatePrintTableHTML = (
   filteredProposals,
   filterStatus,
   formatCurrency,
-  formatDate
+  formatDate,
 ) => {
   const currentDate = new Date().toLocaleDateString("id-ID", {
     day: "numeric",
@@ -12,15 +12,14 @@ export const generatePrintTableHTML = (
 
   const totalBudget = filteredProposals.reduce(
     (sum, p) => sum + (parseFloat(p.budget) || 0),
-    0
+    0,
   );
 
   const statusCounts = {
     "In Progress": filteredProposals.filter((p) => p.status === "In Progress")
       .length,
-    "Siap Diambil": filteredProposals.filter(
-      (p) => p.status === "Siap Diambil"
-    ).length,
+    "Siap Diambil": filteredProposals.filter((p) => p.status === "Siap Diambil")
+      .length,
     Done: filteredProposals.filter((p) => p.status === "Done").length,
   };
 
@@ -40,9 +39,7 @@ export const generatePrintTableHTML = (
           proposal.proposal_name
         }</td>
         <td style="color: #4b5563;">${proposal.organization}</td>
-        <td style="font-size: 0.8rem; color: #6b7280;">${
-          proposal.product_detail || "-"
-        }</td>
+        <td style="font-size: 0.8rem; color: #6b7280;">${proposal.product_detail || "-"}</td>
         <td style="font-weight: 600; color: #059669; text-align: right;">
           ${formatCurrency(proposal.budget)}
         </td>
@@ -51,8 +48,8 @@ export const generatePrintTableHTML = (
             proposal.status === "In Progress"
               ? "background: #fef3c7; color: #92400e;"
               : proposal.status === "Siap Diambil"
-              ? "background: #dbeafe; color: #0c4a6e;"
-              : "background: #d1fae5; color: #065f46;"
+                ? "background: #dbeafe; color: #0c4a6e;"
+                : "background: #d1fae5; color: #065f46;"
           }">
             ${proposal.status}
           </span>
@@ -69,7 +66,7 @@ export const generatePrintTableHTML = (
           ${formatDate(proposal.proposal_date)}
         </td>
       </tr>
-    `
+    `,
     )
     .join("");
 
@@ -337,7 +334,7 @@ export const generatePrintTableHTML = (
           <div class="summary-card budget">
             <div class="summary-label">Total Budget</div>
             <div class="summary-value" style="font-size: 10pt;">${formatCurrency(
-              totalBudget
+              totalBudget,
             )}</div>
           </div>
         </div>
@@ -350,6 +347,7 @@ export const generatePrintTableHTML = (
               <th style="width: 140px;">Nama Proposal</th>
               <th style="width: 100px;">Organisasi</th>
               <th style="width: 150px;">Detail Produk</th>
+              
               <th style="width: 85px; text-align: right;">Budget</th>
               <th style="width: 75px; text-align: center;">Status</th>
               <th style="width: 100px;">PIC</th>

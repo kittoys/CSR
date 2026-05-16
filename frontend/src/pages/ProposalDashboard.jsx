@@ -1,16 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import ProposalModal from "../components/ProposalModal";
-import {
-  PlusCircle,
-  Archive,
-  Hourglass,
-  Package,
-  CheckSquare,
-  Wallet,
-  Printer,
-  Download,
-  CalendarDays,
-} from "lucide-react";
+import { PlusCircle, Printer, Download, CalendarDays } from "lucide-react";
 import {
   getProposals,
   createProposal,
@@ -41,6 +31,9 @@ const ProposalDashboard = () => {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const [editingProposal, setEditingProposal] = useState(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewProposal, setViewProposal] = useState(null);
+  const [selectedDonutStatus, setSelectedDonutStatus] = useState(null);
   const [filterPeriod, setFilterPeriod] = useState("all");
   const currentMonth = new Date().getMonth() + 1;
   const [selectedMonth, setSelectedMonth] = useState(
@@ -191,13 +184,17 @@ const ProposalDashboard = () => {
     }
   };
 
-  const handleDeleteProposal = async (id) => {
+  const handleDeleteProposal = async (id, options = {}) => {
     if (window.confirm("Apakah Anda yakin ingin menghapus proposal ini?")) {
       try {
         await deleteProposal(id);
         await fetchProposals();
         await fetchStats();
         await fetchMonthlyStats();
+        if (options.closeView) {
+          setIsViewOpen(false);
+          setViewProposal(null);
+        }
       } catch (err) {
         toast.error("Gagal menghapus proposal: " + err.message);
       }
@@ -393,6 +390,16 @@ const ProposalDashboard = () => {
     });
   };
 
+  const proposalExportColumns = [
+    { key: "case_id", label: "CASE ID" },
+    { key: "proposal_name", label: "Nama Proposal" },
+    { key: "organization", label: "Organisasi" },
+    { key: "budget", label: "Budget" },
+    { key: "status", label: "Status" },
+    { key: "bright_status", label: "Status Bright" },
+    { key: "proposal_date", label: "Tanggal" },
+  ];
+
   const getStatusClass = (status) => {
     switch (status) {
       case "In Progress":
@@ -401,17 +408,13 @@ const ProposalDashboard = () => {
         return "status--waiting";
       case "Done":
         return "status--done";
-      default:
-        return "";
-    }
-  };
-
-  const getBrightStatusClass = (status) => {
-    switch (status) {
+      case "approved":
       case "Approved":
         return "status--approved";
+      case "pending":
       case "Pending":
         return "status--pending";
+      case "rejected":
       case "Rejected":
         return "status--rejected";
       default:
@@ -419,61 +422,18 @@ const ProposalDashboard = () => {
     }
   };
 
-  const maxMonthlyBudget = monthlyStats.reduce(
-    (max, m) => Math.max(max, m.total_budget || 0),
-    0,
-  );
-
-  const proposalExportColumns = [
-    {
-      label: "No",
-      width: 6,
-      value: (_proposal, index) => index + 1,
-    },
-    {
-      label: "CASE ID",
-      width: 14,
-      value: (proposal) => proposal.case_id || "-",
-    },
-    {
-      label: "Nama Proposal",
-      width: 28,
-      value: (proposal) => proposal.proposal_name || "-",
-    },
-    {
-      label: "Organisasi",
-      width: 24,
-      value: (proposal) => proposal.organization || "-",
-    },
-    {
-      label: "Detail Produk",
-      width: 34,
-      value: (proposal) => proposal.product_detail || "-",
-    },
-    {
-      label: "Budget",
-      width: 16,
-      value: (proposal) => formatCurrency(proposal.budget || 0),
-    },
-    { label: "Status", width: 16, value: (proposal) => proposal.status || "-" },
-    {
-      label: "Pengajuan Bright",
-      width: 16,
-      value: (proposal) => proposal.bright_status || "-",
-    },
-    {
-      label: "PIC",
-      width: 28,
-      value: (proposal) =>
-        `${proposal.pic_name || "-"}${proposal.pic_email ? ` (${proposal.pic_email})` : ""}`,
-    },
-    {
-      label: "Tanggal",
-      width: 14,
-      value: (proposal) => formatDate(proposal.proposal_date),
-    },
-  ];
-
+  const getBrightStatusClass = (brightStatus) => {
+    switch ((brightStatus || "").toString().toLowerCase()) {
+      case "approved":
+        return "status--approved";
+      case "pending":
+        return "status--pending";
+      case "rejected":
+        return "status--rejected";
+      default:
+        return "status--neutral";
+    }
+  };
   const getMonthOptions = () => {
     const months = [
       { value: "01", label: "Januari" },
@@ -515,6 +475,11 @@ const ProposalDashboard = () => {
 
   const statsPanelKey = `${filterPeriod}-${selectedYear}-${selectedMonth}`;
   const tablePanelKey = `${tableFilterPeriod}-${tableSelectedYear}-${tableSelectedMonth}-${filterStatus}`;
+
+  const maxMonthlyBudget = monthlyStats.reduce(
+    (max, m) => Math.max(max, Number(m.total_budget || 0)),
+    0,
+  );
 
   return (
     <div className="proposal-dashboard">
@@ -608,71 +573,7 @@ const ProposalDashboard = () => {
         </div>
 
         <div key={statsPanelKey} className="proposal-switch-panel">
-          {stats && (
-            <div className="stats-grid">
-              <div className="stat-card">
-                <div
-                  className="stat-icon stat-icon--proposals"
-                  aria-hidden="true"
-                >
-                  <Archive size={22} />
-                </div>
-                <div className="stat-content">
-                  <p className="stat-label">TOTAL PROPOSALS</p>
-                  <h3 className="stat-value">{stats.total_proposals || 0}</h3>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div
-                  className="stat-icon stat-icon--progress"
-                  aria-hidden="true"
-                >
-                  <Hourglass size={22} />
-                </div>
-                <div className="stat-content">
-                  <p className="stat-label">IN PROGRESS</p>
-                  <h3 className="stat-value">{stats.in_progress || 0}</h3>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div
-                  className="stat-icon stat-icon--waiting"
-                  aria-hidden="true"
-                >
-                  <Package size={22} />
-                </div>
-                <div className="stat-content">
-                  <p className="stat-label">SIAP DIAMBIL</p>
-                  <h3 className="stat-value">{stats.waiting || 0}</h3>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon stat-icon--done" aria-hidden="true">
-                  <CheckSquare size={22} />
-                </div>
-                <div className="stat-content">
-                  <p className="stat-label">DONE</p>
-                  <h3 className="stat-value">{stats.completed || 0}</h3>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon stat-icon--budget" aria-hidden="true">
-                  <Wallet size={22} />
-                </div>
-                <div className="stat-content">
-                  <p className="stat-label">TOTAL BUDGET</p>
-                  <h3 className="stat-value stat-value--budget">
-                    {formatCurrency(stats.total_budget || 0)}
-                  </h3>
-                </div>
-              </div>
-            </div>
-          )}
-
+          {/* Stats cards removed - details available via donut interaction */}
           <div className="charts-container">
             <div className="chart-card chart-card--bar">
               <div className="chart-header">
@@ -847,9 +748,24 @@ const ProposalDashboard = () => {
                                 key="progress"
                                 d={createArc(inProgressPct, currentAngle)}
                                 className="donut-segment donut-segment--progress"
-                                title={`In Progress: ${inProgress} (${inProgressPct.toFixed(
-                                  1,
-                                )}%)`}
+                                title={`In Progress: ${inProgress} (${inProgressPct.toFixed(1)}%)`}
+                                onClick={() =>
+                                  setSelectedDonutStatus({
+                                    key: "In Progress",
+                                    count: inProgress,
+                                    pct: inProgressPct,
+                                  })
+                                }
+                                onKeyDown={(e) =>
+                                  (e.key === "Enter" || e.key === " ") &&
+                                  setSelectedDonutStatus({
+                                    key: "In Progress",
+                                    count: inProgress,
+                                    pct: inProgressPct,
+                                  })
+                                }
+                                tabIndex={0}
+                                role="button"
                               />,
                             );
                             currentAngle += (inProgressPct / 100) * 360;
@@ -861,9 +777,24 @@ const ProposalDashboard = () => {
                                 key="waiting"
                                 d={createArc(waitingPct, currentAngle)}
                                 className="donut-segment donut-segment--waiting"
-                                title={`Siap Diambil: ${waiting} (${waitingPct.toFixed(
-                                  1,
-                                )}%)`}
+                                title={`Siap Diambil: ${waiting} (${waitingPct.toFixed(1)}%)`}
+                                onClick={() =>
+                                  setSelectedDonutStatus({
+                                    key: "Siap Diambil",
+                                    count: waiting,
+                                    pct: waitingPct,
+                                  })
+                                }
+                                onKeyDown={(e) =>
+                                  (e.key === "Enter" || e.key === " ") &&
+                                  setSelectedDonutStatus({
+                                    key: "Siap Diambil",
+                                    count: waiting,
+                                    pct: waitingPct,
+                                  })
+                                }
+                                tabIndex={0}
+                                role="button"
                               />,
                             );
                             currentAngle += (waitingPct / 100) * 360;
@@ -875,9 +806,24 @@ const ProposalDashboard = () => {
                                 key="completed"
                                 d={createArc(completedPct, currentAngle)}
                                 className="donut-segment donut-segment--done"
-                                title={`Done: ${completed} (${completedPct.toFixed(
-                                  1,
-                                )}%)`}
+                                title={`Done: ${completed} (${completedPct.toFixed(1)}%)`}
+                                onClick={() =>
+                                  setSelectedDonutStatus({
+                                    key: "Done",
+                                    count: completed,
+                                    pct: completedPct,
+                                  })
+                                }
+                                onKeyDown={(e) =>
+                                  (e.key === "Enter" || e.key === " ") &&
+                                  setSelectedDonutStatus({
+                                    key: "Done",
+                                    count: completed,
+                                    pct: completedPct,
+                                  })
+                                }
+                                tabIndex={0}
+                                role="button"
                               />,
                             );
                           }
@@ -908,6 +854,28 @@ const ProposalDashboard = () => {
                         );
                       })()}
                     </svg>
+
+                    {/* small info box shown when a donut segment is clicked */}
+                    {selectedDonutStatus && (
+                      <div className="donut-info" role="status">
+                        <div className="donut-info-title">
+                          {selectedDonutStatus.key}
+                        </div>
+                        <div className="donut-info-value">
+                          {selectedDonutStatus.count}
+                        </div>
+                        <div className="donut-info-pct">
+                          {selectedDonutStatus.pct.toFixed(1)}%
+                        </div>
+                        <button
+                          className="donut-info-close"
+                          onClick={() => setSelectedDonutStatus(null)}
+                          aria-label="Tutup"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
 
                     <div className="donut-legend">
                       <div className="donut-legend-item">
@@ -1122,14 +1090,10 @@ const ProposalDashboard = () => {
                   <th>CASE ID</th>
                   <th>Nama Proposal</th>
                   <th>Organisasi</th>
-                  <th>Detail Produk</th>
                   <th>Budget</th>
                   <th>Status</th>
                   <th>Pengajuan Bright</th>
-                  <th>PIC</th>
                   <th>Tanggal</th>
-                  <th>File</th>
-                  <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -1140,12 +1104,18 @@ const ProposalDashboard = () => {
                       className={
                         selectedIds.has(proposal.id) ? "row-selected" : ""
                       }
+                      onClick={() => {
+                        setViewProposal(proposal);
+                        setIsViewOpen(true);
+                      }}
+                      style={{ cursor: "pointer" }}
                     >
                       <td className="cell-checkbox">
                         <input
                           type="checkbox"
                           checked={selectedIds.has(proposal.id)}
                           onChange={() => toggleSelectProposal(proposal.id)}
+                          onClick={(e) => e.stopPropagation()}
                           title="Pilih proposal ini"
                         />
                       </td>
@@ -1155,11 +1125,6 @@ const ProposalDashboard = () => {
                       <td className="cell-name">{proposal.proposal_name}</td>
                       <td className="cell-organization">
                         {proposal.organization}
-                      </td>
-                      <td className="cell-product">
-                        <span title={proposal.product_detail}>
-                          {proposal.product_detail?.substring(0, 30)}...
-                        </span>
                       </td>
                       <td className="cell-budget">
                         {formatCurrency(proposal.budget)}
@@ -1182,93 +1147,15 @@ const ProposalDashboard = () => {
                           {proposal.bright_status || "-"}
                         </span>
                       </td>
-                      <td className="cell-pic">
-                        <div className="pic-info">
-                          <p className="pic-name">{proposal.pic_name}</p>
-                          <p className="pic-email">{proposal.pic_email}</p>
-                        </div>
-                      </td>
                       <td className="cell-date">
                         {formatDate(proposal.proposal_date)}
                       </td>
-                      <td className="cell-file">
-                        {(() => {
-                          const proposalLink =
-                            proposal.proposal_file_path || proposal.file_path;
-                          const proposalName =
-                            proposal.proposal_file_name ||
-                            proposal.file_pendukung ||
-                            "Proposal";
-
-                          const proofLink = proposal.proof_file_path;
-                          const proofName = proposal.proof_file_name || "Bukti";
-
-                          const fileItems = [];
-
-                          if (proposalLink) {
-                            fileItems.push(
-                              <div key="proposal-item" className="file-item">
-                                <div className="file-label">File Proposal</div>
-                                <a
-                                  href={`${FILES_BASE}${proposalLink}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="file-link"
-                                  title="File Proposal"
-                                >
-                                  📄 {proposalName}
-                                </a>
-                              </div>,
-                            );
-                          }
-
-                          if (proofLink) {
-                            fileItems.push(
-                              <div key="proof-item" className="file-item">
-                                <div className="file-label">File Donasi</div>
-                                <a
-                                  href={`${FILES_BASE}${proofLink}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="file-link file-link--donation"
-                                  title="Bukti Donasi Diambil"
-                                >
-                                  📎 {proofName}
-                                </a>
-                              </div>,
-                            );
-                          }
-
-                          return fileItems.length > 0 ? (
-                            <span>{fileItems}</span>
-                          ) : (
-                            <span className="no-file">-</span>
-                          );
-                        })()}
-                      </td>
-                      <td className="cell-actions">
-                        <div className="action-buttons">
-                          <button
-                            className="btn-icon btn-edit"
-                            title="Edit"
-                            onClick={() => handleOpenEditModal(proposal)}
-                          >
-                            ✎
-                          </button>
-                          <button
-                            className="btn-icon btn-delete"
-                            title="Delete"
-                            onClick={() => handleDeleteProposal(proposal.id)}
-                          >
-                            🗑
-                          </button>
-                        </div>
-                      </td>
+                      {/* Actions removed: use row click to open view popup */}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="12" className="empty-state">
+                    <td colSpan="8" className="empty-state">
                       Tidak ada proposal yang ditemukan
                     </td>
                   </tr>
@@ -1286,6 +1173,169 @@ const ProposalDashboard = () => {
         isLoading={isLoading}
         editingProposal={editingProposal}
       />
+
+      {isViewOpen && viewProposal && (
+        <div className="modal-overlay" onClick={() => setIsViewOpen(false)}>
+          <div
+            className="modal-content modal-content--view"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>Detail Proposal</h2>
+              <button
+                className="modal-close"
+                onClick={() => setIsViewOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="proposal-view-body">
+              <div className="proposal-detail-grid">
+                <div className="proposal-detail-item">
+                  <span className="proposal-detail-label">CASE ID</span>
+                  <span className="proposal-detail-value">
+                    {viewProposal.case_id || "-"}
+                  </span>
+                </div>
+                <div className="proposal-detail-item">
+                  <span className="proposal-detail-label">Nama Proposal</span>
+                  <span className="proposal-detail-value">
+                    {viewProposal.proposal_name || "-"}
+                  </span>
+                </div>
+                <div className="proposal-detail-item proposal-detail-item--full">
+                  <span className="proposal-detail-label">Asal/Organisasi</span>
+                  <span className="proposal-detail-value">
+                    {viewProposal.organization || "-"}
+                  </span>
+                </div>
+                <div className="proposal-detail-item proposal-detail-item--full">
+                  <span className="proposal-detail-label">Detail Produk</span>
+                  <span className="proposal-detail-value proposal-detail-value--muted">
+                    {viewProposal.product_detail || "-"}
+                  </span>
+                </div>
+                <div className="proposal-detail-item proposal-detail-item--full">
+                  <span className="proposal-detail-label">Jumlah Produk</span>
+                  <span className="proposal-detail-value">
+                    {viewProposal.jumlah_produk || "-"}
+                  </span>
+                </div>
+                <div className="proposal-detail-item">
+                  <span className="proposal-detail-label">Total Harga</span>
+                  <span className="proposal-detail-value">
+                    {formatCurrency(viewProposal.budget || 0)}
+                  </span>
+                </div>
+                <div className="proposal-detail-item">
+                  <span className="proposal-detail-label">Status</span>
+                  <span
+                    className={`proposal-detail-badge proposal-detail-badge--${getStatusClass(
+                      viewProposal.status,
+                    )}`}
+                  >
+                    {viewProposal.status || "-"}
+                  </span>
+                </div>
+                <div className="proposal-detail-item">
+                  <span className="proposal-detail-label">Status Bright</span>
+                  <span
+                    className={`proposal-detail-badge proposal-detail-badge--${getBrightStatusClass(
+                      viewProposal.bright_status,
+                    )}`}
+                  >
+                    {viewProposal.bright_status || "-"}
+                  </span>
+                </div>
+                <div className="proposal-detail-item proposal-detail-item--full">
+                  <span className="proposal-detail-label">Tanggal</span>
+                  <span className="proposal-detail-value">
+                    {formatDate(viewProposal.proposal_date)}
+                  </span>
+                </div>
+                <div className="proposal-detail-item proposal-detail-item--full">
+                  <span className="proposal-detail-label">File</span>
+                  <div className="proposal-view-files">
+                    {(() => {
+                      const proposalLink =
+                        viewProposal.proposal_file_path ||
+                        viewProposal.file_path;
+                      const proposalName =
+                        viewProposal.proposal_file_name ||
+                        viewProposal.file_pendukung ||
+                        "Proposal";
+
+                      const proofLink = viewProposal.proof_file_path;
+                      const proofName = viewProposal.proof_file_name || "Bukti";
+
+                      return proposalLink || proofLink ? (
+                        <div className="proposal-view-files-list">
+                          {proposalLink && (
+                            <div className="proposal-view-file-row">
+                              <span className="proposal-view-file-kind">
+                                File Proposal
+                              </span>
+                              <a
+                                href={`${FILES_BASE}${proposalLink}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="file-link proposal-view-file-link"
+                              >
+                                📄 {proposalName}
+                              </a>
+                            </div>
+                          )}
+
+                          {proofLink && (
+                            <div className="proposal-view-file-row">
+                              <span className="proposal-view-file-kind">
+                                File Donasi
+                              </span>
+                              <a
+                                href={`${FILES_BASE}${proofLink}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="file-link file-link--donation proposal-view-file-link"
+                              >
+                                📎 {proofName}
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="proposal-view-files-empty">-</span>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-actions modal-actions--view">
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={() => {
+                    setIsViewOpen(false);
+                    handleOpenEditModal(viewProposal);
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--danger"
+                  onClick={() =>
+                    handleDeleteProposal(viewProposal.id, { closeView: true })
+                  }
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

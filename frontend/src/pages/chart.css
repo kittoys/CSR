@@ -1,36 +1,44 @@
 .chart-page {
   min-height: 100vh;
-  padding: 1.25rem;
+  padding: var(--space-lg);
   background:
-    radial-gradient(circle at 8% 8%, rgba(14, 165, 233, 0.15), transparent 45%),
+    radial-gradient(
+      circle at 8% 8%,
+      rgba(var(--color-primary-rgb), 0.1),
+      transparent 45%
+    ),
     radial-gradient(
       circle at 92% 4%,
-      rgba(59, 130, 246, 0.12),
+      rgba(var(--color-info-rgb), 0.08),
       transparent 38%
     ),
-    linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+    linear-gradient(
+      180deg,
+      var(--color-background) 0%,
+      var(--color-background-alt) 100%
+    );
 }
 
 .chart-navbar {
   max-width: 1400px;
-  margin: 0 auto 1rem;
-  padding: 0.9rem 1rem;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(59, 130, 246, 0.12);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  margin: 0 auto var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-2xl);
+  background: rgba(var(--color-surface), 0.85);
+  backdrop-filter: blur(var(--blur-md));
+  border: 1px solid rgba(var(--color-primary-rgb), 0.12);
+  box-shadow: var(--shadow-lg);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-md);
 }
 
 .chart-navbar__brand {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  color: #0f172a;
+  color: var(--color-text);
   font-weight: 800;
   letter-spacing: 0.02em;
 }
@@ -38,56 +46,57 @@
 .chart-navbar__menu {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   flex-wrap: wrap;
 }
 
 .chart-nav-btn {
-  border: 1px solid #dbeafe;
-  background: #ffffff;
-  color: #334155;
+  border: 1px solid rgba(var(--color-primary-rgb), 0.15);
+  background: var(--color-surface);
+  color: var(--color-text-light);
   font-weight: 600;
   font-size: 0.875rem;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 0.45rem 0.9rem;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all var(--transition-fast);
 }
 
 .chart-nav-btn:hover {
   transform: translateY(-1px);
-  border-color: #93c5fd;
-  color: #1d4ed8;
+  border-color: var(--color-primary-light);
+  color: var(--color-primary);
 }
 
 .chart-nav-btn--active {
   border-color: transparent;
-  color: #ffffff;
-  background: linear-gradient(135deg, #2563eb, #0ea5e9);
-  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.28);
+  color: var(--color-on-primary);
+  background: var(--gradient-primary);
+  box-shadow: 0 6px 14px rgba(var(--color-primary-rgb), 0.28);
 }
 
 .chart-filter {
   max-width: 1400px;
-  margin: 0 auto 1rem;
-  background: #ffffff;
-  border: 1px solid rgba(59, 130, 246, 0.12);
-  border-radius: 16px;
-  padding: 1rem;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  margin: 0 auto var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.12);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .chart-filter__title {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   margin-bottom: 0.85rem;
-  color: #1e293b;
+  color: var(--color-text);
 }
 
 .chart-filter__title h2 {
   margin: 0;
   font-size: 1rem;
+  font-weight: 700;
 }
 
 .chart-filter__controls {
@@ -106,25 +115,23 @@
 .chart-control span {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--color-text-light);
 }
 
 .chart-control select {
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   border-radius: 10px;
   padding: 0.62rem 0.72rem;
   font-size: 0.9rem;
-  color: #0f172a;
+  color: var(--color-text);
   outline: none;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: var(--transition-fast);
 }
 
 .chart-control select:focus {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.15);
 }
 
 .chart-filter__badge {
@@ -133,12 +140,12 @@
   justify-content: center;
   gap: 0.4rem;
   min-height: 42px;
-  background: linear-gradient(135deg, #0ea5e9, #2563eb);
-  color: #ffffff;
+  background: var(--gradient-primary);
+  color: var(--color-on-primary);
   font-weight: 700;
   font-size: 0.85rem;
   border-radius: 10px;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 6px 16px rgba(var(--color-primary-rgb), 0.25);
 }
 
 .chart-grid {
@@ -146,7 +153,7 @@
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: var(--space-md);
 }
 
 .chart-grid--switch {
@@ -154,17 +161,29 @@
 }
 
 .chart-card {
-  background: #ffffff;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  background: var(--color-surface);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.1);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
   padding: 0.85rem;
   display: flex;
   flex-direction: column;
 }
 
+.chart-card--compact {
+  cursor: pointer;
+  user-select: none;
+}
+
+.chart-canvas--compact {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .chart-card__header {
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.08);
   padding: 0.25rem 0.25rem 0.65rem;
   margin-bottom: 0.75rem;
 }
@@ -172,7 +191,7 @@
 .chart-card__header h3 {
   margin: 0;
   font-size: 0.95rem;
-  color: #0f172a;
+  color: var(--color-text);
   font-weight: 700;
 }
 
@@ -245,12 +264,12 @@
 
 @media (max-width: 640px) {
   .chart-page {
-    padding: 0.75rem;
+    padding: var(--space-sm);
   }
 
   .chart-navbar {
-    padding: 0.75rem;
-    border-radius: 12px;
+    padding: var(--space-sm);
+    border-radius: var(--radius-xl);
   }
 
   .chart-navbar__brand {
@@ -258,12 +277,12 @@
   }
 
   .chart-filter {
-    padding: 0.8rem;
-    border-radius: 12px;
+    padding: var(--space-sm);
+    border-radius: var(--radius-xl);
   }
 
   .chart-card {
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     padding: 0.7rem;
   }
 
