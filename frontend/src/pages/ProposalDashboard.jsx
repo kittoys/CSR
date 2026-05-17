@@ -14,6 +14,7 @@ import { generatePrintChartHTML } from "../utils/PrintChartTemplate";
 import { exportRowsToCsv, exportRowsToExcel } from "../utils/exportSpreadsheet";
 import { useToast } from "../context/ToastContext";
 import "./ProposalDashboard.css";
+import StatsCard from "../components/StatsCard";
 
 const ProposalDashboard = () => {
   const toast = useToast();
@@ -572,6 +573,21 @@ const ProposalDashboard = () => {
           </div>
         </div>
 
+        {/* Compact stats row */}
+        <StatsCard
+          stats={
+            stats
+              ? {
+                  total: stats.total_proposals || 0,
+                  inProgress: stats.in_progress || 0,
+                  ready: stats.waiting || 0,
+                  done: stats.completed || 0,
+                  totalBudgetFormatted: formatCurrency(stats.total_budget || 0),
+                }
+              : {}
+          }
+        />
+
         <div key={statsPanelKey} className="proposal-switch-panel">
           {/* Stats cards removed - details available via donut interaction */}
           <div className="charts-container">
@@ -1050,20 +1066,31 @@ const ProposalDashboard = () => {
                 <span className="selected-count">
                   {selectedIds.size} terpilih
                 </span>
-                <button
-                  className="btn btn--danger"
-                  onClick={handleBulkDelete}
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? "Menghapus..." : "🗑 Hapus Terpilih"}
-                </button>
-                <button
-                  className="btn btn--ghost"
-                  onClick={() => setSelectedIds(new Set())}
-                  disabled={isDeleting}
-                >
-                  Batal
-                </button>
+                <div className="actions">
+                  <button
+                    className="btn btn--danger"
+                    onClick={handleBulkDelete}
+                    disabled={isDeleting}
+                  >
+                    <span className="btn-icon" aria-hidden>
+                      🗑
+                    </span>
+                    <span className="btn-label">
+                      {isDeleting ? "Menghapus..." : "Hapus Terpilih"}
+                    </span>
+                  </button>
+
+                  <button
+                    className="btn btn--ghost"
+                    onClick={() => setSelectedIds(new Set())}
+                    disabled={isDeleting}
+                  >
+                    <span className="btn-icon" aria-hidden>
+                      ✕
+                    </span>
+                    <span className="btn-label">Batal</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

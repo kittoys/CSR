@@ -1,0 +1,183 @@
+.stats-card-row {
+  margin: 0 0 0.6rem 0;
+}
+.stats-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+}
+.stat-mini-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1 1 calc(20% - 0.75rem);
+  max-width: calc(20% - 0.75rem);
+  padding: 0.5rem 0.7rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(11, 107, 189, 0.05);
+  border: 1px solid rgba(11, 107, 189, 0.04);
+  min-width: 0; /* allow shrinking */
+}
+.stat-mini-card--budget {
+  flex: 1 1 calc(24% - 1rem);
+  max-width: calc(24% - 1rem);
+}
+.mini-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-svg {
+  font-size: 16px;
+  color: #0b6bbd;
+}
+.mini-body {
+  display: flex;
+  flex-direction: column;
+}
+.mini-label {
+  font-size: 0.7rem;
+  color: #6f8097;
+  letter-spacing: 0.02em;
+}
+.mini-value {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* Themed mini-icon backgrounds */
+.mini-icon--total {
+  background: linear-gradient(
+    135deg,
+    rgba(249, 241, 227, 1) 0%,
+    rgba(255, 249, 238, 1) 100%
+  );
+}
+.mini-icon--inProgress {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 243, 244, 1) 0%,
+    rgba(255, 247, 248, 1) 100%
+  );
+}
+.mini-icon--ready {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 246, 255, 1) 0%,
+    rgba(247, 252, 255, 1) 100%
+  );
+}
+.mini-icon--done {
+  background: linear-gradient(
+    135deg,
+    rgba(236, 253, 245, 1) 0%,
+    rgba(245, 255, 250, 1) 100%
+  );
+}
+.mini-icon--budget {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 243, 255, 1) 0%,
+    rgba(251, 249, 255, 1) 100%
+  );
+}
+
+/* icon colors tuned to theme */
+.mini-icon--total .icon-svg {
+  color: #b45309;
+}
+.mini-icon--inProgress .icon-svg {
+  color: #b91c1c;
+}
+.mini-icon--ready .icon-svg {
+  color: #1e3a8a;
+}
+.mini-icon--done .icon-svg {
+  color: #065f46;
+}
+.mini-icon--budget .icon-svg {
+  color: #6d28d9;
+}
+
+/* subtle hover */
+.stat-mini-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(11, 107, 189, 0.08);
+}
+
+@media (max-width: 1100px) {
+  .stat-mini-card {
+    flex: 1 1 calc(33.333% - 1rem);
+    max-width: calc(33.333% - 1rem);
+  }
+  .stat-mini-card--budget {
+    flex: 1 1 calc(50% - 1rem);
+    max-width: calc(50% - 1rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .stat-mini-card {
+    flex: 1 1 calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+    padding: 0.5rem;
+  }
+  .stat-mini-card--budget {
+    flex: 1 1 calc(100% - 0.5rem);
+    max-width: calc(100% - 0.5rem);
+  }
+  .mini-value {
+    font-size: 1rem;
+  }
+}
+
+/* Desktop: use grid so Budget sits to the right of Done and cards are balanced */
+@media (min-width: 1100px) {
+  .stats-row {
+    display: grid;
+    /* 4 equal columns + 1.2x column for Budget */
+    grid-template-columns: repeat(4, minmax(0, 1fr)) 1.2fr;
+    gap: 0.75rem;
+    align-items: stretch;
+    transition:
+      grid-template-columns 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      gap 200ms ease;
+  }
+
+  .stat-mini-card {
+    flex: none;
+    max-width: none;
+    padding: 0.55rem 0.8rem;
+    transition:
+      padding 200ms ease,
+      box-shadow 200ms ease,
+      transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      background-color 160ms ease,
+      max-width 260ms ease;
+    will-change: transform, padding, max-width;
+  }
+
+  /* Keep budget slightly larger but in same row */
+  .stat-mini-card--budget {
+    grid-column: 5 / 6;
+    padding: 0.65rem 0.95rem;
+  }
+
+  /* Ensure 4th card (Done) sits in column 4 */
+  .stat-mini-card:nth-child(4) {
+    grid-column: 4 / 5;
+  }
+
+  /* Make Done and Budget visually balanced (Budget 1.2x width via grid) */
+  .stat-mini-card--budget .mini-value,
+  .stat-mini-card:nth-child(4) .mini-value {
+    font-size: 1.05rem;
+    transition: font-size 200ms ease;
+  }
+}
