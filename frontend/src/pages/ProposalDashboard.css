@@ -1779,53 +1779,63 @@
 
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-.proposal-dashboard .dashboard-header h1 {
-  font-size: 1.25rem;
-  line-height: 1.2;
-}
+    .proposal-dashboard .dashboard-header h1 {
+      font-size: 1.25rem;
+      line-height: 1.2;
+    }
 
-.proposal-dashboard .stats-filter-header h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
+    .proposal-dashboard .stats-filter-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
 
-.donut-chart {
-  width: 150px;
-  height: 150px;
-  max-width: 150px;
-}
+    .donut-chart {
+      width: 150px;
+      height: 150px;
+      max-width: 150px;
+    }
 
-.donut-total-label {
-  font-size: 12px;
-}
+    .donut-total-label {
+      font-size: 12px;
+    }
 
-.donut-total-value {
-  font-size: 18px;
-}
+    .donut-total-value {
+      font-size: 18px;
+    }
 
-.donut-info-title { font-size: 0.85rem; }
-.donut-info-value { font-size: 1.25rem; }
+    .donut-info-title {
+      font-size: 0.85rem;
+    }
+    .donut-info-value {
+      font-size: 1.25rem;
+    }
 
-@media (min-width: 900px) {
-  .proposal-dashboard .dashboard-header h1 {
-    font-size: 1.5rem;
-  }
+    @media (min-width: 900px) {
+      .proposal-dashboard .dashboard-header h1 {
+        font-size: 1.5rem;
+      }
 
-  .proposal-dashboard .stats-filter-header h3 {
-    font-size: 1.25rem;
-  }
+      .proposal-dashboard .stats-filter-header h3 {
+        font-size: 1.25rem;
+      }
 
-  .donut-chart {
-    width: 180px;
-    height: 180px;
-    max-width: 180px;
-  }
+      .donut-chart {
+        width: 180px;
+        height: 180px;
+        max-width: 180px;
+      }
 
-  .donut-total-label { font-size: 14px; }
-  .donut-total-value { font-size: 22px; }
-  .donut-info-value { font-size: 1.5rem; }
-}
+      .donut-total-label {
+        font-size: 14px;
+      }
+      .donut-total-value {
+        font-size: 22px;
+      }
+      .donut-info-value {
+        font-size: 1.5rem;
+      }
+    }
     gap: 12px;
   }
 
@@ -2865,6 +2875,35 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Desktop refinements: smaller subtitle and larger charts */
+@media (min-width: 900px) {
+  .dashboard-header .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .chart-card--bar {
+    min-height: 460px;
+  }
+
+  .chart-card--donut {
+    min-height: 360px;
+  }
+
+  .donut-chart {
+    width: 220px;
+    height: 220px;
+    max-width: 220px;
+  }
+
+  .donut-total-value {
+    font-size: 26px;
+  }
+
+  .donut-total-label {
+    font-size: 13px;
+  }
 }
 
 .proposal-view-files-list {
