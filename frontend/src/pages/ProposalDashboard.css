@@ -226,9 +226,8 @@
   gap: 14px;
   align-items: stretch;
   margin: 12px 0 18px 0;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  flex-wrap: wrap; /* default wrap so no horizontal scroll */
+  overflow-x: visible;
   padding-bottom: 6px;
 }
 
@@ -336,6 +335,50 @@
   .stat-value {
     font-size: 1.05rem;
     max-width: 8rem;
+  }
+}
+
+/* Desktop grid: 3 columns */
+@media (min-width: 1200px) {
+  .stats-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  /* If sidebar is visible, reduce columns to 2 for better fit */
+  .app-main--with-sidebar .stats-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stat-card.small {
+    flex: none;
+    min-width: 0;
+  }
+}
+
+/* Tablet grid: 2 columns */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .stats-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .stat-card.small { flex: none; }
+}
+
+/* Mobile: single column */
+@media (max-width: 767px) {
+  .stats-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stat-card.small {
+    width: 100%;
+    min-width: 0;
   }
 }
 
