@@ -866,7 +866,7 @@ const ProposalDashboard = () => {
                       </div>
                     )}
 
-                    <div className={`donut-legend donut-legend--hidden`}>
+                    <div className="donut-legend">
                       <div className="donut-legend-item">
                         <span className="donut-legend-dot donut-legend-dot--progress"></span>
                         <div className="donut-legend-content">
