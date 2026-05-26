@@ -397,6 +397,28 @@
   padding: 12px;
 }
 
+@media (min-width: 900px) {
+  .chart-card--donut .chart-body {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 16px 18px;
+  }
+
+  .chart-card--donut .donut-chart-container {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+  }
+
+  .chart-card--donut .donut-legend {
+    margin-top: 0;
+    flex: 1 1 auto;
+    max-width: 260px;
+  }
+}
+
 @media (max-width: 1400px) {
   .charts-container {
     grid-template-columns: 3fr 1fr;
