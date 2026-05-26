@@ -563,7 +563,7 @@ const ProposalDashboard = () => {
           {/* Summary stat cards: total proposals, statuses, total budget */}
           <div className="stats-cards">
             <div className="stat-card small">
-              <div className="stat-icon stat-icon--proposals">📦</div>
+              <div className="stat-icon stat-icon--proposals"><i className="bi bi-box-seam" aria-hidden="true" /></div>
               <div>
                 <div className="stat-label">Total Proposals</div>
                 <div className="stat-value">{stats?.total_proposals || 0}</div>
@@ -571,7 +571,7 @@ const ProposalDashboard = () => {
             </div>
 
             <div className="stat-card small">
-              <div className="stat-icon stat-icon--progress">⏳</div>
+              <div className="stat-icon stat-icon--progress"><i className="bi bi-hourglass-split" aria-hidden="true" /></div>
               <div>
                 <div className="stat-label">In Progress</div>
                 <div className="stat-value">{stats?.in_progress || 0}</div>
@@ -579,7 +579,7 @@ const ProposalDashboard = () => {
             </div>
 
             <div className="stat-card small">
-              <div className="stat-icon stat-icon--waiting">📦</div>
+              <div className="stat-icon stat-icon--waiting"><i className="bi bi-inbox" aria-hidden="true" /></div>
               <div>
                 <div className="stat-label">Siap Diambil</div>
                 <div className="stat-value">{stats?.waiting || 0}</div>
@@ -587,7 +587,7 @@ const ProposalDashboard = () => {
             </div>
 
             <div className="stat-card small">
-              <div className="stat-icon stat-icon--done">✔️</div>
+              <div className="stat-icon stat-icon--done"><i className="bi bi-check2-circle" aria-hidden="true" /></div>
               <div>
                 <div className="stat-label">Done</div>
                 <div className="stat-value">{stats?.completed || 0}</div>
@@ -595,10 +595,12 @@ const ProposalDashboard = () => {
             </div>
 
             <div className="stat-card small">
-              <div className="stat-icon stat-icon--budget">💰</div>
+              <div className="stat-icon stat-icon--budget"><i className="bi bi-wallet2" aria-hidden="true" /></div>
               <div>
                 <div className="stat-label">Total Budget</div>
-                <div className="stat-value">{formatCurrency(stats?.total_budget || 0)}</div>
+                <div className="stat-value">
+                  {formatCurrency(stats?.total_budget || 0)}
+                </div>
               </div>
             </div>
           </div>

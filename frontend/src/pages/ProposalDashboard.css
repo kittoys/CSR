@@ -226,7 +226,10 @@
   gap: 14px;
   align-items: stretch;
   margin: 12px 0 18px 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
 }
 .stat-card.small {
   background: white;
@@ -236,7 +239,7 @@
   align-items: center;
   gap: 12px;
   min-width: 180px;
-  box-shadow: 0 2px 8px rgba(2,6,23,0.04);
+  box-shadow: 0 2px 8px rgba(2, 6, 23, 0.04);
   border: 1px solid #eef2f6;
 }
 .stat-icon {
@@ -248,11 +251,25 @@
   border-radius: 10px;
   font-size: 18px;
 }
-.stat-icon--proposals { background: #fef3c7; }
-.stat-icon--progress { background: #fef3c7; }
-.stat-icon--waiting { background: #dbeafe; }
-.stat-icon--done { background: #d1fae5; }
-.stat-icon--budget { background: #f3e8ff; }
+.stat-icon i {
+  font-size: 20px;
+  color: var(--color-dark);
+}
+.stat-icon--proposals {
+  background: #fef3c7;
+}
+.stat-icon--progress {
+  background: #fef3c7;
+}
+.stat-icon--waiting {
+  background: #dbeafe;
+}
+.stat-icon--done {
+  background: #d1fae5;
+}
+.stat-icon--budget {
+  background: #f3e8ff;
+}
 .stat-label {
   font-size: 0.82rem;
   color: var(--color-muted);
@@ -266,9 +283,16 @@
 }
 
 @media (max-width: 768px) {
-  .stats-cards { gap: 10px; }
-  .stat-card.small { min-width: 140px; padding: 10px 12px; }
-  .stat-value { font-size: 1.05rem; }
+  .stats-cards {
+    gap: 10px;
+  }
+  .stat-card.small {
+    min-width: 140px;
+    padding: 10px 12px;
+  }
+  .stat-value {
+    font-size: 1.05rem;
+  }
 }
 
 @media (max-width: 1024px) {
