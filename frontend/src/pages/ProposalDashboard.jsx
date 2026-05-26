@@ -560,7 +560,48 @@ const ProposalDashboard = () => {
         </div>
 
         <div key={statsPanelKey} className="proposal-switch-panel">
-          {/* Stats cards removed - details available via donut interaction */}
+          {/* Summary stat cards: total proposals, statuses, total budget */}
+          <div className="stats-cards">
+            <div className="stat-card small">
+              <div className="stat-icon stat-icon--proposals">📦</div>
+              <div>
+                <div className="stat-label">Total Proposals</div>
+                <div className="stat-value">{stats?.total_proposals || 0}</div>
+              </div>
+            </div>
+
+            <div className="stat-card small">
+              <div className="stat-icon stat-icon--progress">⏳</div>
+              <div>
+                <div className="stat-label">In Progress</div>
+                <div className="stat-value">{stats?.in_progress || 0}</div>
+              </div>
+            </div>
+
+            <div className="stat-card small">
+              <div className="stat-icon stat-icon--waiting">📦</div>
+              <div>
+                <div className="stat-label">Siap Diambil</div>
+                <div className="stat-value">{stats?.waiting || 0}</div>
+              </div>
+            </div>
+
+            <div className="stat-card small">
+              <div className="stat-icon stat-icon--done">✔️</div>
+              <div>
+                <div className="stat-label">Done</div>
+                <div className="stat-value">{stats?.completed || 0}</div>
+              </div>
+            </div>
+
+            <div className="stat-card small">
+              <div className="stat-icon stat-icon--budget">💰</div>
+              <div>
+                <div className="stat-label">Total Budget</div>
+                <div className="stat-value">{formatCurrency(stats?.total_budget || 0)}</div>
+              </div>
+            </div>
+          </div>
           <div className="charts-container">
             <div className="chart-card chart-card--bar">
               <div className="chart-header">

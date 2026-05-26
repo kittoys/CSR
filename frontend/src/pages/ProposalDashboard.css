@@ -220,6 +220,57 @@
   margin-bottom: 16px;
 }
 
+/* Summary stat cards shown above charts */
+.stats-cards {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+  margin: 12px 0 18px 0;
+  flex-wrap: wrap;
+}
+.stat-card.small {
+  background: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 180px;
+  box-shadow: 0 2px 8px rgba(2,6,23,0.04);
+  border: 1px solid #eef2f6;
+}
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 18px;
+}
+.stat-icon--proposals { background: #fef3c7; }
+.stat-icon--progress { background: #fef3c7; }
+.stat-icon--waiting { background: #dbeafe; }
+.stat-icon--done { background: #d1fae5; }
+.stat-icon--budget { background: #f3e8ff; }
+.stat-label {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-dark);
+}
+
+@media (max-width: 768px) {
+  .stats-cards { gap: 10px; }
+  .stat-card.small { min-width: 140px; padding: 10px 12px; }
+  .stat-value { font-size: 1.05rem; }
+}
+
 @media (max-width: 1024px) {
   .dashboard-container {
     padding: 1rem 0.75rem 0.875rem;
