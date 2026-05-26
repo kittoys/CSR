@@ -588,23 +588,33 @@
   white-space: nowrap;
 }
 
-/* Donut chart legend - ensure values and percents don't wrap vertically */
 .donut-legend {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-top: 12px;
-  width: 100%;
+  justify-content: center;
+}
+
+/* Hide legend text by default; keep donut-info popup on interaction */
+.donut-legend {
+  display: none !important;
 }
 .donut-legend-item {
   display: flex;
   align-items: center;
   gap: 12px;
+  background: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  min-width: 140px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #eef2f6;
 }
 .donut-legend-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
   flex-shrink: 0;
 }
 .donut-legend-dot--progress { background: #fbbf24; }
@@ -612,29 +622,39 @@
 .donut-legend-dot--done { background: #34d399; }
 .donut-legend-content {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   width: 100%;
 }
 .donut-legend-label {
   font-weight: 700;
   color: #374151;
   white-space: nowrap;
+  font-size: 0.95rem;
 }
 .donut-legend-value {
   font-weight: 800;
   color: #0b1f3a;
   white-space: nowrap;
-  display: inline-flex;
-  gap: 6px;
+  display: flex;
   align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
 }
 .donut-legend-percent {
   color: #6b7280;
   font-weight: 700;
-  margin-left: 6px;
+  margin-left: 8px;
   white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 480px) {
+  .donut-legend-item {
+    min-width: 100%;
+    padding: 10px 12px;
+  }
 }
 
 .legend-dot {
@@ -1896,7 +1916,7 @@
     display: flex;
     gap: 12px;
     align-items: center;
-    box-shadow: 0 4px 12px rgba(2,6,23,0.06);
+    box-shadow: 0 4px 12px rgba(2, 6, 23, 0.06);
     border: 1px solid #f0f0f0;
   }
   .donut-legend-dot {
