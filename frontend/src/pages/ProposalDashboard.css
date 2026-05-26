@@ -2765,22 +2765,17 @@
 
 @media (min-width: 900px) {
   .proposal-dashboard .chart-card--donut .donut-legend {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 12px !important;
-    max-width: 520px !important;
+    max-width: 260px !important;
     width: 100% !important;
     align-items: stretch !important;
-    justify-items: stretch !important;
   }
 
   .proposal-dashboard .chart-card--donut .donut-legend-item {
     width: 100% !important;
-    min-height: 76px !important;
-  }
-
-  .proposal-dashboard .chart-card--donut .donut-legend-item--budget {
-    grid-column: 2 !important;
+    min-height: 64px !important;
   }
 }
 
