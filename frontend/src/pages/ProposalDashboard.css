@@ -3105,15 +3105,15 @@
     min-height: 360px;
   }
 
-  .donut-chart {
-     width: 200px;
-     height: 200px;
-     max-width: 200px;
-  }
+    .donut-chart {
+      width: 190px;
+      height: 190px;
+      max-width: 190px;
+    }
 
-  .donut-total-value {
-     font-size: 22px;
-  }
+    .donut-total-value {
+      font-size: 20px;
+    }
 
   .donut-total-label {
     font-size: 13px;
@@ -3123,8 +3123,8 @@
 /* Harmonize title sizes across breakpoints for consistent visual rhythm */
 :root {
   --pd-h1-mobile: 1.5rem;
-  --pd-h1-tablet: 1.85rem;
-  --pd-h1-desktop: 1.9rem;
+  --pd-h1-tablet: 1.75rem;
+  --pd-h1-desktop: 1.75rem;
 
   --pd-h3-mobile: 1.05rem;
   --pd-h3-tablet: 1.35rem;
