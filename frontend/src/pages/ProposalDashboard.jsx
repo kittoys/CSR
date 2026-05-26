@@ -34,7 +34,6 @@ const ProposalDashboard = () => {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [viewProposal, setViewProposal] = useState(null);
   const [selectedDonutStatus, setSelectedDonutStatus] = useState(null);
-  const [showLegend, setShowLegend] = useState(false);
   const [filterPeriod, setFilterPeriod] = useState("all");
   const currentMonth = new Date().getMonth() + 1;
   const [selectedMonth, setSelectedMonth] = useState(
@@ -644,16 +643,8 @@ const ProposalDashboard = () => {
                       </div>
                     )}
                   </div>
-                  <div className="chart-header-right">
-                    <button
-                      className="btn btn--ghost"
-                      onClick={() => setShowLegend((s) => !s)}
-                      aria-pressed={showLegend}
-                      title="Tampilkan Legend"
-                    >
-                      {showLegend ? "Sembunyikan Legend" : "Tampilkan Legend"}
-                    </button>
-                  </div>
+                  {/* legend toggle removed - legend remains hidden by default */}
+                  <div className="chart-header-right" />
                 </div>
 
                 <div className="chart-body">
@@ -875,7 +866,7 @@ const ProposalDashboard = () => {
                       </div>
                     )}
 
-                    <div className={`donut-legend ${showLegend ? "" : "donut-legend--hidden"}`}>
+                    <div className={`donut-legend donut-legend--hidden`}>
                       <div className="donut-legend-item">
                         <span className="donut-legend-dot donut-legend-dot--progress"></span>
                         <div className="donut-legend-content">
