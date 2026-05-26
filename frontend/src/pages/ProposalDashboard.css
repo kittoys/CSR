@@ -2135,6 +2135,7 @@
   flex: 1;
   gap: 20px;
   padding: 16px 12px;
+  position: relative;
 }
 
 .donut-chart {
@@ -2203,17 +2204,17 @@
 
 .donut-info {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  left: 140px;
+  top: 8px;
+  transform: none;
   background: var(--color-surface);
-  border: 1px solid rgba(var(--color-primary-rgb), 0.12);
-  padding: 12px 16px;
+  border: 1px solid rgba(var(--color-primary-rgb), 0.08);
+  padding: 10px 12px;
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
   z-index: 5;
   min-width: 160px;
-  text-align: center;
+  text-align: left;
 }
 
 .donut-info-title {

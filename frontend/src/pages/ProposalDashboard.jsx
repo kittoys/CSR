@@ -745,6 +745,14 @@ const ProposalDashboard = () => {
                                     pct: inProgressPct,
                                   })
                                 }
+                                onTouchStart={(e) => {
+                                  e.preventDefault();
+                                  setSelectedDonutStatus({
+                                    key: "In Progress",
+                                    count: inProgress,
+                                    pct: inProgressPct,
+                                  });
+                                }}
                                 onKeyDown={(e) =>
                                   (e.key === "Enter" || e.key === " ") &&
                                   setSelectedDonutStatus({
@@ -774,6 +782,14 @@ const ProposalDashboard = () => {
                                     pct: waitingPct,
                                   })
                                 }
+                                onTouchStart={(e) => {
+                                  e.preventDefault();
+                                  setSelectedDonutStatus({
+                                    key: "Siap Diambil",
+                                    count: waiting,
+                                    pct: waitingPct,
+                                  });
+                                }}
                                 onKeyDown={(e) =>
                                   (e.key === "Enter" || e.key === " ") &&
                                   setSelectedDonutStatus({
@@ -803,6 +819,14 @@ const ProposalDashboard = () => {
                                     pct: completedPct,
                                   })
                                 }
+                                onTouchStart={(e) => {
+                                  e.preventDefault();
+                                  setSelectedDonutStatus({
+                                    key: "Done",
+                                    count: completed,
+                                    pct: completedPct,
+                                  });
+                                }}
                                 onKeyDown={(e) =>
                                   (e.key === "Enter" || e.key === " ") &&
                                   setSelectedDonutStatus({
