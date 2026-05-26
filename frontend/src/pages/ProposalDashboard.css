@@ -231,6 +231,44 @@
   -webkit-overflow-scrolling: touch;
   padding-bottom: 6px;
 }
+
+/* When sidebar is visible (narrower content) make cards wrap and shrink so no horizontal scroll needed */
+.app-main--with-sidebar .stats-cards,
+@media (max-width: 1200px) {
+  .stats-cards {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 12px;
+  }
+
+  .stat-card.small {
+    flex: 1 1 220px;
+    min-width: 140px;
+    padding: 10px 12px;
+  }
+
+  .stat-value {
+    font-size: 1.05rem;
+    max-width: 8.5rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .stats-cards {
+    gap: 10px;
+  }
+
+  .stat-card.small {
+    flex: 1 1 48%; /* two cards per row */
+    min-width: 0;
+    padding: 8px 10px;
+  }
+
+  .stat-value {
+    font-size: 1rem;
+    max-width: 7rem;
+  }
+}
 .stat-card.small {
   background: white;
   border-radius: 12px;
