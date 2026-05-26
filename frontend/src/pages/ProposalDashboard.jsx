@@ -11,7 +11,7 @@ import {
 } from "../api/proposals";
 import { generatePrintTableHTML } from "../utils/PrintTableTemplate";
 import { generatePrintChartHTML } from "../utils/PrintChartTemplate";
-import { exportRowsToCsv, exportRowsToExcel } from "../utils/exportSpreadsheet";
+import { exportRowsToExcel } from "../utils/exportSpreadsheet";
 import { useToast } from "../context/ToastContext";
 import "./ProposalDashboard.css";
 
@@ -34,6 +34,7 @@ const ProposalDashboard = () => {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [viewProposal, setViewProposal] = useState(null);
   const [selectedDonutStatus, setSelectedDonutStatus] = useState(null);
+  const [showLegend, setShowLegend] = useState(false);
   const [filterPeriod, setFilterPeriod] = useState("all");
   const currentMonth = new Date().getMonth() + 1;
   const [selectedMonth, setSelectedMonth] = useState(
@@ -156,6 +157,7 @@ const ProposalDashboard = () => {
       await fetchProposals();
       await fetchStats();
       await fetchMonthlyStats();
+      return true;
     } catch (err) {
       // Debug: Log complete error
       console.error("❌ Error saving proposal:", err);
@@ -179,6 +181,7 @@ const ProposalDashboard = () => {
       }
 
       toast.error(message, "Gagal Menyimpan Proposal");
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -294,21 +297,6 @@ const ProposalDashboard = () => {
 
     printWindow.document.write(htmlContent);
     printWindow.document.close();
-  };
-
-  const handleExportCsv = () => {
-    if (filteredProposals.length === 0) {
-      toast.warning("Tidak ada data proposal untuk diekspor", "Export CSV");
-      return;
-    }
-
-    exportRowsToCsv({
-      filename: `proposal-${getFilterLabel()}`,
-      columns: proposalExportColumns,
-      rows: filteredProposals,
-    });
-
-    toast.success("Data proposal berhasil diekspor ke CSV");
   };
 
   const handleExportExcel = () => {
@@ -656,6 +644,16 @@ const ProposalDashboard = () => {
                       </div>
                     )}
                   </div>
+                  <div className="chart-header-right">
+                    <button
+                      className="btn btn--ghost"
+                      onClick={() => setShowLegend((s) => !s)}
+                      aria-pressed={showLegend}
+                      title="Tampilkan Legend"
+                    >
+                      {showLegend ? "Sembunyikan Legend" : "Tampilkan Legend"}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="chart-body">
@@ -877,7 +875,7 @@ const ProposalDashboard = () => {
                       </div>
                     )}
 
-                    <div className="donut-legend">
+                    <div className={`donut-legend ${showLegend ? "" : "donut-legend--hidden"}`}>
                       <div className="donut-legend-item">
                         <span className="donut-legend-dot donut-legend-dot--progress"></span>
                         <div className="donut-legend-content">
@@ -941,6 +939,8 @@ const ProposalDashboard = () => {
                           </span>
                         </div>
                       </div>
+
+                      {/* Total Budget legend removed per request */}
                     </div>
                   </div>
                 </div>
@@ -953,14 +953,6 @@ const ProposalDashboard = () => {
           <div className="section-header">
             <h2>Daftar Proposal</h2>
             <div className="section-header-actions">
-              <button
-                className="btn btn--secondary btn-with-icon"
-                onClick={handleExportCsv}
-                title="Export proposal ke CSV"
-              >
-                <Download size={16} />
-                <span>CSV</span>
-              </button>
               <button
                 className="btn btn--secondary btn-with-icon"
                 onClick={handleExportExcel}

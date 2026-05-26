@@ -597,8 +597,8 @@
 }
 
 /* Hide legend text by default; keep donut-info popup on interaction */
-.donut-legend {
-  display: none !important;
+.donut-legend--hidden {
+  display: none;
 }
 .donut-legend-item {
   display: flex;
