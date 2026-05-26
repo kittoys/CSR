@@ -3106,13 +3106,13 @@
   }
 
   .donut-chart {
-    width: 220px;
-    height: 220px;
-    max-width: 220px;
+     width: 200px;
+     height: 200px;
+     max-width: 200px;
   }
 
   .donut-total-value {
-    font-size: 26px;
+     font-size: 22px;
   }
 
   .donut-total-label {
@@ -3123,8 +3123,8 @@
 /* Harmonize title sizes across breakpoints for consistent visual rhythm */
 :root {
   --pd-h1-mobile: 1.5rem;
-  --pd-h1-tablet: 2rem;
-  --pd-h1-desktop: 2.25rem;
+  --pd-h1-tablet: 1.85rem;
+  --pd-h1-desktop: 1.9rem;
 
   --pd-h3-mobile: 1.05rem;
   --pd-h3-tablet: 1.35rem;
