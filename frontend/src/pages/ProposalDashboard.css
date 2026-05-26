@@ -2906,6 +2906,60 @@
   }
 }
 
+/* Harmonize title sizes across breakpoints for consistent visual rhythm */
+:root {
+  --pd-h1-mobile: 1.5rem;
+  --pd-h1-tablet: 2rem;
+  --pd-h1-desktop: 2.25rem;
+
+  --pd-h3-mobile: 1.05rem;
+  --pd-h3-tablet: 1.35rem;
+  --pd-h3-desktop: 1.6rem;
+
+  --pd-subtitle-mobile: 0.95rem;
+  --pd-subtitle-desktop: 1rem;
+}
+
+/* Base (mobile) */
+.dashboard-header h1 {
+  font-size: var(--pd-h1-mobile) !important;
+  line-height: 1.15;
+}
+.dashboard-header .subtitle {
+  font-size: var(--pd-subtitle-mobile) !important;
+  color: var(--color-muted);
+}
+.stats-filter-header h3 {
+  font-size: var(--pd-h3-mobile) !important;
+  line-height: 1.2;
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  .dashboard-header h1 {
+    font-size: var(--pd-h1-tablet) !important;
+  }
+
+  .stats-filter-header h3 {
+    font-size: var(--pd-h3-tablet) !important;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1200px) {
+  .dashboard-header h1 {
+    font-size: var(--pd-h1-desktop) !important;
+  }
+
+  .dashboard-header .subtitle {
+    font-size: var(--pd-subtitle-desktop) !important;
+  }
+
+  .stats-filter-header h3 {
+    font-size: var(--pd-h3-desktop) !important;
+  }
+}
+
 .proposal-view-files-list {
   display: flex;
   flex-direction: column;
