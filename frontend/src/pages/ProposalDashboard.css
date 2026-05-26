@@ -70,7 +70,7 @@
   transition: all 0.3s ease;
   background: var(--gradient-primary);
   border: none;
-  padding: 0.875rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   border-radius: 10px;
   line-height: 1.5;
   box-shadow: 0 4px 14px rgba(var(--color-primary-rgb), 0.3);
@@ -93,6 +93,58 @@
     var(--color-primary-dark) 0%,
     var(--color-primary) 100%
   );
+}
+
+/* Tighten header layout and CTA sizing for better balance */
+.dashboard-header {
+  padding: 0.75rem 1rem;
+  min-height: 72px;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  padding: 0.15rem 0;
+}
+
+.dashboard-header .subtitle {
+  margin-top: 6px;
+  color: var(--color-muted);
+}
+
+/* Make CTA less dominant on small screens but still prominent */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .dashboard-header .btn.btn--primary.btn--lg {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(var(--color-primary-rgb), 0.18);
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.45rem !important;
+  }
+}
+
+/* Reduce top whitespace before Statistik section */
+.stats-filter-section {
+  margin-top: 12px;
+}
+
+/* Slightly increase spacing between header and first section on desktop */
+@media (min-width: 900px) {
+  .dashboard-header {
+    padding: 1rem 1.25rem;
+  }
+  .stats-filter-section {
+    margin-top: 18px;
+  }
 }
 
 .stats-filter-badge {
