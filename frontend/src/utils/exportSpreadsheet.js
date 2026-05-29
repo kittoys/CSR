@@ -43,19 +43,6 @@ const buildExportRows = (columns, rows) =>
     return output;
   });
 
-const downloadTextFile = (content, filename, mimeType) => {
-  const blob = new Blob([content], { type: mimeType });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
-};
-
 const setCellStyle = (worksheet, address, style) => {
   if (!worksheet[address]) {
     worksheet[address] = { t: "s", v: "" };
@@ -76,27 +63,6 @@ const mergeAcross = (startRow, endRow, columnCount) => {
     s: { r: startRow + index, c: 1 },
     e: { r: startRow + index, c: columnCount - 1 },
   }));
-};
-
-export const exportRowsToCsv = ({ filename, columns, rows }) => {
-  const exportRows = buildExportRows(columns, rows);
-  const header = columns.map((column) => column.label);
-  const escapeCsvValue = (value) => {
-    const cell = normalizeCell(value).replace(/"/g, '""');
-    return `"${cell}"`;
-  };
-
-  const csvLines = [header.map(escapeCsvValue).join(",")];
-
-  exportRows.forEach((row) => {
-    csvLines.push(header.map((label) => escapeCsvValue(row[label])).join(","));
-  });
-
-  downloadTextFile(
-    `\uFEFF${csvLines.join("\n")}`,
-    `${sanitizeFilename(filename)}.csv`,
-    "text/csv;charset=utf-8;",
-  );
 };
 
 export const exportRowsToExcel = ({

@@ -4,6 +4,7 @@ const pool = require("../config/db");
 const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs/promises");
 
 // Multer storage config
 const storage = multer.diskStorage({
@@ -32,6 +33,20 @@ const upload = multer({
     else cb(new Error("File type tidak diizinkan"));
   },
 });
+
+const resolveUploadPath = (filePath) =>
+  path.join(__dirname, "../../", filePath.replace(/^\/+/, ""));
+
+const unlinkUploadFile = async (filePath) => {
+  if (!filePath) return;
+  try {
+    await fs.unlink(resolveUploadPath(filePath));
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.warn("Failed to remove upload file:", filePath, error.message);
+    }
+  }
+};
 
 // GET statistics - HARUS SEBELUM /:id
 router.get("/stats/summary", async (req, res) => {
@@ -103,7 +118,7 @@ router.get("/stats/monthly", async (req, res) => {
         "🔍 Monthly stats - Filtering by month:",
         monthInt,
         "year:",
-        year
+        year,
       );
     } else if (year) {
       // Filter by year only
@@ -191,7 +206,7 @@ router.get("/stats/monthly", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM donation_proposals ORDER BY created_at DESC`
+      `SELECT * FROM donation_proposals ORDER BY created_at DESC`,
     );
     res.json(rows);
   } catch (err) {
@@ -205,7 +220,7 @@ router.get("/:id", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM donation_proposals WHERE id = ?`,
-      [req.params.id]
+      [req.params.id],
     );
     if (!rows.length)
       return res.status(404).json({ message: "Proposal not found" });
@@ -253,6 +268,9 @@ router.post(
       null;
     const proofUploaded =
       (files.file_bukti_donasi && files.file_bukti_donasi[0]) || null;
+    const removeProof = ["true", "1", "yes"].includes(
+      String(req.body.remove_proof || "").toLowerCase(),
+    );
 
     const proposal_file_name = proposalUploaded
       ? proposalUploaded.originalname
@@ -265,8 +283,13 @@ router.post(
       ? `/uploads/${proofUploaded.filename}`
       : null;
 
-    // Validasi: Jika status Done, bukti wajib diunggah
-    if ((status || "").trim() === "Done" && !proofUploaded) {
+    const finalStatus = proofUploaded
+      ? "Done"
+      : removeProof
+        ? "In Progress"
+        : status || "In Progress";
+
+    if (finalStatus.trim() === "Done" && !proofUploaded) {
       return res.status(400).json({
         message: "Bukti pengambilan wajib diunggah untuk status Done",
       });
@@ -298,7 +321,7 @@ router.post(
           jumlah_produk,
           budget,
           catatan,
-          status || "In Progress",
+          finalStatus,
           bright_status || null,
           pic_name,
           pic_email,
@@ -307,7 +330,7 @@ router.post(
           proposal_file_path,
           proof_file_name,
           proof_file_path,
-        ]
+        ],
       );
       res.status(201).json({
         id: result.insertId,
@@ -320,7 +343,7 @@ router.post(
         .status(500)
         .json({ message: err.message || "Error creating proposal" });
     }
-  }
+  },
 );
 
 // PUT update proposal
@@ -358,6 +381,9 @@ router.put(
       null;
     const proofUploaded =
       (files.file_bukti_donasi && files.file_bukti_donasi[0]) || null;
+    const removeProof = ["true", "1", "yes"].includes(
+      String(req.body.remove_proof || "").toLowerCase(),
+    );
 
     const proposal_file_name = proposalUploaded
       ? proposalUploaded.originalname
@@ -370,26 +396,38 @@ router.put(
       ? `/uploads/${proofUploaded.filename}`
       : null;
 
-    // Validasi: Jika status Done, harus ada bukti baru atau sudah tersimpan
-    if ((status || "").trim() === "Done" && !proofUploaded) {
-      try {
-        const [rows] = await pool.query(
-          `SELECT proof_file_path FROM donation_proposals WHERE id = ?`,
-          [req.params.id]
-        );
-        const existingProof = rows[0]?.proof_file_path;
-        if (!existingProof) {
-          return res.status(400).json({
-            message:
-              "Bukti pengambilan wajib diunggah untuk status Done (belum ada bukti tersimpan)",
-          });
-        }
-      } catch (err) {
-        return res.status(500).json({ message: "Error validating proof file" });
-      }
-    }
-
     try {
+      const [existingRows] = await pool.query(
+        `SELECT proof_file_name, proof_file_path FROM donation_proposals WHERE id = ?`,
+        [req.params.id],
+      );
+      if (!existingRows.length) {
+        return res.status(404).json({ message: "Proposal not found" });
+      }
+
+      const existingProofPath = existingRows[0]?.proof_file_path || null;
+      const existingProofStatus = proofUploaded
+        ? "Done"
+        : removeProof
+          ? "In Progress"
+          : existingProofPath
+            ? "Done"
+            : status || "In Progress";
+
+      if (existingProofStatus.trim() === "Done" && !proofUploaded && !existingProofPath) {
+        return res.status(400).json({
+          message: "Bukti pengambilan wajib diunggah untuk status Done",
+        });
+      }
+
+      if (removeProof && existingProofPath) {
+        await unlinkUploadFile(existingProofPath);
+      }
+
+      if (proofUploaded && existingProofPath && !removeProof) {
+        await unlinkUploadFile(existingProofPath);
+      }
+
       const fields = [
         case_id,
         proposal_name,
@@ -400,7 +438,7 @@ router.put(
         jumlah_produk,
         budget,
         catatan,
-        status,
+        existingProofStatus,
         bright_status || null,
         pic_name,
         pic_email,
@@ -408,7 +446,7 @@ router.put(
       ];
 
       let query = `UPDATE donation_proposals
-       SET case_id = ?, proposal_name = ?, organization = ?, bentuk_donasi = ?, tipe_proposal = ?, product_detail = ?, jumlah_produk = ?, budget = ?, catatan = ?, status = ?, bright_status = ?, pic_name = ?, pic_email = ?, proposal_date = ?`;
+      SET case_id = ?, proposal_name = ?, organization = ?, bentuk_donasi = ?, tipe_proposal = ?, product_detail = ?, jumlah_produk = ?, budget = ?, catatan = ?, status = ?, bright_status = ?, pic_name = ?, pic_email = ?, proposal_date = ?`;
 
       if (proposalUploaded) {
         query += `, proposal_file_name = ?, proposal_file_path = ?`;
@@ -417,6 +455,8 @@ router.put(
       if (proofUploaded) {
         query += `, proof_file_name = ?, proof_file_path = ?`;
         fields.push(proof_file_name, proof_file_path);
+      } else if (removeProof) {
+        query += `, proof_file_name = NULL, proof_file_path = NULL`;
       }
 
       query += ` WHERE id = ?`;
@@ -428,7 +468,7 @@ router.put(
       console.error(err);
       res.status(500).json({ message: "Error updating proposal" });
     }
-  }
+  },
 );
 
 // DELETE proposal

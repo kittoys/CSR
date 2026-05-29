@@ -31,6 +31,7 @@ const ProposalModal = ({
 
   const [proposalFileName, setProposalFileName] = useState("");
   const [proofFileName, setProofFileName] = useState("");
+  const [removeProof, setRemoveProof] = useState(false);
 
   // Helper function untuk format date ke YYYY-MM-DD
   const formatDateForInput = (dateString) => {
@@ -73,9 +74,10 @@ const ProposalModal = ({
       setProposalFileName(
         editingProposal.proposal_file_name ||
           editingProposal.file_pendukung ||
-          ""
+          "",
       );
       setProofFileName(editingProposal.proof_file_name || "");
+      setRemoveProof(false);
     } else {
       // Mode create: reset form
       setFormData({
@@ -98,6 +100,7 @@ const ProposalModal = ({
       });
       setProposalFileName("");
       setProofFileName("");
+      setRemoveProof(false);
     }
   }, [editingProposal]);
 
@@ -126,6 +129,15 @@ const ProposalModal = ({
     if (file) {
       if (!validateFile(file)) return;
       setProofFileName(file.name);
+      setRemoveProof(false);
+      setFormData((prev) => ({
+        ...prev,
+        status: "Done",
+      }));
+      toast.success(
+        "Status otomatis berubah menjadi Done setelah bukti ditambahkan.",
+        "Status Diperbarui",
+      );
       setFormData((prev) => ({
         ...prev,
         file_bukti_donasi: file,
@@ -161,11 +173,40 @@ const ProposalModal = ({
       const file = files[0];
       if (!validateFile(file)) return;
       setProofFileName(file.name);
+      setRemoveProof(false);
+      setFormData((prev) => ({
+        ...prev,
+        status: "Done",
+      }));
+      toast.success(
+        "Status otomatis berubah menjadi Done setelah bukti ditambahkan.",
+        "Status Diperbarui",
+      );
       setFormData((prev) => ({
         ...prev,
         file_bukti_donasi: file,
       }));
     }
+  };
+
+  const handleRemoveProof = () => {
+    setRemoveProof(true);
+    setFormData((prev) => ({
+      ...prev,
+      status: "In Progress",
+    }));
+    toast.info(
+      "Status otomatis berubah menjadi In Progress setelah bukti dihapus.",
+      "Status Diperbarui",
+    );
+  };
+
+  const handleCancelRemoveProof = () => {
+    setRemoveProof(false);
+    setFormData((prev) => ({
+      ...prev,
+      status: "Done",
+    }));
   };
 
   const validateFile = (file) => {
@@ -194,7 +235,7 @@ const ProposalModal = ({
     const name = file.name.toLowerCase();
     const hasValidMime = allowedMimes.has(file.type);
     const hasValidExt = Array.from(allowedExts).some((ext) =>
-      name.endsWith(ext)
+      name.endsWith(ext),
     );
     if (!hasValidMime && !hasValidExt) {
       toast.warning("Tipe file tidak diizinkan", "Format Tidak Didukung");
@@ -204,7 +245,7 @@ const ProposalModal = ({
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validasi field required
@@ -225,40 +266,49 @@ const ProposalModal = ({
       }
     }
 
+    const hasExistingProof = !!proofFileName && !removeProof;
+    const hasNewProof = !!formData.file_bukti_donasi;
+    const nextStatus =
+      hasExistingProof || hasNewProof ? "Done" : formData.status;
+
     // Wajib unggah bukti jika status Done
-    if (formData.status === "Done") {
-      const hasExistingProof = !!proofFileName;
-      const hasNewProof = !!formData.file_bukti_donasi;
-      if (!hasExistingProof && !hasNewProof) {
-        toast.warning(
-          "Bukti pengambilan wajib diunggah untuk status Done",
-          "Data Tidak Lengkap"
-        );
-        return;
-      }
+    if (nextStatus === "Done" && !hasExistingProof && !hasNewProof) {
+      toast.warning(
+        "Bukti pengambilan wajib diunggah untuk status Done",
+        "Data Tidak Lengkap",
+      );
+      return;
     }
 
-    onSubmit(formData);
-    setFormData({
-      case_id: "",
-      proposal_name: "",
-      organization: "",
-      bentuk_donasi: "",
-      tipe_proposal: "",
-      product_detail: "",
-      jumlah_produk: "",
-      budget: "",
-      catatan: "",
-      pic_name: "",
-      pic_email: "",
-      proposal_date: new Date().toISOString().split("T")[0],
-      status: "In Progress",
-      bright_status: "",
-      file_proposal: null,
-      file_bukti_donasi: null,
+    const saveResult = await onSubmit({
+      ...formData,
+      status: nextStatus,
+      remove_proof: removeProof,
     });
-    setProposalFileName("");
-    setProofFileName("");
+
+    if (saveResult !== false) {
+      setFormData({
+        case_id: "",
+        proposal_name: "",
+        organization: "",
+        bentuk_donasi: "",
+        tipe_proposal: "",
+        product_detail: "",
+        jumlah_produk: "",
+        budget: "",
+        catatan: "",
+        pic_name: "",
+        pic_email: "",
+        proposal_date: new Date().toISOString().split("T")[0],
+        status: "In Progress",
+        bright_status: "",
+        file_proposal: null,
+        file_bukti_donasi: null,
+      });
+      setProposalFileName("");
+      setProofFileName("");
+      setRemoveProof(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -281,14 +331,18 @@ const ProposalModal = ({
             <div className="form-row">
               <div className="form-group">
                 <label>ID NAME *</label>
-                <input
-                  type="text"
+                <select
                   name="pic_name"
                   value={formData.pic_name}
                   onChange={handleChange}
-                  placeholder="Nama Person In Charge"
                   required
-                />
+                >
+                  <option value="">Pilih ID Name</option>
+                  <option value="ANDI">ANDI</option>
+                  <option value="DENI">DENI</option>
+                  <option value="BENY">BENY</option>
+                  <option value="DODI">DODI</option>
+                </select>
               </div>
               <div className="form-group">
                 <label>ID CASE *</label>
@@ -545,6 +599,32 @@ const ProposalModal = ({
                           ✓ File bukti: {proofFileName}
                         </p>
                       )}
+                      {proofFileName && !removeProof && (
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleRemoveProof();
+                          }}
+                        >
+                          Hapus Bukti
+                        </button>
+                      )}
+                      {removeProof && (
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleCancelRemoveProof();
+                          }}
+                        >
+                          Batalkan Hapus
+                        </button>
+                      )}
                     </div>
                   </label>
                 </div>
@@ -591,8 +671,8 @@ const ProposalModal = ({
               {isLoading
                 ? "Menyimpan..."
                 : editingProposal
-                ? "Perbarui Proposal"
-                : "Tambah Proposal"}
+                  ? "Perbarui Proposal"
+                  : "Tambah Proposal"}
             </button>
           </div>
         </form>

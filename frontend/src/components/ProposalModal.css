@@ -209,6 +209,38 @@
   font-weight: 500;
 }
 
+.proof-status-warning__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: #fff3c4;
+  border: 1px solid #f0b84a;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.proof-status-warning__content {
+  min-width: 0;
+}
+
+.proof-status-warning__title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.proof-status-warning__text {
+  margin-top: 2px;
+  font-size: 0.95rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
 .modal-actions {
   display: flex;
   gap: 12px;

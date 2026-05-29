@@ -2,7 +2,7 @@ export const generatePrintChartHTML = (
   stats,
   monthlyStats,
   getFilterLabel,
-  formatCurrency
+  formatCurrency,
 ) => {
   const statsGrid = document.querySelector(".stats-grid");
   const chartCard = document.querySelector(".chart-card--bar");
@@ -52,15 +52,19 @@ export const generatePrintChartHTML = (
           }
           .stats-section {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
+            grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.92fr) minmax(0, 1.12fr);
+            gap: 8px;
             margin-bottom: 15px;
           }
           .stat-box {
             border: 1.5px solid #e5e7eb;
             border-radius: 6px;
-            padding: 10px;
+            padding: 8px 9px;
+            min-height: 56px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
@@ -85,17 +89,28 @@ export const generatePrintChartHTML = (
             border-color: #a78bfa;
           }
           .stat-label {
-            font-size: 9px;
+            font-size: 8px;
             color: #6b7280;
             text-transform: uppercase;
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             letter-spacing: 0.3px;
           }
           .stat-value {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
             color: #1f2937;
+            line-height: 1.1;
+          }
+          .stat-box:nth-child(4),
+          .stat-box:nth-child(5) {
+            padding: 7px 8px;
+          }
+          .stat-box:nth-child(4) .stat-value {
+            font-size: 15px;
+          }
+          .stat-box:nth-child(5) .stat-value {
+            font-size: 13px;
           }
           .chart-section {
             border: 1.5px solid #e5e7eb;
@@ -458,7 +473,7 @@ export const generatePrintChartHTML = (
                 year: "numeric",
                 month: "long",
                 day: "numeric",
-              }
+              },
             )} | Periode: ${getFilterLabel()}</p>
           </div>
           
@@ -485,7 +500,7 @@ export const generatePrintChartHTML = (
               <div class="stat-box">
                 <div class="stat-label">Total Budget</div>
                 <div class="stat-value" style="font-size: 13px;">${formatCurrency(
-                  stats?.total_budget || 0
+                  stats?.total_budget || 0,
                 )}</div>
               </div>
             </div>
@@ -502,7 +517,7 @@ export const generatePrintChartHTML = (
                   ? `<div class="chart-budget-badge">
                       <span class="budget-label">Total Budget:</span>
                       <span class="budget-value">${formatCurrency(
-                        stats.total_budget
+                        stats.total_budget,
                       )}</span>
                     </div>`
                   : ""
@@ -552,7 +567,7 @@ export const generatePrintChartHTML = (
                     <td>${m.breakdown?.waiting || 0}</td>
                     <td>${m.breakdown?.done || 0}</td>
                   </tr>
-                `
+                `,
                   )
                   .join("")}
               </tbody>

@@ -220,140 +220,176 @@
   margin-bottom: 16px;
 }
 
-/* Summary stat cards shown above charts */
+/* Summary stat cards shown above charts - simplified */
 .stats-cards {
-  display: flex;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 8px 0 18px 0;
+  padding: 0;
   align-items: stretch;
-  margin: 12px 0 18px 0;
-  flex-wrap: wrap; /* default wrap so no horizontal scroll */
-  overflow-x: visible;
-  padding-bottom: 6px;
 }
 
-/* When sidebar is visible (narrower content) make cards wrap and shrink so no horizontal scroll needed */
-.app-main--with-sidebar .stats-cards,
-@media (max-width: 1200px) {
-  .stats-cards {
-    flex-wrap: wrap;
-    overflow-x: visible;
-    gap: 12px;
-  }
-
-  .stat-card.small {
-    flex: 1 1 220px;
-    min-width: 140px;
-    padding: 10px 12px;
-  }
-
-  .stat-value {
-    font-size: 1.05rem;
-    max-width: 8.5rem;
-  }
-}
-
-@media (max-width: 900px) {
-  .stats-cards {
-    gap: 10px;
-  }
-
-  .stat-card.small {
-    flex: 1 1 48%; /* two cards per row */
-    min-width: 0;
-    padding: 8px 10px;
-  }
-
-  .stat-value {
-    font-size: 1rem;
-    max-width: 7rem;
-  }
-}
-.stat-card.small {
-  background: white;
-  border-radius: 12px;
-  padding: 12px 16px;
+/* Compact, consistent stat card */
+.stat-card.small,
+.stat-card {
+  background: var(--color-surface, #ffffff);
+  border-radius: 10px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 180px;
-  flex: 0 0 auto;
-  box-shadow: 0 2px 8px rgba(2, 6, 23, 0.04);
-  border: 1px solid #eef2f6;
+  min-width: 0;
+  box-shadow: none;
+  border: 1px solid var(--color-border, #eef2f6);
+  transition: none;
 }
+
+.stat-card > div,
+.stat-card.small > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .stat-icon {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 18px;
+  flex: 0 0 40px;
 }
+
 .stat-icon i {
-  font-size: 20px;
+  font-size: 18px;
   color: var(--color-dark);
 }
-.stat-icon--proposals {
-  background: #fef3c7;
-}
-.stat-icon--progress {
-  background: #fef3c7;
-}
-.stat-icon--waiting {
-  background: #dbeafe;
-}
-.stat-icon--done {
-  background: #d1fae5;
-}
-.stat-icon--budget {
-  background: #f3e8ff;
-}
+
 .stat-label {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--color-muted);
   font-weight: 700;
-  text-transform: uppercase;
 }
+
 .stat-value {
-  font-size: clamp(1rem, 1.6vw, 1.25rem);
-  font-weight: 800;
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+  font-weight: 700;
   color: var(--color-dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 10rem;
+  margin: 0;
+  white-space: normal; /* allow wrapping */
+  overflow: visible;
+  text-overflow: clip;
 }
 
 @media (max-width: 768px) {
   .stats-cards {
     gap: 10px;
   }
-  .stat-card.small {
-    min-width: 140px;
-    padding: 10px 12px;
+  .stat-card {
+    padding: 10px;
   }
   .stat-value {
     font-size: 1.05rem;
-    max-width: 8rem;
   }
 }
 
-/* Desktop grid: 3 columns */
-@media (min-width: 1200px) {
+/* Desktop: place stat cards above the charts (full-width) */
+@media (min-width: 1024px) {
+  .proposal-switch-panel {
+    display: block;
+  }
+
   .stats-cards {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 18px;
+    padding: 18px;
+    background: rgba(241, 232, 255, 0.09);
+    border-radius: 12px;
+    margin-bottom: 24px;
   }
 
-  /* If sidebar is visible, reduce columns to 2 for better fit */
-  .app-main--with-sidebar .stats-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Keep stats cards on a single row when sidebar is visible */
+  /* When sidebar visible: use flex so cards compress evenly across row */
+  .app-main--with-sidebar .proposal-switch-panel .stats-cards {
+    display: flex !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    align-items: stretch !important;
+    flex-wrap: nowrap !important; /* keep on one row */
+    overflow-x: auto !important; /* allow small horizontal scroll if extremely narrow */
+    -webkit-overflow-scrolling: touch !important;
   }
 
-  .stat-card.small {
-    flex: none;
-    min-width: 0;
+  .app-main--with-sidebar .proposal-switch-panel .stat-card,
+  .app-main--with-sidebar .proposal-switch-panel .stat-card.small {
+    flex: 1 1 0 !important; /* compress evenly */
+    min-width: 0 !important;
+  }
+
+  /* When sidebar visible: make numbers smaller so they never overflow */
+  .app-main--with-sidebar .proposal-switch-panel .stat-value,
+  .app-main--with-sidebar .stats-cards .stat-value {
+    font-size: clamp(0.65rem, 1vw, 0.88rem) !important;
+    line-height: 1.05 !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* When sidebar visible: make labels smaller too */
+  .app-main--with-sidebar .proposal-switch-panel .stat-label,
+  .app-main--with-sidebar .stats-cards .stat-label {
+    font-size: 0.65rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.25px !important;
+  }
+
+  /* Allow cards to shrink a bit more when sidebar is present */
+  .app-main--with-sidebar .proposal-switch-panel .stat-card,
+  .app-main--with-sidebar .proposal-switch-panel .stat-card.small {
+    flex: 1 1 140px !important;
+    min-width: 120px !important;
+  }
+
+  .stats-cards .stat-card.small {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: none;
+    border: 1px solid rgba(240, 242, 247, 0.9);
+  }
+
+  .stats-cards .stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    box-shadow: none;
+    flex: 0 0 44px;
+    min-width: 44px;
+  }
+
+  .stats-cards .stat-value {
+    font-size: 1.05rem;
+    max-width: 120px;
+    text-align: left;
+  }
+
+  /* If sidebar is visible, keep charts full width below */
+  .app-main--with-sidebar .proposal-switch-panel {
+    display: block;
   }
 }
 
@@ -365,7 +401,9 @@
     gap: 14px;
   }
 
-  .stat-card.small { flex: none; }
+  .stat-card.small {
+    flex: none;
+  }
 }
 
 /* Mobile: single column */
@@ -405,10 +443,282 @@
   border: 1px solid #f0f0f0;
 }
 
+/* Override: pastikan gaya yang disederhanakan berlaku terakhir */
+.proposal-switch-panel .stats-cards {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap: 12px !important;
+  margin: 8px 0 18px 0 !important;
+  padding: 0 !important;
+  align-items: stretch !important;
+}
+
+.proposal-switch-panel .stat-card,
+.proposal-switch-panel .stat-card.small {
+  background: var(--color-surface, #ffffff) !important;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+  box-shadow: none !important;
+  border: 1px solid var(--color-border, #eef2f6) !important;
+}
+
+.proposal-switch-panel .stat-icon {
+  width: 40px !important;
+  height: 40px !important;
+  flex: 0 0 40px !important;
+  border-radius: 8px !important;
+}
+
+.proposal-switch-panel .stat-value {
+  font-size: clamp(0.95rem, 1.2vw, 1.05rem) !important;
+  font-weight: 700 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+@media (max-width: 768px) {
+  .proposal-switch-panel .stats-cards {
+    gap: 10px !important;
+  }
+  .proposal-switch-panel .stat-card {
+    padding: 10px !important;
+  }
+  .proposal-switch-panel .stat-value {
+    font-size: 1.05rem !important;
+  }
+}
+
 .stat-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
   border-color: #e5e7eb;
+}
+
+/* Default: ensure stats cards flex and wrap so values don't overflow when sidebar hidden */
+.proposal-switch-panel .stats-cards {
+  display: flex !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+  flex-wrap: wrap !important;
+}
+
+.proposal-switch-panel .stat-card,
+.proposal-switch-panel .stat-card.small {
+  flex: 1 1 220px !important; /* allow cards to shrink/grow evenly */
+  min-width: 160px !important;
+  box-sizing: border-box !important;
+}
+
+/* Very small screens: show stats as 2 columns (two cards per row). For extremely narrow, fall back to 1 column */
+@media (max-width: 480px) {
+  .stats-cards {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    padding: 10px !important;
+  }
+
+  .stat-card,
+  .stat-card.small {
+    padding: 10px !important;
+    min-height: auto !important;
+  }
+
+  .stat-label {
+    font-size: 0.75rem !important;
+  }
+  .stat-value {
+    font-size: clamp(1rem, 4.5vw, 1.15rem) !important;
+  }
+
+  /* Mobile filter optimization */
+  .proposal-dashboard .filters {
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 12px;
+    margin-bottom: 12px;
+    align-items: center;
+    max-width: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .proposal-dashboard .search-box {
+    width: 100%;
+    min-width: auto;
+    order: -1;
+    max-width: 100%;
+  }
+
+  .proposal-dashboard .search-box input {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    width: 100%;
+  }
+
+  .proposal-dashboard .filter-select {
+    width: 100%;
+    min-width: auto;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
+
+  /* Mobile bulk-actions optimization */
+  .proposal-dashboard .filters .bulk-actions {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0;
+    gap: 10px;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: stretch;
+    display: flex;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .selected-count {
+    flex: 1 1 100%;
+    font-size: 0.8rem;
+    padding: 10px 12px;
+    text-align: center;
+    margin-right: 0;
+    margin-bottom: 0;
+    min-height: 34px;
+    border-radius: 6px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .btn--danger,
+  .proposal-dashboard .filters .bulk-actions .btn--ghost {
+    flex: 1 1 100%;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    min-height: 34px;
+    border-radius: 6px;
+    font-weight: 600;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .btn--danger {
+    order: 2;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .btn--ghost {
+    order: 1;
+  }
+
+  .proposal-dashboard .dashboard-container {
+    padding: 12px 0;
+  }
+
+  .proposal-dashboard .dashboard-header {
+    padding: 12px 12px;
+  }
+}
+
+@media (max-width: 340px) {
+  .stats-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  .proposal-dashboard .filters {
+    display: flex;
+    flex-direction: column;
+    padding: 0 8px;
+    gap: 8px;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .app-shell--sidebar-hidden .proposal-dashboard .filters {
+    display: flex;
+    flex-direction: column;
+    padding: 0 8px;
+    gap: 8px;
+    align-items: center;
+    grid-template-columns: auto;
+  }
+
+  .proposal-dashboard .filters .bulk-actions {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 8px;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .app-shell--sidebar-hidden .proposal-dashboard .filters .bulk-actions {
+    grid-column: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .selected-count {
+    flex: 1 1 100%;
+    font-size: 0.75rem;
+    padding: 8px 10px;
+    min-height: 32px;
+    text-align: center;
+    margin-right: 0;
+    margin-bottom: 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-shell--sidebar-hidden
+    .proposal-dashboard
+    .filters
+    .bulk-actions
+    .selected-count {
+    display: none;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .btn--danger,
+  .proposal-dashboard .filters .bulk-actions .btn--ghost {
+    flex: 1 1 100%;
+    padding: 8px 10px;
+    font-size: 0.75rem;
+    min-height: 32px;
+    font-weight: 600;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .btn--danger {
+    order: 2;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .btn--ghost {
+    order: 1;
+  }
+
+  .proposal-dashboard .dashboard-container {
+    padding: 8px 0;
+  }
 }
 
 .stat-icon {
@@ -452,6 +762,37 @@
   text-transform: uppercase;
   letter-spacing: 0.35px;
   margin: 0 0 4px 0;
+}
+
+/* Icon centering override: ensure icons are perfectly centered inside their square */
+.stat-card .stat-icon,
+.stats-cards .stat-card .stat-icon,
+.proposal-switch-panel .stat-card .stat-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 6px !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+}
+
+.stat-card .stat-icon i,
+.stat-card .stat-icon svg {
+  display: block !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+
+/* Ensure the icon area does not shift label vertically */
+.stat-card > div,
+.stat-card.small > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  justify-content: center; /* centers label+value vertically relative to icon */
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .stat-value {
@@ -498,13 +839,16 @@
 
 .proposal-count {
   background: #f3f4f6;
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #6b7280;
   font-weight: 600;
   box-shadow: #0f172a33 0px 1px 2px 0px;
-  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  height: auto;
+  white-space: nowrap;
 }
 
 .filters {
@@ -513,6 +857,8 @@
   margin-bottom: 24px;
   align-items: center;
   flex-wrap: wrap;
+  overflow: hidden;
+  border-left: none;
 }
 
 .search-box {
@@ -1364,21 +1710,19 @@
 .bulk-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
-  padding: 6px 8px;
+  padding: 12px 0;
   background: transparent;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-bottom: 12px;
   flex-wrap: nowrap;
-  /* keep bulk-actions compact so it doesn't span full width and overlap
-     other UI on wide desktop screens */
   width: auto;
   flex: 0 0 auto;
-  /* keep block off the very edge */
   margin-left: auto;
-  margin-right: 16px;
-  max-width: calc(100% - 160px);
+  margin-right: 0;
+  max-width: 100%;
 }
 
 @keyframes slideIn {
@@ -1400,11 +1744,11 @@
   flex: 0 0 auto;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
   border: 2px solid #86efac;
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 6px 12px;
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.06);
-  margin-right: 0;
-  min-height: 34px;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.08);
+  margin-right: 4px;
+  min-height: 32px;
   display: inline-flex;
   align-items: center;
 }
@@ -1412,9 +1756,9 @@
 .btn--danger {
   background: #ef4444;
   color: white;
-  padding: 0 12px;
+  padding: 6px 14px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.8rem;
@@ -1423,7 +1767,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  min-height: 34px;
+  min-height: 32px;
   flex-shrink: 0;
 }
 
@@ -1452,7 +1796,26 @@
   align-items: center;
 }
 
+.bulk-actions .btn--danger,
+.bulk-actions .btn--ghost {
+  min-width: 105px;
+  height: 35px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin: 0;
+}
+
 .bulk-actions .btn--danger {
+  background: #ef4444;
+  color: white;
+  border: none;
   margin-left: 0;
 }
 
@@ -1471,14 +1834,14 @@
   background: white;
   color: #6b7280;
   border: 1px solid #d1d5db;
-  padding: 0 12px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.8rem;
   transition: all 0.2s ease;
   white-space: nowrap;
-  min-height: 34px;
+  min-height: 35px;
   flex-shrink: 0;
 }
 
@@ -1500,29 +1863,27 @@
 
 @media (min-width: 769px) {
   .bulk-actions {
-    gap: 10px;
-    padding: 10px 12px;
+    gap: 12px;
+    padding: 12px 16px;
     align-items: center;
-    /* align to end so bulk actions stay to the right of filters without
-       stretching across the whole row */
     justify-content: flex-end;
-    min-height: 56px;
+    min-height: auto;
     width: auto;
     flex: 0 0 auto;
     margin-left: auto;
-    margin-right: 24px;
-    max-width: 480px;
+    margin-right: 0;
+    max-width: 100%;
   }
 
   .selected-count {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     letter-spacing: 0;
-    margin-right: 0;
+    margin-right: 4px;
   }
 
   .bulk-actions .btn--danger,
   .bulk-actions .btn--ghost {
-    min-width: 110px;
+    min-width: auto;
   }
 }
 
@@ -1534,16 +1895,16 @@
 
   .bulk-actions .btn {
     padding: 6px 10px;
-    min-width: 40px;
+    min-width: auto;
   }
 
   .selected-count {
     padding: 6px 10px;
+    font-size: 0.8rem;
   }
 }
 
-/* Force precise sizes and alignment for desktop bulk-actions
-   Use very specific selector to override global `.btn` rules */
+/* Clean and consistent button styling across all bulk-actions */
 .proposal-dashboard .proposals-section .filters .bulk-actions .actions .btn,
 .proposal-dashboard
   .proposals-section
@@ -1557,11 +1918,12 @@
   .bulk-actions
   .actions
   .btn--ghost {
-  padding: 8px 16px !important;
-  font-size: 0.95rem !important;
-  height: 44px !important;
-  min-width: 130px !important;
-  border-radius: 10px !important;
+  padding: 6px 14px !important;
+  font-size: 0.8rem !important;
+  height: auto !important;
+  min-height: 32px !important;
+  min-width: auto !important;
+  border-radius: 6px !important;
   box-shadow: none !important;
 }
 
@@ -1572,19 +1934,20 @@
   .actions
   .btn
   .btn-icon {
-  font-size: 1.05rem !important;
+  font-size: 1rem !important;
   margin-left: 0 !important;
 }
 
 .proposal-dashboard .proposals-section .filters .bulk-actions .selected-count {
-  margin-right: 12px !important;
-  padding: 6px 10px !important;
-  font-size: 0.9rem !important;
+  margin-right: 4px !important;
+  padding: 6px 12px !important;
+  font-size: 0.85rem !important;
+  min-height: 32px !important;
 }
 
 @media (min-width: 1200px) {
   .proposal-dashboard .proposals-section .filters .bulk-actions .actions .btn {
-    min-width: 140px !important;
+    min-width: auto !important;
   }
 }
 
@@ -1797,6 +2160,36 @@
     width: 100%;
   }
 
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .section-header h2 {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .section-header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+  }
+
+  .section-header-actions .btn {
+    flex: 1 1 auto;
+    min-width: 100px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+
+  .proposal-count {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
   .stats-grid,
   .proposals-section,
   .chart-card {
@@ -1925,18 +2318,91 @@
     overflow: visible;
   }
 
-  .filters {
+  .proposal-dashboard .filters {
+    display: flex;
     flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 0 12px;
+    grid-template-columns: auto;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
   }
 
-  .search-box {
-    min-width: auto;
-    width: 100%;
+  .app-shell--sidebar-hidden .proposal-dashboard .filters {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: auto;
   }
 
-  .filter-select {
+  .proposal-dashboard .search-box {
     min-width: auto;
     width: 100%;
+    order: -1;
+    flex: 1 1 auto;
+  }
+
+  .proposal-dashboard .search-box input {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .proposal-dashboard .filter-select {
+    min-width: auto;
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .proposal-dashboard .filters .bulk-actions {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0;
+    gap: 10px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .selected-count {
+    flex: 1 1 100%;
+    font-size: 0.8rem;
+    padding: 10px 12px;
+    text-align: center;
+    margin-right: 0;
+    margin-bottom: 0;
+    min-height: 34px;
+    border-radius: 6px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .btn--danger,
+  .proposal-dashboard .filters .bulk-actions .btn--ghost {
+    flex: 1 1 100%;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    min-height: 34px;
+    border-radius: 6px;
+    font-weight: 600;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .btn--danger {
+    order: 2;
+  }
+
+  .proposal-dashboard .filters .bulk-actions .btn--ghost {
+    order: 1;
   }
 
   .proposals-table {
@@ -2849,6 +3315,24 @@
     font-size: 0.8rem;
   }
 
+  .section-header-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .section-header-actions .btn {
+    width: 100%;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+
+  .proposal-count {
+    width: 100%;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+
   .stats-filter-section {
     padding: 12px;
     border-radius: 8px;
@@ -2944,27 +3428,104 @@
   align-items: end;
 }
 
+/* Mobile: override grid with flex column */
+@media (max-width: 1024px) {
+  .proposal-dashboard .filters {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: auto;
+    gap: 10px;
+    align-items: center;
+    padding: 0 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border-left: none;
+  }
+
+  .proposal-dashboard .search-box {
+    width: 100%;
+    order: -1;
+  }
+
+  .proposal-dashboard .filter-select {
+    width: 100%;
+  }
+}
+
 /* When the private sidebar is hidden the main content padding changes which
    can make the filter controls appear mis-aligned. Force a predictable grid
    layout for wide screens when the sidebar is hidden so selects and bulk
    actions align neatly. */
 .app-shell--sidebar-hidden .proposal-dashboard .filters {
   /* make sure filters use explicit columns: search | status | period | actions */
+  display: grid;
   grid-template-columns: 1fr 220px 220px auto;
   align-items: end;
   gap: 12px;
+  padding: 0;
+  margin-bottom: 16px;
 }
 
 .app-shell--sidebar-hidden .proposal-dashboard .filters .search-box {
   grid-column: 1 / 2;
+  width: 100%;
 }
 
 .app-shell--sidebar-hidden .proposal-dashboard .filters .bulk-actions {
   grid-column: 4 / 5;
   justify-self: end;
-  margin-left: 0; /* ensure it doesn't push away from the right */
-  margin-right: 24px;
-  max-width: 480px;
+  align-self: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0;
+  max-width: none;
+  width: auto;
+  flex-wrap: nowrap;
+}
+
+/* Mobile override: revert sidebar grid layout to flex column */
+@media (max-width: 768px) {
+  .app-shell--sidebar-hidden .proposal-dashboard .filters {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: auto;
+    gap: 10px;
+    align-items: center;
+    padding: 0 12px;
+  }
+
+  .app-shell--sidebar-hidden .proposal-dashboard .filters .search-box {
+    grid-column: auto;
+    width: 100%;
+  }
+
+  .app-shell--sidebar-hidden .proposal-dashboard .filters .bulk-actions {
+    grid-column: auto;
+    justify-self: auto;
+    align-self: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-shell--sidebar-hidden
+    .proposal-dashboard
+    .filters
+    .bulk-actions
+    .selected-count {
+    display: none;
+  }
 }
 
 .proposal-dashboard .search-box {
@@ -3105,15 +3666,15 @@
     min-height: 360px;
   }
 
-    .donut-chart {
-      width: 190px;
-      height: 190px;
-      max-width: 190px;
-    }
+  .donut-chart {
+    width: 190px;
+    height: 190px;
+    max-width: 190px;
+  }
 
-    .donut-total-value {
-      font-size: 20px;
-    }
+  .donut-total-value {
+    font-size: 20px;
+  }
 
   .donut-total-label {
     font-size: 13px;

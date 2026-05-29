@@ -152,8 +152,8 @@ export const generatePrintTableHTML = (
         
         .summary-stats {
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 8px;
+          grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.92fr) minmax(0, 1.12fr);
+          gap: 6px;
           margin-bottom: 12px;
         }
         
@@ -161,23 +161,28 @@ export const generatePrintTableHTML = (
           background: white;
           border: 1.5px solid #e5e7eb;
           border-radius: 6px;
-          padding: 8px;
+          padding: 7px 8px;
+          min-height: 56px;
           text-align: center;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
         }
         
         .summary-label {
-          font-size: 7pt;
+          font-size: 6.8pt;
           color: #6b7280;
           font-weight: 600;
           text-transform: uppercase;
-          margin-bottom: 4px;
+          margin-bottom: 3px;
           letter-spacing: 0.3px;
         }
         
         .summary-value {
-          font-size: 14pt;
+          font-size: 12.5pt;
           font-weight: 800;
           color: #0f172a;
+          line-height: 1.1;
         }
         
         .summary-card.total {
@@ -203,6 +208,19 @@ export const generatePrintTableHTML = (
         .summary-card.budget {
           background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
           border-color: #a78bfa;
+        }
+
+        .summary-card.done,
+        .summary-card.budget {
+          padding: 6px 7px;
+        }
+
+        .summary-card.done .summary-value {
+          font-size: 11.5pt;
+        }
+
+        .summary-card.budget .summary-value {
+          font-size: 10.5pt !important;
         }
         
         .data-table {

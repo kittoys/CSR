@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import ProposalModal from "../components/ProposalModal";
 import { PlusCircle, Printer, Download, CalendarDays } from "lucide-react";
 import {
@@ -42,6 +42,7 @@ const ProposalDashboard = () => {
   const [selectedYear, setSelectedYear] = useState(
     new Date().getFullYear().toString(),
   );
+  const statsRef = useRef(null);
   // Filter untuk tabel proposal
   const [tableFilterPeriod, setTableFilterPeriod] = useState("all");
   const [tableSelectedMonth, setTableSelectedMonth] = useState(
@@ -99,6 +100,45 @@ const ProposalDashboard = () => {
     fetchStats();
     fetchMonthlyStats();
   }, [fetchStats, fetchMonthlyStats]);
+
+  // Adjust stat-value font sizes to fit container when content overflows
+  useEffect(() => {
+    if (!statsRef.current) return;
+
+    const adjust = () => {
+      const els = statsRef.current.querySelectorAll(".stat-value");
+      els.forEach((el) => {
+        // reset
+        el.style.fontSize = "";
+        el.style.lineHeight = "";
+
+        const parentW = el.clientWidth;
+        const computed = window.getComputedStyle(el);
+        // start from current computed size in px
+        let fontSize = parseFloat(computed.fontSize) || 16;
+
+        // reduce until fits or reach minimum
+        const minFont = 12; // px
+        while (el.scrollWidth > parentW + 1 && fontSize > minFont) {
+          fontSize = Math.max(minFont, fontSize - 1);
+          el.style.fontSize = fontSize + "px";
+        }
+      });
+    };
+
+    // initial adjust
+    adjust();
+
+    // observe resize of container and window
+    const ro = new ResizeObserver(() => adjust());
+    ro.observe(statsRef.current);
+    window.addEventListener("resize", adjust);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", adjust);
+    };
+  }, [stats]);
 
   useEffect(() => {
     fetchStats();
@@ -561,9 +601,11 @@ const ProposalDashboard = () => {
 
         <div key={statsPanelKey} className="proposal-switch-panel">
           {/* Summary stat cards: total proposals, statuses, total budget */}
-          <div className="stats-cards">
+          <div ref={statsRef} className="stats-cards">
             <div className="stat-card small">
-              <div className="stat-icon stat-icon--proposals"><i className="bi bi-box-seam" aria-hidden="true" /></div>
+              <div className="stat-icon stat-icon--proposals">
+                <i className="bi bi-box-seam" aria-hidden="true" />
+              </div>
               <div>
                 <div className="stat-label">Total Proposals</div>
                 <div className="stat-value">{stats?.total_proposals || 0}</div>
@@ -571,7 +613,9 @@ const ProposalDashboard = () => {
             </div>
 
             <div className="stat-card small">
-              <div className="stat-icon stat-icon--progress"><i className="bi bi-hourglass-split" aria-hidden="true" /></div>
+              <div className="stat-icon stat-icon--progress">
+                <i className="bi bi-hourglass-split" aria-hidden="true" />
+              </div>
               <div>
                 <div className="stat-label">In Progress</div>
                 <div className="stat-value">{stats?.in_progress || 0}</div>
@@ -579,7 +623,9 @@ const ProposalDashboard = () => {
             </div>
 
             <div className="stat-card small">
-              <div className="stat-icon stat-icon--waiting"><i className="bi bi-inbox" aria-hidden="true" /></div>
+              <div className="stat-icon stat-icon--waiting">
+                <i className="bi bi-inbox" aria-hidden="true" />
+              </div>
               <div>
                 <div className="stat-label">Siap Diambil</div>
                 <div className="stat-value">{stats?.waiting || 0}</div>
@@ -587,7 +633,9 @@ const ProposalDashboard = () => {
             </div>
 
             <div className="stat-card small">
-              <div className="stat-icon stat-icon--done"><i className="bi bi-check2-circle" aria-hidden="true" /></div>
+              <div className="stat-icon stat-icon--done">
+                <i className="bi bi-check2-circle" aria-hidden="true" />
+              </div>
               <div>
                 <div className="stat-label">Done</div>
                 <div className="stat-value">{stats?.completed || 0}</div>
@@ -595,7 +643,9 @@ const ProposalDashboard = () => {
             </div>
 
             <div className="stat-card small">
-              <div className="stat-icon stat-icon--budget"><i className="bi bi-wallet2" aria-hidden="true" /></div>
+              <div className="stat-icon stat-icon--budget">
+                <i className="bi bi-wallet2" aria-hidden="true" />
+              </div>
               <div>
                 <div className="stat-label">Total Budget</div>
                 <div className="stat-value">

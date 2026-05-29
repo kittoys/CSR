@@ -17,6 +17,7 @@ import ProposalDashboard from "./pages/ProposalDashboard";
 import ChartDashboard from "./pages/chart";
 import FocBulanan from "./pages/FocBulanan";
 import SettingsPanel from "./pages/SettingsPanel";
+import DevLoginRedirect from "./components/DevLoginRedirect";
 import { ToastProvider } from "./context/ToastContext";
 import { DashboardProvider } from "./context/DashboardContext";
 import "./App.css";
@@ -87,6 +88,7 @@ const AppContent = () => {
             path="/setting"
             element={<ProtectedRoute element={<SettingsPanel />} />}
           />
+          <Route path="/dev-login" element={<DevLoginRedirect />} />
           <Route path="/" element={<Home />} />
           <Route path="/programs" element={<Programs />} />
           <Route path="/programs/:id" element={<ProgramDetail />} />

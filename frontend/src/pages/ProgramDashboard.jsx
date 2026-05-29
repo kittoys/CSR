@@ -9,7 +9,7 @@ import {
 import { getCategories } from "../api/categories";
 import { Download } from "lucide-react";
 import { useToast } from "../context/ToastContext";
-import { exportRowsToCsv, exportRowsToExcel } from "../utils/exportSpreadsheet";
+import { exportRowsToExcel } from "../utils/exportSpreadsheet";
 import "./ProgramDashboard.css";
 
 const emptyForm = {
@@ -276,21 +276,6 @@ const ProgramDashboard = () => {
       value: (program) => program.source_link || "-",
     },
   ];
-
-  const handleExportCsv = () => {
-    if (filteredPrograms.length === 0) {
-      toast.warning("Tidak ada data program untuk diekspor", "Export CSV");
-      return;
-    }
-
-    exportRowsToCsv({
-      filename: `program-${filterStatus || "semua"}-${filterCategory || "semua-kategori"}`,
-      columns: programExportColumns,
-      rows: filteredPrograms,
-    });
-
-    toast.success("Data program berhasil diekspor ke CSV");
-  };
 
   const handleExportExcel = () => {
     if (filteredPrograms.length === 0) {
@@ -560,14 +545,6 @@ const ProgramDashboard = () => {
                 <option value="3">Kesehatan</option>
                 <option value="4">Ekonomi</option>
               </select>
-              <button
-                className="btn btn--ghost btn-with-icon"
-                onClick={handleExportCsv}
-                title="Export program ke CSV"
-              >
-                <Download size={16} />
-                <span>CSV</span>
-              </button>
               <button
                 className="btn btn--secondary btn-with-icon"
                 onClick={handleExportExcel}

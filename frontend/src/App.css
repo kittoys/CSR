@@ -6,6 +6,7 @@
   color: var(--color-text);
   max-width: 100vw;
   overflow-x: hidden;
+  position: relative;
 }
 
 .app-main {
@@ -15,6 +16,7 @@
   padding: 88px 0 0; /* offset tinggi navbar fixed */
   overflow-x: hidden;
   box-sizing: border-box;
+  min-width: 0;
 }
 
 .app-main--no-navbar {
@@ -22,13 +24,22 @@
 }
 
 .app-main--with-sidebar {
-  padding: 1rem 1rem 1.25rem
-    calc(var(--private-sidebar-width) + var(--private-sidebar-gap));
-  transition: padding var(--transition-base);
+  width: calc(
+    100% - var(--private-sidebar-width) - var(--private-sidebar-gap)
+  );
+  margin-left: calc(var(--private-sidebar-width) + var(--private-sidebar-gap));
+  padding: 1rem 1rem 1.25rem;
+  transition:
+    width var(--transition-base),
+    margin-left var(--transition-base),
+    padding var(--transition-base);
+  min-width: 0;
 }
 
 .app-shell--sidebar-hidden .app-main--with-sidebar {
-  padding-left: 3.25rem;
+  width: calc(100% - 3.25rem);
+  margin-left: 3.25rem;
+  padding-left: 1rem;
 }
 
 @media (max-width: 1280px) {
