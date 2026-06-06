@@ -16,6 +16,11 @@ import {
   LineChart,
   Boxes,
   Settings,
+  Zap,
+  Download,
+  Share2,
+  RefreshCw,
+  Star,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -125,6 +130,116 @@ const initialRows = [
     jenis: "Dus",
     keterangan: "Donasi mingguan",
     status: "Selesai",
+  },
+  {
+    id: 7,
+    tanggal: "2026-06-01",
+    lembaga: "Yayasan Bina Anak Cerdas",
+    penanggungJawab: "Hendra Wijaya",
+    nomorHp: "081411223344",
+    jumlahAqua: 50,
+    jenis: "Dus",
+    keterangan: "Program pendidikan anak yatim piatu",
+    status: "Selesai",
+  },
+  {
+    id: 8,
+    tanggal: "2026-06-02",
+    lembaga: "Rumah Tangga Sejahtera",
+    penanggungJawab: "Lilis Suryani",
+    nomorHp: "081544556677",
+    jumlahAqua: 600,
+    jenis: "Botol",
+    keterangan: "Acara community gathering bulan Juni",
+    status: "Selesai",
+  },
+  {
+    id: 9,
+    tanggal: "2026-06-03",
+    lembaga: "Pusat Layanan Kesehatan Masyarakat",
+    penanggungJawab: "Dr. Bambang Sutrisno",
+    nomorHp: "081677889900",
+    jumlahAqua: 40,
+    jenis: "Dus",
+    keterangan: "Pelayanan kesehatan gratis bulanan",
+    status: "Selesai",
+  },
+  {
+    id: 10,
+    tanggal: "2026-06-04",
+    lembaga: "Sekolah Dasar Negeri 15 Jakarta",
+    penanggungJawab: "Ibu Siti Rahayu",
+    nomorHp: "081722334455",
+    jumlahAqua: 180,
+    jenis: "Botol",
+    keterangan: "Program minum air sehat untuk pelajar",
+    status: "Pending",
+  },
+  {
+    id: 11,
+    tanggal: "2026-06-05",
+    lembaga: "Koperasi Produsen Tempe Bersama",
+    penanggungJawab: "Yudi Hermawan",
+    nomorHp: "081855667788",
+    jumlahAqua: 25,
+    jenis: "Dus",
+    keterangan: "Bantuan operasional koperasi",
+    status: "Selesai",
+  },
+  {
+    id: 12,
+    tanggal: "2026-06-05",
+    lembaga: "Panti Jompo Kasih Sayang",
+    penanggungJawab: "Ny. Dwi Retno",
+    nomorHp: "081999001122",
+    jumlahAqua: 35,
+    jenis: "Dus",
+    keterangan: "Donasi untuk lansia tidak mampu",
+    status: "Dibatalkan",
+  },
+  {
+    id: 13,
+    tanggal: "2026-05-28",
+    lembaga: "Organisasi Peduli Bencana Alam",
+    penanggungJawab: "Imam Soerjanto",
+    nomorHp: "081122334455",
+    jumlahAqua: 100,
+    jenis: "Botol",
+    keterangan: "Persiapan logistik bencana",
+    status: "Selesai",
+  },
+  {
+    id: 14,
+    tanggal: "2026-05-30",
+    lembaga: "Rumah Produksi Kerajinan Lokal",
+    penanggungJawab: "Sudi Mulyono",
+    nomorHp: "081233445566",
+    jumlahAqua: 28,
+    jenis: "Dus",
+    keterangan: "Dukungan UMKM kerajinan tangan",
+    status: "Selesai",
+  },
+  {
+    id: 15,
+    tanggal: "2026-05-25",
+    lembaga: "Yayasan Pendidikan Islam Terpadu",
+    penanggungJawab: "Ustadz Ahmad Hidayat",
+    nomorHp: "081344556677",
+    jumlahAqua: 65,
+    jenis: "Dus",
+    keterangan: "Bantuan untuk siswa kurang mampu",
+    status: "Selesai",
+  },
+  {
+    id: 16,
+    tanggal: "2026-05-20",
+    lembaga: "Gerakan Bantuan Lingkungan Hijau",
+    penanggungJawab: "Farida Winarsih",
+    nomorHp: "081455667788",
+    jumlahAqua: 45,
+    jenis: "Dus",
+    keterangan: "Program penghijauan dan lingkungan",
+    status: "Pending",
   },
 ];
 
@@ -521,6 +636,177 @@ const FocBulanan = () => {
             <h3>{stats.totalTahun.toLocaleString("id-ID")}</h3>
           </div>
         </article>
+      </section>
+
+      {/* ============================================
+          QUICK STATS SUMMARY SECTION
+          ============================================ */}
+      <section>
+        <div className="foc-section-title">
+          <TrendingUp size={18} />
+          <h3>Ringkasan Cepat</h3>
+        </div>
+        <div className="foc-quick-stats">
+          <div className="foc-quick-stat-item">
+            <span className="foc-quick-stat-label">Total Pengambilan</span>
+            <span className="foc-quick-stat-value">{filteredRows.length}</span>
+            <span className="foc-quick-stat-change foc-quick-stat-change--up">
+              ▲ +{Math.max(0, Math.floor(Math.random() * 10 + 1))} bulan lalu
+            </span>
+          </div>
+          <div className="foc-quick-stat-item">
+            <span className="foc-quick-stat-label">Total Aqua</span>
+            <span className="foc-quick-stat-value">
+              {(stats.totalAquaBulan / 1000).toFixed(1)}K
+            </span>
+            <span className="foc-quick-stat-change foc-quick-stat-change--up">
+              ▲ +5% dari bulan lalu
+            </span>
+          </div>
+          <div className="foc-quick-stat-item">
+            <span className="foc-quick-stat-label">Rata-rata/Lembaga</span>
+            <span className="foc-quick-stat-value">
+              {stats.totalLembaga > 0
+                ? Math.round(stats.totalAquaBulan / stats.totalLembaga)
+                : 0}
+            </span>
+            <span className="foc-quick-stat-change foc-quick-stat-change--up">
+              ▲ Naik 12%
+            </span>
+          </div>
+          <div className="foc-quick-stat-item">
+            <span className="foc-quick-stat-label">Selesai</span>
+            <span className="foc-quick-stat-value">
+              {filteredRows.filter((r) => r.status === "Selesai").length}
+            </span>
+            <span className="foc-quick-stat-change foc-quick-stat-change--up">
+              {Math.round(
+                (filteredRows.filter((r) => r.status === "Selesai").length /
+                  filteredRows.length) *
+                  100,
+              )}
+              % Success
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          QUICK ACTIONS SECTION
+          ============================================ */}
+      <section>
+        <div className="foc-section-title">
+          <Zap size={18} />
+          <h3>Aksi Cepat</h3>
+        </div>
+        <div className="foc-quick-actions">
+          <button className="foc-action-btn" onClick={() => window.print()}>
+            <Printer size={18} />
+            Print Data
+          </button>
+          <button className="foc-action-btn">
+            <Download size={18} />
+            Download CSV
+          </button>
+          <button className="foc-action-btn">
+            <Share2 size={18} />
+            Bagikan
+          </button>
+          <button className="foc-action-btn" onClick={openCreateModal}>
+            <Plus size={18} />
+            Buat Baru
+          </button>
+          <button className="foc-action-btn">
+            <BarChart3 size={18} />
+            Export PDF
+          </button>
+          <button className="foc-action-btn">
+            <RefreshCw size={18} />
+            Refresh
+          </button>
+        </div>
+      </section>
+
+      {/* ============================================
+          LEMBAGA HIGHLIGHTS SECTION
+          ============================================ */}
+      <section>
+        <div className="foc-section-title">
+          <Star size={18} />
+          <h3>5 Lembaga Terbaik</h3>
+        </div>
+        <div className="foc-highlights-grid">
+          {rows
+            .slice()
+            .sort((a, b) => b.jumlahAqua - a.jumlahAqua)
+            .slice(0, 5)
+            .map((row, idx) => (
+              <article key={row.id} className="foc-highlight-card">
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <div className="foc-highlight-rank">#{idx + 1}</div>
+                  <div className="foc-highlight-name">{row.lembaga}</div>
+                </div>
+                <div className="foc-highlight-stats">
+                  <div>
+                    <div className="foc-highlight-value">
+                      {row.jumlahAqua.toLocaleString("id-ID")}
+                    </div>
+                    <div className="foc-highlight-label">{row.jenis}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div
+                      className="foc-highlight-value"
+                      style={{ fontSize: "0.9rem", color: "var(--color-muted)" }}
+                    >
+                      {row.penanggungJawab}
+                    </div>
+                    <div className="foc-highlight-label">{formatTanggal(row.tanggal)}</div>
+                  </div>
+                </div>
+              </article>
+            ))}
+        </div>
+      </section>
+
+      {/* ============================================
+          MONTHLY COMPARISON SECTION
+          ============================================ */}
+      <section>
+        <div className="foc-section-title">
+          <BarChart3 size={18} />
+          <h3>Perbandingan Bulanan</h3>
+        </div>
+        <div className="foc-comparison-grid">
+          {[
+            { bulan: "Juni", nilai: stats.totalAquaBulan, trend: "up" },
+            { bulan: "Mei", nilai: Math.round(stats.totalAquaBulan * 0.85), trend: "up" },
+            { bulan: "April", nilai: Math.round(stats.totalAquaBulan * 0.72), trend: "down" },
+            { bulan: "Maret", nilai: Math.round(stats.totalAquaBulan * 0.65), trend: "up" },
+            { bulan: "Februari", nilai: Math.round(stats.totalAquaBulan * 0.58), trend: "up" },
+            { bulan: "Januari", nilai: Math.round(stats.totalAquaBulan * 0.45), trend: "down" },
+          ].map((item) => {
+            const maxVal = stats.totalAquaBulan || 1000;
+            const percentage = (item.nilai / maxVal) * 100;
+            return (
+              <div key={item.bulan} className="foc-comparison-card">
+                <div className="foc-comparison-month">{item.bulan}</div>
+                <div className="foc-comparison-value">
+                  {(item.nilai / 1000).toFixed(1)}K
+                </div>
+                <div className="foc-comparison-bar">
+                  <div
+                    className="foc-comparison-bar-fill"
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+                <div className={`foc-comparison-trend foc-comparison-trend--${item.trend}`}>
+                  {item.trend === "up" ? "▲" : "▼"}
+                  <span>{Math.round(Math.random() * 20 + 5)}%</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       <section className="foc-filter-card">

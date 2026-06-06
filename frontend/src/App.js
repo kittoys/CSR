@@ -89,10 +89,11 @@ const AppContent = () => {
             element={<ProtectedRoute element={<SettingsPanel />} />}
           />
           <Route path="/dev-login" element={<DevLoginRedirect />} />
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/programs" element={<Programs />} />
           <Route path="/programs/:id" element={<ProgramDetail />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </main>
     </div>

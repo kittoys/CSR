@@ -106,6 +106,7 @@ const ProposalDashboard = () => {
     if (!statsRef.current) return;
 
     const adjust = () => {
+      if (!statsRef.current) return;
       const els = statsRef.current.querySelectorAll(".stat-value");
       els.forEach((el) => {
         // reset
@@ -1144,29 +1145,29 @@ const ProposalDashboard = () => {
                 ))}
               </select>
             )}
-
-            {selectedIds.size > 0 && (
-              <div className="bulk-actions">
-                <span className="selected-count">
-                  {selectedIds.size} terpilih
-                </span>
-                <button
-                  className="btn btn--danger"
-                  onClick={handleBulkDelete}
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? "Menghapus..." : "🗑 Hapus Terpilih"}
-                </button>
-                <button
-                  className="btn btn--ghost"
-                  onClick={() => setSelectedIds(new Set())}
-                  disabled={isDeleting}
-                >
-                  Batal
-                </button>
-              </div>
-            )}
           </div>
+
+          {selectedIds.size > 0 && (
+            <div className="bulk-actions bulk-actions--sticky">
+              <span className="selected-count">
+                {selectedIds.size} terpilih
+              </span>
+              <button
+                className="btn btn--danger"
+                onClick={handleBulkDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Menghapus..." : "🗑 Hapus Terpilih"}
+              </button>
+              <button
+                className="btn btn--ghost"
+                onClick={() => setSelectedIds(new Set())}
+                disabled={isDeleting}
+              >
+                Batal
+              </button>
+            </div>
+          )}
 
           <div
             key={tablePanelKey}
