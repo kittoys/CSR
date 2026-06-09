@@ -24,7 +24,7 @@ import {
   Filler,
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
-import { getForecastOverview, getDonationsForecast } from "../api/forecast";
+import { getForecastOverview } from "../api/forecast";
 import "./ForecastCenter.css";
 
 ChartJS.register(
@@ -76,21 +76,16 @@ const monthLabel = (monthKey) => {
 
 const ForecastCenter = () => {
   const [overview, setOverview] = useState(null);
-  const [donations, setDonations] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchAll = async () => {
+    const fetchOverview = async () => {
       try {
         setLoading(true);
         setError(null);
-        const [overviewData, donationsData] = await Promise.all([
-          getForecastOverview(),
-          getDonationsForecast(),
-        ]);
+        const overviewData = await getForecastOverview();
         setOverview(overviewData);
-        setDonations(donationsData);
       } catch (err) {
         console.error("Forecast fetch error:", err);
         setError("Gagal memuat data forecast. Pastikan server berjalan.");
@@ -98,7 +93,7 @@ const ForecastCenter = () => {
         setLoading(false);
       }
     };
-    fetchAll();
+    fetchOverview();
   }, []);
 
   // ---- Budget Chart Data ----
@@ -193,62 +188,6 @@ const ForecastCenter = () => {
       ],
     };
   }, [overview]);
-
-  // ---- Donations Chart Data ----
-  const donationsChartData = useMemo(() => {
-    if (!donations) return null;
-
-    const histLabels = donations.historical.map((h) => monthLabel(h.month));
-    const forecastLabels = donations.forecast.map((f) => monthLabel(f.month));
-    const allLabels = [...histLabels, ...forecastLabels];
-
-    const histDus = donations.historical.map((h) => h.dus);
-    const forecastDus = donations.forecast.map((f) => f.dus);
-    const histBotol = donations.historical.map((h) => h.botol);
-    const forecastBotol = donations.forecast.map((f) => f.botol);
-
-    const padNulls = (arr, len) => [...arr, ...Array(len).fill(null)];
-
-    return {
-      labels: allLabels,
-      datasets: [
-        {
-          label: "Dus (Historis)",
-          data: padNulls(histDus, forecastDus.length),
-          backgroundColor: "rgba(11,107,189,0.7)",
-          borderColor: "#0b6bbd",
-          borderWidth: 1,
-        },
-        {
-          label: "Dus (Prediksi)",
-          data: padNulls(Array(histDus.length).fill(null), 0).concat(
-            forecastDus,
-          ),
-          backgroundColor: "rgba(11,107,189,0.3)",
-          borderColor: "#0b6bbd",
-          borderDash: [6, 4],
-          borderWidth: 2,
-        },
-        {
-          label: "Botol (Historis)",
-          data: padNulls(histBotol, forecastBotol.length),
-          backgroundColor: "rgba(15,159,139,0.7)",
-          borderColor: "#0f9f8b",
-          borderWidth: 1,
-        },
-        {
-          label: "Botol (Prediksi)",
-          data: padNulls(Array(histBotol.length).fill(null), 0).concat(
-            forecastBotol,
-          ),
-          backgroundColor: "rgba(15,159,139,0.3)",
-          borderColor: "#0f9f8b",
-          borderDash: [6, 4],
-          borderWidth: 2,
-        },
-      ],
-    };
-  }, [donations]);
 
   const chartOptions = {
     responsive: true,
@@ -354,24 +293,6 @@ const ForecastCenter = () => {
         </article>
 
         <article className="forecast-summary-card">
-          <div className="forecast-summary-icon forecast-summary-icon--aqua">
-            <Droplets size={20} />
-          </div>
-          <div>
-            <p>Proyeksi Donasi Aqua</p>
-            <h3>
-              {donations
-                ? `${donations.summary.projectedDus} Dus / ${donations.summary.projectedBotol} Botol`
-                : "-"}
-            </h3>
-            <span className="forecast-trend forecast-trend--neutral">
-              <Sparkles size={14} />
-              total 12 bulan ke depan
-            </span>
-          </div>
-        </article>
-
-        <article className="forecast-summary-card">
           <div className="forecast-summary-icon forecast-summary-icon--confidence">
             <Target size={20} />
           </div>
@@ -419,24 +340,6 @@ const ForecastCenter = () => {
             <Line data={proposalChartData} options={chartOptions} />
           ) : (
             <p className="forecast-no-data">Belum ada data proposal</p>
-          )}
-        </div>
-      </section>
-
-      {/* Donations Chart */}
-      <section className="forecast-chart-section">
-        <div className="forecast-chart-header">
-          <Droplets size={18} />
-          <h2>Prediksi Donasi Aqua (Dus & Botol)</h2>
-        </div>
-        <p className="forecast-chart-desc">
-          Data historis + prediksi 12 bulan ke depan. Biru = Dus, Hijau = Botol.
-        </p>
-        <div className="forecast-chart-body forecast-chart-body--large">
-          {donationsChartData ? (
-            <Bar data={donationsChartData} options={chartOptions} />
-          ) : (
-            <p className="forecast-no-data">Belum ada data donasi</p>
           )}
         </div>
       </section>

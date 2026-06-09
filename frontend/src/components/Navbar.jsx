@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   ChevronLeft,
+  Sparkles,
 } from "lucide-react";
 // Animations removed: framer-motion no longer used
 import "./Navbar.css";
@@ -71,17 +72,18 @@ const Navbar = ({
       ? [
           { to: "/proposals", label: "Dashboard", icon: FileText },
           { to: "/foc-bulanan", label: "FOC Bulanan", icon: Droplets },
+          { to: "/forecast", label: "Forecast", icon: Sparkles },
           { to: "/program", label: "Data program", icon: Building2 },
           { to: "/chart", label: "Laporan", icon: ScrollText },
           { to: "/setting", label: "Setting", icon: Settings },
         ]
       : [
-          { to: "/", label: "Home", icon: Home, end: true },
+          { to: "/home", label: "Home", icon: Home, end: true },
           { to: "/programs", label: "Programs", icon: Briefcase },
         ];
 
   const publicQuickLinks = [
-    { to: "/", label: "Home", icon: Home, end: true },
+    { to: "/home", label: "Home", icon: Home, end: true },
     { to: "/programs", label: "Programs", icon: Briefcase },
   ];
 
@@ -259,7 +261,7 @@ const Navbar = ({
     <>
       <header className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
         <div className="navbar__container">
-          <NavLink to="/" className="navbar__brand">
+          <NavLink to="/home" className="navbar__brand">
             <div className="navbar__logo">
               <img
                 src={logoSrc}

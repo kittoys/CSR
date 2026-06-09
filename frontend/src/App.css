@@ -24,9 +24,7 @@
 }
 
 .app-main--with-sidebar {
-  width: calc(
-    100% - var(--private-sidebar-width) - var(--private-sidebar-gap)
-  );
+  width: calc(100% - var(--private-sidebar-width) - var(--private-sidebar-gap));
   margin-left: calc(var(--private-sidebar-width) + var(--private-sidebar-gap));
   padding: 1rem 1rem 1.25rem;
   transition:
@@ -54,7 +52,9 @@
 
 @media (max-width: 991px) {
   .app-main--with-sidebar {
-    padding: 84px 0 0;
+    width: 100%;
+    margin-left: 0;
+    padding: 84px 1rem 1rem;
   }
 }
 

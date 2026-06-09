@@ -9,6 +9,7 @@
     "start": "node src/index.js",
     "setup-db": "node scripts/setupDb.js",
     "seed-db": "node scripts/seed.js",
+    "clear-db": "node scripts/clearData.js",
     "create-admin": "node scripts/createAdmin.js",
     "create-proposals-table": "node scripts/createDonationProposals.js",
     "test-db": "node scripts/testDb.js",

@@ -174,6 +174,35 @@ body {
     color 0.3s ease;
 }
 
+#root,
+html {
+  min-width: 0;
+}
+
+img,
+svg,
+video,
+canvas,
+iframe,
+embed,
+object {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+button,
+input,
+select,
+textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+
 /* Smooth theme transitions for interactive elements */
 *,
 *::before,

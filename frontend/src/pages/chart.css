@@ -262,6 +262,22 @@
   }
 }
 
+@media (max-width: 768px) {
+  .chart-navbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
+  }
+
+  .chart-navbar__brand {
+    text-align: center;
+  }
+
+  .chart-navbar__menu {
+    justify-content: center;
+  }
+}
+
 @media (max-width: 640px) {
   .chart-page {
     padding: var(--space-sm);
@@ -270,10 +286,19 @@
   .chart-navbar {
     padding: var(--space-sm);
     border-radius: var(--radius-xl);
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .chart-navbar__brand {
     font-size: 0.93rem;
+    text-align: center;
+  }
+
+  .chart-navbar__menu {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .chart-filter {

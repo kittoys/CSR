@@ -16,6 +16,7 @@ import ProgramDashboard from "./pages/ProgramDashboard";
 import ProposalDashboard from "./pages/ProposalDashboard";
 import ChartDashboard from "./pages/chart";
 import FocBulanan from "./pages/FocBulanan";
+import ForecastCenter from "./pages/ForecastCenter";
 import SettingsPanel from "./pages/SettingsPanel";
 import DevLoginRedirect from "./components/DevLoginRedirect";
 import { ToastProvider } from "./context/ToastContext";
@@ -36,6 +37,7 @@ const AppContent = () => {
     /^\/proposals(\/|$)/.test(location.pathname) ||
     /^\/chart(\/|$)/.test(location.pathname) ||
     /^\/foc-bulanan(\/|$)/.test(location.pathname) ||
+    /^\/forecast(\/|$)/.test(location.pathname) ||
     /^\/setting(\/|$)/.test(location.pathname);
   const shouldHideNavbar = isLoginPage;
   const mainClassName = `app-main ${shouldHideNavbar ? "app-main--no-navbar" : ""} ${isPrivatePage ? "app-main--with-sidebar" : ""}`;
@@ -83,6 +85,10 @@ const AppContent = () => {
           <Route
             path="/foc-bulanan"
             element={<ProtectedRoute element={<FocBulanan />} />}
+          />
+          <Route
+            path="/forecast"
+            element={<ProtectedRoute element={<ForecastCenter />} />}
           />
           <Route
             path="/setting"

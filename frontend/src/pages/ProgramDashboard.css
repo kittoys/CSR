@@ -369,7 +369,7 @@
 
 .program-table table {
   width: 100%;
-  min-width: 900px;
+  min-width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
 }
@@ -380,6 +380,25 @@
   border-bottom: 1px solid #f3f4f6;
   text-align: left;
   vertical-align: middle;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .program__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-add-program {
+    width: 100%;
+    justify-content: center;
+    white-space: normal;
+  }
+
+  .program-table thead th,
+  .program-table td {
+    white-space: normal;
+  }
 }
 
 /* Column widths */
