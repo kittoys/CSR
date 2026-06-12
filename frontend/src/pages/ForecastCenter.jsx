@@ -96,7 +96,7 @@ const ForecastCenter = () => {
     fetchOverview();
   }, []);
 
-  // ---- Budget Chart Data ----
+  // ---- Budget Chart Data dengan Confidence Interval ----
   const budgetChartData = useMemo(() => {
     if (!overview) return null;
 
@@ -106,6 +106,8 @@ const ForecastCenter = () => {
 
     const histBudgets = overview.monthly.map((m) => m.budget);
     const forecastBudgets = overview.forecast.map((m) => m.budget);
+    const forecastUpper = overview.forecast.map((m) => m.budgetUpper);
+    const forecastLower = overview.forecast.map((m) => m.budgetLower);
 
     // Pad historical to same length for overlay
     const histPadded = [
@@ -115,6 +117,14 @@ const ForecastCenter = () => {
     const forecastPadded = [
       ...Array(histBudgets.length).fill(null),
       ...forecastBudgets,
+    ];
+    const confidenceUpperPadded = [
+      ...Array(histBudgets.length).fill(null),
+      ...forecastUpper,
+    ];
+    const confidenceLowerPadded = [
+      ...Array(histBudgets.length).fill(null),
+      ...forecastLower,
     ];
 
     return {
@@ -127,6 +137,7 @@ const ForecastCenter = () => {
           borderColor: "#0b6bbd",
           borderWidth: 1,
           borderRadius: 6,
+          type: "bar",
         },
         {
           label: "Prediksi Budget",
@@ -136,6 +147,31 @@ const ForecastCenter = () => {
           borderWidth: 2,
           borderDash: [6, 4],
           borderRadius: 6,
+          type: "bar",
+        },
+        {
+          label: "Batas Atas (Kepercayaan)",
+          data: confidenceUpperPadded,
+          borderColor: "rgba(15, 159, 139, 0.3)",
+          borderWidth: 1,
+          borderDash: [3, 3],
+          backgroundColor: "rgba(15, 159, 139, 0.05)",
+          fill: false,
+          tension: 0,
+          pointRadius: 0,
+          type: "line",
+        },
+        {
+          label: "Batas Bawah (Kepercayaan)",
+          data: confidenceLowerPadded,
+          borderColor: "rgba(15, 159, 139, 0.3)",
+          borderWidth: 1,
+          borderDash: [3, 3],
+          backgroundColor: "rgba(15, 159, 139, 0.05)",
+          fill: "-1",
+          tension: 0,
+          pointRadius: 0,
+          type: "line",
         },
       ],
     };
@@ -198,6 +234,9 @@ const ForecastCenter = () => {
         position: "bottom",
         labels: { usePointStyle: true, boxWidth: 8, padding: 16 },
       },
+      filler: {
+        propagate: true,
+      },
     },
     scales: {
       y: {
@@ -236,9 +275,21 @@ const ForecastCenter = () => {
           <p className="forecast-eyebrow">CSR AQUA MEKARSARI</p>
           <h1>Forecast Center</h1>
           <p className="forecast-subtitle">
-            Prediksi budget, proposal, dan donasi Aqua 12 bulan ke depan
-            menggunakan Exponential Smoothing & Linear Regression.
+            Prediksi budget, proposal, dan donasi Aqua 12 bulan ke depan.
+            {overview?.summary?.methodUsed === "seasonal_decomposition"
+              ? " 📊 Menggunakan Seasonal Decomposition (pola musiman terdeteksi)."
+              : " 📈 Menggunakan Exponential Smoothing & Linear Regression Blend."}
           </p>
+          {overview?.summary?.seasonalityDetected && (
+            <div className="forecast-seasonality-badge">
+              <span className="forecast-badge-icon">📈</span>
+              <span>
+                <strong>Seasonal Pattern Detected:</strong>{" "}
+                {overview.summary.seasonalityDescription} (Strength:{" "}
+                {Math.round(overview.summary.seasonalStrength * 100)}%)
+              </span>
+            </div>
+          )}
         </div>
       </header>
 
@@ -307,6 +358,41 @@ const ForecastCenter = () => {
         </article>
       </section>
 
+      {/* Method & Seasonality Info Cards */}
+      <section className="forecast-method-grid">
+        <article className="forecast-method-card">
+          <div className="forecast-method-label">
+            <BarChart3 size={16} />
+            <span>Method</span>
+          </div>
+          <div className="forecast-method-value">
+            {overview?.summary?.methodUsed === "seasonal_decomposition"
+              ? "📊 Seasonal Decomposition"
+              : "📈 Blended (ES + LR)"}
+          </div>
+          <div className="forecast-method-desc">
+            {overview?.summary?.methodUsed === "seasonal_decomposition"
+              ? "Advanced trend & seasonal analysis"
+              : "Exponential Smoothing + Linear Regression"}
+          </div>
+        </article>
+
+        {overview?.summary?.seasonalityDetected && (
+          <article className="forecast-method-card forecast-method-card--seasonal">
+            <div className="forecast-method-label">
+              <TrendingUp size={16} />
+              <span>Seasonality</span>
+            </div>
+            <div className="forecast-method-value">
+              {Math.round(overview.summary.seasonalStrength * 100)}% Strength
+            </div>
+            <div className="forecast-method-desc">
+              {overview.summary.seasonalityDescription}
+            </div>
+          </article>
+        )}
+      </section>
+
       {/* Budget Chart */}
       <section className="forecast-chart-section">
         <div className="forecast-chart-header">
@@ -314,8 +400,8 @@ const ForecastCenter = () => {
           <h2>Prediksi Budget Tahunan</h2>
         </div>
         <p className="forecast-chart-desc">
-          Bar biru = data historis. Bar hijau striped = prediksi 12 bulan ke
-          depan.
+          Bar biru = 12 bulan historis. Bar hijau = prediksi 12 bulan ke depan.
+          Garis putus-putus = batas kepercayaan (±10%).
         </p>
         <div className="forecast-chart-body forecast-chart-body--large">
           {budgetChartData ? (
@@ -374,30 +460,46 @@ const ForecastCenter = () => {
         </section>
       )}
 
-      {/* Monthly Forecast Table */}
+      {/* Monthly Forecast Table dengan Confidence Interval */}
       {overview?.forecast?.length > 0 && (
         <section className="forecast-yearly-section">
           <div className="forecast-chart-header">
             <Sparkles size={18} />
             <h2>Detail Prediksi 12 Bulan ke Depan</h2>
           </div>
+          <p className="forecast-chart-desc">
+            Menampilkan prediksi budget dengan interval kepercayaan dan jumlah
+            proposal yang diharapkan.
+          </p>
           <div className="forecast-table-wrapper">
             <table className="forecast-table">
               <thead>
                 <tr>
                   <th>Bulan</th>
                   <th>Prediksi Budget</th>
+                  <th className="forecast-table-note">Batas Bawah</th>
+                  <th className="forecast-table-note">Batas Atas</th>
                   <th>Prediksi Proposal</th>
+                  <th className="forecast-table-note">Keyakinan</th>
                 </tr>
               </thead>
               <tbody>
                 {overview.forecast.map((f) => (
                   <tr key={f.month}>
-                    <td>
+                    <td className="forecast-table-month">
                       {monthLabel(f.month)} {f.month?.split("-")[0]}
                     </td>
-                    <td>{formatCurrency(f.budget)}</td>
-                    <td>{f.proposals}</td>
+                    <td className="forecast-table-value">
+                      {formatCurrency(f.budget)}
+                    </td>
+                    <td className="forecast-table-note forecast-table-lower">
+                      {formatCurrency(f.budgetLower)}
+                    </td>
+                    <td className="forecast-table-note forecast-table-upper">
+                      {formatCurrency(f.budgetUpper)}
+                    </td>
+                    <td>{f.proposals} proposal</td>
+                    <td className="forecast-table-note">{f.confidence}%</td>
                   </tr>
                 ))}
               </tbody>

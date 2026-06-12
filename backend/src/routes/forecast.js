@@ -56,15 +56,15 @@ function exponentialSmoothing(actuals, periods = 12, alpha = 0.3) {
   const lastSmoothed = smoothed[smoothed.length - 1];
   const forecast = Array(periods).fill(lastSmoothed);
 
-  // Apply trend correction based on slope of last 3 actuals
+  // Apply trend correction dengan damping agar prediksi tidak liar naik terus
   if (actuals.length >= 3) {
-    const slope =
-      (actuals[actuals.length - 1] - actuals[0]) / (actuals.length - 1);
-    for (let i = 0; i < periods; i++) {
-      forecast[i] = Math.max(0, lastSmoothed + slope * (i + 1));
-    }
+    // Slope hanya dari 6 bulan terakhir, bukan seluruh historis
+    const recent = actuals.slice(-12);
+    const recentSlope =
+      (recent[recent.length - 1] - recent[0]) / (recent.length - 1);
+    for (let i = 0; i < periods; i++)
+      forecast[i] += recentSlope * (i + 1) * Math.pow(0.88, i); // bobot tren turun 12%/bulan
   }
-
   return { forecast, mape: Math.round(mape * 10) / 10, trend };
 }
 
@@ -104,12 +104,350 @@ function linearRegression(yValues, periods = 12) {
   const ssTot = yValues.reduce((a, y) => a + Math.pow(y - yMean, 2), 0);
   const r2 = ssTot > 0 ? 1 - ssRes / ssTot : 0;
 
+  // Forecast dengan damping: tren LR melandai mendekati rata-rata historis
+  const yMean2 = sumY / n;
   const forecast = [];
   for (let i = 0; i < periods; i++) {
-    forecast.push(Math.max(0, slope * (n + i + 1) + intercept));
+    const lrRaw = slope * (n + i + 1) + intercept;
+    // Blend antara LR murni dan rata-rata historis, makin jauh makin mendekati rata-rata
+    const weight = Math.pow(0.88, i); // bobot LR turun 12%/bulan
+    const dampedForecast = lrRaw * weight + yMean2 * (1 - weight);
+    forecast.push(Math.max(0, dampedForecast));
   }
 
   return { forecast, slope, intercept, r2: Math.round(r2 * 1000) / 1000 };
+}
+
+// ============================================================
+// SEASONAL FORECAST: RLS tahunan + Seasonal Index bulanan
+// Menghasilkan prediksi yang naik-turun mengikuti pola musiman
+// ============================================================
+
+/**
+ * Seasonal Forecast berbasis RLS tahunan + Seasonal Index
+ * @param {number[]} monthlyActuals - nilai bulanan urut (min 24 bulan / 2 tahun)
+ * @param {number} periodsAhead - berapa bulan ke depan (default 12)
+ * @param {number} lastMonth - bulan terakhir data 0-based (0=Jan ... 11=Des)
+ */
+function seasonalForecast(monthlyActuals, periodsAhead = 12, lastMonth = 11) {
+  const n = monthlyActuals.length;
+  const yearsCount = Math.floor(n / 12);
+
+  // Jika data < 2 tahun, gunakan Exponential Smoothing + Linear Regression blend
+  if (yearsCount < 2) {
+    const sesResult = exponentialSmoothing(monthlyActuals, periodsAhead, 0.3);
+    const lrResult = linearRegression(monthlyActuals, periodsAhead);
+
+    // Blend: 60% exponential smoothing, 40% linear regression untuk variasi
+    const blendedForecast = sesResult.forecast.map(
+      (v, i) => v * 0.6 + lrResult.forecast[i] * 0.4,
+    );
+
+    const annualPred = blendedForecast.reduce((a, b) => a + b, 0);
+    return {
+      forecast: blendedForecast.map((v) => Math.round(Math.max(0, v))),
+      seasonalIndex: Array(12).fill(1),
+      annualPred: Math.round(annualPred),
+      mape: sesResult.mape,
+    };
+  }
+
+  // 1. Total tahunan
+  const annualTotals = [];
+  for (let yr = 0; yr < yearsCount; yr++) {
+    const slice = monthlyActuals.slice(yr * 12, yr * 12 + 12);
+    annualTotals.push(slice.reduce((a, b) => a + b, 0));
+  }
+
+  // 2. RLS pada data tahunan (Ŷ = a + b*X)
+  const nn = yearsCount;
+  const xA = annualTotals.map((_, i) => i + 1);
+  const sX = xA.reduce((a, b) => a + b, 0);
+  const sY = annualTotals.reduce((a, b) => a + b, 0);
+  const sXY = xA.reduce((a, x, i) => a + x * annualTotals[i], 0);
+  const sX2 = xA.reduce((a, x) => a + x * x, 0);
+  const bRLS = (nn * sXY - sX * sY) / (nn * sX2 - sX ** 2);
+  const aRLS = (sY - bRLS * sX) / nn;
+  const annualPred = Math.max(0, aRLS + bRLS * (nn + 1));
+
+  // 3. Seasonal Index per bulan
+  const grandAvg = sY / (yearsCount * 12);
+  const seasonalIndex = [];
+  for (let m = 0; m < 12; m++) {
+    const vals = [];
+    for (let yr = 0; yr < yearsCount; yr++) {
+      const idx = yr * 12 + m;
+      if (idx < n) vals.push(monthlyActuals[idx]);
+    }
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    seasonalIndex.push(avg / grandAvg);
+  }
+
+  // 4. Distribusi prediksi ke bulan-bulan ke depan
+  const forecast = [];
+  for (let i = 0; i < periodsAhead; i++) {
+    const mIdx = (lastMonth + 1 + i) % 12;
+    forecast.push(
+      Math.round(Math.max(0, (annualPred / 12) * seasonalIndex[mIdx])),
+    );
+  }
+
+  // 5. MAPE
+  let mSum = 0,
+    mCnt = 0;
+  for (let yr = 0; yr < yearsCount; yr++) {
+    const fAnn = aRLS + bRLS * (yr + 1);
+    for (let m = 0; m < 12; m++) {
+      const idx = yr * 12 + m;
+      if (idx < n && monthlyActuals[idx] !== 0) {
+        const fitted = (fAnn / 12) * seasonalIndex[m];
+        mSum += Math.abs((monthlyActuals[idx] - fitted) / monthlyActuals[idx]);
+        mCnt++;
+      }
+    }
+  }
+  const mape = mCnt > 0 ? Math.round((mSum / mCnt) * 1000) / 10 : 0;
+
+  return { forecast, seasonalIndex, annualPred: Math.round(annualPred), mape };
+}
+
+// ============================================================
+// SEASONAL STRENGTH DETECTION & ADVANCED DECOMPOSITION
+// Mendeteksi apakah data memiliki pola musiman yang kuat
+// ============================================================
+
+/**
+ * Hitung seasonal strength dari data bulanan
+ * @param {number[]} monthlyData - data bulanan (min 24 bulan / 2 tahun)
+ * @returns {{ strength: number, hasSeasonality: boolean, description: string }}
+ */
+function analyzeSeasonalStrength(monthlyData) {
+  if (monthlyData.length < 24) {
+    return {
+      strength: 0,
+      hasSeasonality: false,
+      description: "Insufficient data (< 2 years)",
+    };
+  }
+
+  const yearsCount = Math.floor(monthlyData.length / 12);
+
+  // 1. Hitung seasonal indices
+  const seasonalIndices = [];
+  const grandMean = monthlyData.reduce((a, b) => a + b, 0) / monthlyData.length;
+
+  for (let m = 0; m < 12; m++) {
+    const monthValues = [];
+    for (let yr = 0; yr < yearsCount; yr++) {
+      const idx = yr * 12 + m;
+      if (idx < monthlyData.length) {
+        monthValues.push(monthlyData[idx]);
+      }
+    }
+    const monthAvg =
+      monthValues.reduce((a, b) => a + b, 0) / monthValues.length;
+    seasonalIndices.push(monthAvg / grandMean);
+  }
+
+  // 2. Hitung variance dari seasonal component
+  const seasonalVariance =
+    seasonalIndices.reduce((sum, idx) => sum + Math.pow(idx - 1, 2), 0) / 12;
+
+  // 3. Hitung detrended residuals variance
+  const xVals = Array.from({ length: monthlyData.length }, (_, i) => i + 1);
+  const sumX = xVals.reduce((a, b) => a + b, 0);
+  const sumY = monthlyData.reduce((a, b) => a + b, 0);
+  const sumXY = xVals.reduce((a, x, i) => a + x * monthlyData[i], 0);
+  const sumX2 = xVals.reduce((a, x) => a + x * x, 0);
+  const n = monthlyData.length;
+
+  // Hindari division by zero
+  const denominator = n * sumX2 - sumX * sumX;
+  if (Math.abs(denominator) < 0.0001) {
+    return {
+      strength: 0,
+      hasSeasonality: false,
+      description: "Insufficient variance in data",
+      seasonalIndices: seasonalIndices,
+    };
+  }
+
+  const trendSlope = (n * sumXY - sumX * sumY) / denominator;
+  const trendIntercept = (sumY - trendSlope * sumX) / n;
+
+  let residualVariance = 0;
+  for (let i = 0; i < n; i++) {
+    const trendVal = trendIntercept + trendSlope * (i + 1);
+    const detrended = monthlyData[i] - trendVal;
+    const seasonal = trendVal * (seasonalIndices[i % 12] - 1);
+    const residual = detrended - seasonal;
+    residualVariance += Math.pow(residual, 2);
+  }
+  residualVariance /= n;
+
+  // 4. Seasonal strength = seasonal variance / (seasonal variance + residual variance)
+  const strength =
+    seasonalVariance / (seasonalVariance + Math.max(residualVariance, 0.001));
+
+  return {
+    strength: Math.round(strength * 100) / 100,
+    hasSeasonality: strength > 0.3, // Threshold 0.3 (30%)
+    description:
+      strength > 0.5
+        ? "Strong seasonality detected"
+        : strength > 0.3
+          ? "Moderate seasonality detected"
+          : "Weak or no seasonality",
+    seasonalIndices,
+  };
+}
+
+/**
+ * Advanced Seasonal Decomposition dengan trend extraction
+ * @param {number[]} actuals - historical values
+ * @param {number} periods - forecast periods
+ * @returns {{ forecast: number[], seasonalIndices: number[], strength: number, mape: number }}
+ */
+function advancedSeasonalDecomposition(actuals, periods = 12) {
+  const n = actuals.length;
+  if (n < 12) {
+    // Fallback ke simple exponential smoothing
+    const sesResult = exponentialSmoothing(actuals, periods, 0.3);
+    return {
+      forecast: sesResult.forecast,
+      seasonalIndices: Array(12).fill(1),
+      strength: 0,
+      mape: sesResult.mape,
+    };
+  }
+
+  // 1. Calculate trend using centered moving average (CMA)
+  const trend = [];
+  const windowSize = 12;
+  for (
+    let i = Math.floor(windowSize / 2);
+    i < n - Math.floor(windowSize / 2);
+    i++
+  ) {
+    let sum = 0;
+    for (
+      let j = i - Math.floor(windowSize / 2);
+      j <= i + Math.floor(windowSize / 2);
+      j++
+    ) {
+      sum += actuals[j];
+    }
+    trend.push(sum / windowSize);
+  }
+
+  // Extend trend ke awal dan akhir menggunakan linear regression
+  const xTrend = Array.from({ length: trend.length }, (_, i) => i);
+  const sumX = xTrend.reduce((a, b) => a + b, 0);
+  const sumY = trend.reduce((a, b) => a + b, 0);
+  const sumXY = xTrend.reduce((a, x, i) => a + x * trend[i], 0);
+  const sumX2 = xTrend.reduce((a, x) => a + x * x, 0);
+  const m = trend.length;
+
+  // Hindari division by zero
+  const denominator = m * sumX2 - sumX * sumX;
+  const trendSlope =
+    Math.abs(denominator) > 0.0001
+      ? (m * sumXY - sumX * sumY) / denominator
+      : 0;
+  const trendIntercept = (sumY - trendSlope * sumX) / m;
+
+  // Extend trend
+  const fullTrend = [];
+  for (let i = 0; i < n; i++) {
+    if (i < Math.floor(windowSize / 2)) {
+      fullTrend.push(
+        trendIntercept + trendSlope * (-Math.floor(windowSize / 2) + i),
+      );
+    } else if (i >= n - Math.floor(windowSize / 2)) {
+      const idx = trend.length - 1 + (i - (n - Math.floor(windowSize / 2)));
+      fullTrend.push(trendIntercept + trendSlope * idx);
+    } else {
+      fullTrend.push(trend[i - Math.floor(windowSize / 2)]);
+    }
+  }
+
+  // 2. Calculate seasonal component
+  const seasonalComponent = [];
+  for (let i = 0; i < n; i++) {
+    seasonalComponent.push(actuals[i] - fullTrend[i]);
+  }
+
+  // 3. Calculate seasonal indices
+  const seasonalIndices = Array(12).fill(0);
+  const seasonalCounts = Array(12).fill(0);
+  for (let i = 0; i < n; i++) {
+    const monthIdx = i % 12;
+    seasonalIndices[monthIdx] += seasonalComponent[i];
+    seasonalCounts[monthIdx]++;
+  }
+
+  for (let m = 0; m < 12; m++) {
+    seasonalIndices[m] =
+      seasonalCounts[m] > 0 ? seasonalIndices[m] / seasonalCounts[m] : 0;
+  }
+
+  // Normalize seasonal indices
+  const avgSeasonal = seasonalIndices.reduce((a, b) => a + b, 0) / 12;
+  for (let m = 0; m < 12; m++) {
+    seasonalIndices[m] -= avgSeasonal;
+  }
+
+  // 4. Calculate residuals dan strength
+  let sumSquaredResiduals = 0;
+  let sumSquaredSeasonal = 0;
+  for (let i = 0; i < n; i++) {
+    const seasonal = seasonalIndices[i % 12];
+    const residual = actuals[i] - fullTrend[i] - seasonal;
+    sumSquaredSeasonal += Math.pow(seasonal, 2);
+    sumSquaredResiduals += Math.pow(residual, 2);
+  }
+
+  const strength =
+    sumSquaredSeasonal /
+    (sumSquaredSeasonal + Math.max(sumSquaredResiduals, 1));
+
+  // 5. Forecast
+  const forecast = [];
+  for (let i = 0; i < periods; i++) {
+    const forecastIdx = n + i;
+    const forecastTrend =
+      trendIntercept + trendSlope * (trend.length - 1 + (i + 1));
+    const forecastSeasonal = seasonalIndices[forecastIdx % 12];
+    const forecastVal = Math.max(
+      0,
+      forecastTrend + forecastSeasonal * (1 - (i + 1) * 0.02), // Dampening
+    );
+    forecast.push(Math.round(forecastVal));
+  }
+
+  // 6. Calculate MAPE untuk fitted values
+  let mapeSum = 0;
+  let mapeCount = 0;
+  for (
+    let i = Math.floor(windowSize / 2);
+    i < n - Math.floor(windowSize / 2);
+    i++
+  ) {
+    const fitted = fullTrend[i] + seasonalIndices[i % 12];
+    if (actuals[i] !== 0) {
+      mapeSum += Math.abs((actuals[i] - fitted) / actuals[i]);
+      mapeCount++;
+    }
+  }
+  const mape =
+    mapeCount > 0 ? Math.round((mapeSum / mapeCount) * 1000) / 10 : 0;
+
+  return {
+    forecast,
+    seasonalIndices,
+    strength: Math.round(strength * 100) / 100,
+    mape: Math.min(mape, 100), // Cap at 100%
+  };
 }
 
 // ============================================================
@@ -163,19 +501,17 @@ router.get("/budget", async (req, res) => {
 
     const historicalBudgets = months.map((m) => monthlyData[m]);
 
-    // Forecast using SES
-    const sesResult = exponentialSmoothing(historicalBudgets, 12, 0.35);
-    const lrResult = linearRegression(historicalBudgets, 12);
+    // Deteksi bulan terakhir data (0-based: Jan=0 ... Des=11)
+    const lastMonthStr = months[months.length - 1]; // e.g. "2025-12"
+    const lastMonthIdx = parseInt(lastMonthStr.split("-")[1], 10) - 1;
 
-    // Blend SES and Linear Regression (60% SES, 40% LR for stability)
-    const blendedForecast = sesResult.forecast.map(
-      (v, i) => v * 0.6 + lrResult.forecast[i] * 0.4,
-    );
+    // Seasonal Forecast: RLS tahunan + Seasonal Index bulanan
+    const sfResult = seasonalForecast(historicalBudgets, 12, lastMonthIdx);
 
     const totalHistorical = historicalBudgets.reduce((a, b) => a + b, 0);
-    const projectedAnnual = blendedForecast.reduce((a, b) => a + b, 0);
+    const projectedAnnual = sfResult.annualPred;
 
-    // Calculate growth rate from yearly data
+    // Tren berdasarkan slope RLS
     const yearlyBudgets = yearlyRows.map((r) => ({
       year: r.year,
       budget: parseFloat(r.total_budget) || 0,
@@ -187,26 +523,31 @@ router.get("/budget", async (req, res) => {
             yearlyBudgets[0].budget) *
           100
         : 0;
+    const trend = growthRate > 2 ? "up" : growthRate < -2 ? "down" : "stable";
+
+    // Buat label bulan untuk forecast
+    const lastDate = new Date(lastMonthStr + "-01");
+    const forecastMonths = sfResult.forecast.map((budget, i) => {
+      const d = new Date(lastDate);
+      d.setMonth(d.getMonth() + i + 1);
+      const fm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      return { month: fm, budget };
+    });
 
     res.json({
       historical: months.map((m, i) => ({
         month: m,
         budget: historicalBudgets[i],
       })),
-      forecast: blendedForecast.map((v, i) => {
-        const d = new Date();
-        d.setMonth(d.getMonth() + i + 1);
-        const fm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-        return { month: fm, budget: Math.round(v) };
-      }),
+      forecast: forecastMonths,
       yearly: yearlyBudgets,
       summary: {
         totalHistorical: Math.round(totalHistorical),
         projectedAnnual: Math.round(projectedAnnual),
         growthRate: Math.round(growthRate * 10) / 10,
-        mape: sesResult.mape,
-        trend: sesResult.trend,
-        confidence: Math.max(0, Math.min(100, 100 - sesResult.mape)),
+        mape: sfResult.mape,
+        trend,
+        confidence: Math.max(0, Math.min(100, 100 - sfResult.mape)),
       },
     });
   } catch (err) {
@@ -355,7 +696,8 @@ router.get("/overview", async (req, res) => {
       ORDER BY year ASC
     `);
 
-    const [monthlyRows] = await pool.query(`
+    // Get SEMUA data historis untuk seasonal analysis
+    const [allMonthlyRows] = await pool.query(`
       SELECT 
         DATE_FORMAT(COALESCE(proposal_date, created_at), '%Y-%m') AS month,
         SUM(budget) AS total_budget,
@@ -366,17 +708,64 @@ router.get("/overview", async (req, res) => {
       ORDER BY month ASC
     `);
 
-    // Budget forecast
-    const budgets = monthlyRows.map((r) => parseFloat(r.total_budget) || 0);
-    const sesResult = exponentialSmoothing(budgets, 12, 0.35);
-    const lrResult = linearRegression(budgets, 12);
-    const blendedForecast = sesResult.forecast.map(
-      (v, i) => v * 0.6 + lrResult.forecast[i] * 0.4,
-    );
+    // Get last 12 months untuk display
+    const [monthlyRows] = await pool.query(`
+      SELECT 
+        DATE_FORMAT(COALESCE(proposal_date, created_at), '%Y-%m') AS month,
+        SUM(budget) AS total_budget,
+        COUNT(*) AS total_proposals
+      FROM donation_proposals
+      WHERE COALESCE(proposal_date, created_at) IS NOT NULL
+        AND COALESCE(proposal_date, created_at) >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+      GROUP BY month
+      ORDER BY month ASC
+    `);
 
-    // Proposal count forecast
+    // Budget forecast - dengan auto-detection seasonal decomposition
+    // Gunakan SEMUA data untuk analisis, tapi cuma 12 bulan terakhir untuk forecast
+    const allBudgets = allMonthlyRows.map(
+      (r) => parseFloat(r.total_budget) || 0,
+    );
+    const budgets = monthlyRows.map((r) => parseFloat(r.total_budget) || 0);
+
+    // Analisis seasonal strength menggunakan semua data
+    const seasonalAnalysis = analyzeSeasonalStrength(allBudgets);
+
+    // Pilih method berdasarkan seasonal strength
+    let forecastResult;
+    let methodUsed;
+
+    if (seasonalAnalysis.hasSeasonality) {
+      // Gunakan advanced seasonal decomposition jika ada seasonality kuat
+      forecastResult = advancedSeasonalDecomposition(budgets, 12);
+      methodUsed = "seasonal_decomposition";
+    } else {
+      // Gunakan blended method (exponential smoothing + linear regression)
+      const sesResult = exponentialSmoothing(budgets, 12, 0.35);
+      const lrResult = linearRegression(budgets, 12);
+      const blendedForecast = sesResult.forecast.map(
+        (v, i) => v * 0.6 + lrResult.forecast[i] * 0.4,
+      );
+      forecastResult = {
+        forecast: blendedForecast.map((v) => Math.round(Math.max(0, v))),
+        mape: sesResult.mape,
+        trend: sesResult.trend,
+      };
+      methodUsed = "blended_es_lr";
+    }
+
+    const blendedForecast = forecastResult.forecast;
+
+    // Proposal count forecast (gunakan hanya 12 bulan terakhir)
     const counts = monthlyRows.map((r) => parseInt(r.total_proposals));
     const countSES = exponentialSmoothing(counts, 12, 0.3);
+
+    // Calculate confidence intervals (±10% dari forecast)
+    const forecastWithConfidence = blendedForecast.map((val) => ({
+      value: val,
+      upper: val * 1.1,
+      lower: Math.max(0, val * 0.9),
+    }));
 
     const projectedAnnual = blendedForecast.reduce((a, b) => a + b, 0);
 
@@ -384,10 +773,14 @@ router.get("/overview", async (req, res) => {
       const d = new Date();
       d.setMonth(d.getMonth() + i + 1);
       const fm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const confidence = forecastWithConfidence[i];
       return {
         month: fm,
-        budget: Math.round(blendedForecast[i]),
+        budget: Math.round(confidence.value),
+        budgetUpper: Math.round(confidence.upper),
+        budgetLower: Math.round(confidence.lower),
         proposals: Math.round(countSES.forecast[i]),
+        confidence: Math.max(0, Math.min(100, 100 - forecastResult.mape)),
       };
     });
 
@@ -406,10 +799,15 @@ router.get("/overview", async (req, res) => {
       summary: {
         projectedAnnualBudget: Math.round(projectedAnnual),
         projectedAvgMonthly: Math.round(projectedAnnual / 12),
-        budgetMAPE: sesResult.mape,
-        budgetTrend: sesResult.trend,
+        budgetMAPE: forecastResult.mape,
+        budgetTrend: forecastResult.trend || "stable",
         proposalTrend: countSES.trend,
-        confidence: Math.max(0, Math.min(100, 100 - sesResult.mape)),
+        confidence: Math.max(0, Math.min(100, 100 - forecastResult.mape)),
+        // Tambahan: seasonality analysis
+        methodUsed: methodUsed,
+        seasonalStrength: seasonalAnalysis.strength,
+        seasonalityDetected: seasonalAnalysis.hasSeasonality,
+        seasonalityDescription: seasonalAnalysis.description,
       },
     });
   } catch (err) {
