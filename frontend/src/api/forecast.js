@@ -18,8 +18,9 @@ export async function getDonationsForecast() {
   return res.json();
 }
 
-export async function getForecastOverview() {
-  const res = await fetch(`${API_BASE}/forecast/overview`);
+export async function getForecastOverview(historyMonths = 999) {
+  const params = historyMonths < 999 ? `?months=${historyMonths}` : "";
+  const res = await fetch(`${API_BASE}/forecast/overview${params}`);
   if (!res.ok) throw new Error("Failed to fetch forecast overview");
   return res.json();
 }

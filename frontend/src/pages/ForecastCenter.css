@@ -198,86 +198,6 @@
   height: 12px;
 }
 
-/* Method & Seasonality Cards Grid */
-.forecast-method-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-  margin-bottom: 40px;
-}
-
-.forecast-method-card {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border-radius: 12px;
-  padding: 20px;
-  border: 2px solid #cbd5e0;
-  transition: all 0.3s ease;
-}
-
-.forecast-method-card:hover {
-  border-color: #0b6bbd;
-  box-shadow: 0 4px 12px rgba(11, 107, 189, 0.2);
-  transform: translateY(-2px);
-}
-
-.forecast-method-card--seasonal {
-  background: linear-gradient(135deg, #e0f2fe 0%, #cffafe 100%);
-  border-color: #0f9f8b;
-}
-
-.forecast-method-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #718096;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
-}
-
-.forecast-method-label svg {
-  width: 14px;
-  height: 14px;
-  color: #0b6bbd;
-}
-
-.forecast-method-card--seasonal .forecast-method-label svg {
-  color: #0f9f8b;
-}
-
-.forecast-method-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a202c;
-  margin-bottom: 8px;
-}
-
-.forecast-method-desc {
-  font-size: 13px;
-  color: #4a5568;
-  line-height: 1.4;
-}
-
-/* Seasonality Badge in Header */
-.forecast-seasonality-badge {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(15, 159, 139, 0.1);
-  border: 2px solid #0f9f8b;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-top: 16px;
-  font-size: 14px;
-  color: #065f46;
-}
-
-.forecast-badge-icon {
-  font-size: 18px;
-}
-
 /* Chart Sections */
 .forecast-chart-section {
   background: white;
@@ -383,30 +303,73 @@
   color: #1a202c;
 }
 
-/* Forecast Table Cell Styling */
-.forecast-table-month {
-  font-weight: 700;
-  color: #0b6bbd;
-  min-width: 120px;
+/* Timeline Zoom & Scroll Controls */
+.forecast-timeline-controls {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
-.forecast-table-value {
+.zoom-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.zoom-btn,
+.scroll-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 2px solid #cbd5e0;
+  border-radius: 8px;
+  background: white;
+  color: #4a5568;
+  font-size: 14px;
   font-weight: 600;
-  color: #0f9f8b;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.forecast-table-note {
+.zoom-btn:hover:not(:disabled),
+.scroll-btn:hover:not(:disabled) {
+  border-color: #0b6bbd;
+  color: #0b6bbd;
+  background: #f0f4f8;
+}
+
+.zoom-btn.active {
+  border-color: #0b6bbd;
+  background: #0b6bbd;
+  color: white;
+}
+
+.zoom-btn:disabled,
+.scroll-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.scroll-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.scroll-info {
   font-size: 13px;
   color: #718096;
-  background: #f7fafc;
-}
-
-.forecast-table-lower {
-  border-right: 2px solid #e2e8f0;
-}
-
-.forecast-table-upper {
-  border-left: 2px solid #e2e8f0;
+  white-space: nowrap;
+  min-width: 200px;
+  text-align: center;
 }
 
 /* Responsive Design */
@@ -485,6 +448,25 @@
 
   .forecast-summary-card h3 {
     font-size: 22px;
+  }
+
+  .forecast-timeline-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .zoom-controls {
+    width: 100%;
+  }
+
+  .scroll-controls {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .scroll-info {
+    flex: 1;
   }
 }
 
