@@ -11,8 +11,18 @@ import {
   BarElement,
 } from "chart.js";
 import { Bar, Doughnut, Line, Pie } from "react-chartjs-2";
-import { BarChart3, CalendarDays, Filter, LineChart } from "lucide-react";
+import {
+  BarChart3,
+  CalendarDays,
+  Filter,
+  LineChart,
+  ZoomOut,
+  ZoomIn,
+} from "lucide-react";
 import { getProposalMonthlyStats, getProposalStats } from "../api/proposals";
+import { getForecastOverview, getComparisonData } from "../api/forecast";
+import PeriodComparisonChart from "../components/PeriodComparisonChart";
+import ForecastLineChart from "../components/ForecastLineChart";
 import "./chart.css";
 
 ChartJS.register(
@@ -40,6 +50,8 @@ const MONTHS = [
   "Nov",
   "Des",
 ];
+
+const MONTHS_SHORT = MONTHS;
 
 const CHART_PALETTE = {
   bar: "rgba(0, 119, 200, 0.85)",
@@ -75,6 +87,27 @@ const ChartDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Comparison chart state
+  const [comparisonMonth, setComparisonMonth] = useState("05");
+  const [comparisonYears, setComparisonYears] = useState([]);
+  const [comparisonData, setComparisonData] = useState(null);
+  const [comparisonLoading, setComparisonLoading] = useState(false);
+  const [comparisonError, setComparisonError] = useState(null);
+  const [overviewData, setOverviewData] = useState(null);
+
+  // Forecast line chart state
+  const [forecastMetric, setForecastMetric] = useState("budget");
+  const [forecastZoomLevel, setForecastZoomLevel] = useState(2);
+  const [forecastData, setForecastData] = useState(null);
+  const [forecastLoading, setForecastLoading] = useState(false);
+  const [forecastError, setForecastError] = useState(null);
+
+  const FORECAST_ZOOM_LEVELS = {
+    1: { label: "Zoom Out", historyMonths: 999 },
+    2: { label: "Default", historyMonths: 12 },
+    3: { label: "Zoom In", historyMonths: 6 },
+  };
+
   useEffect(() => {
     let isCancelled = false;
 
@@ -102,7 +135,28 @@ const ChartDashboard = () => {
       }
     };
 
+    const fetchOverviewForComparison = async () => {
+      try {
+        const overview = await getForecastOverview(12);
+        if (isCancelled) return;
+        setOverviewData(overview);
+
+        // Auto-populate comparison years dengan 2 tahun terakhir
+        if (overview.yearly && overview.yearly.length > 0) {
+          const years = overview.yearly
+            .map((y) => y.year)
+            .sort((a, b) => b - a)
+            .slice(0, 2)
+            .map((y) => String(y));
+          setComparisonYears(years);
+        }
+      } catch (_error) {
+        if (isCancelled) return;
+      }
+    };
+
     fetchYearOptions();
+    fetchOverviewForComparison();
     return () => {
       isCancelled = true;
     };
@@ -144,6 +198,89 @@ const ChartDashboard = () => {
       isCancelled = true;
     };
   }, [selectedYear, selectedMonth]);
+
+  // Fetch comparison data when month or years change
+  useEffect(() => {
+    const fetchComparison = async () => {
+      if (comparisonYears.length < 2) {
+        setComparisonData(null);
+        return;
+      }
+
+      try {
+        setComparisonLoading(true);
+        setComparisonError(null);
+        const data = await getComparisonData(comparisonMonth, comparisonYears);
+        setComparisonData(data.comparison || []);
+      } catch (err) {
+        console.error("Comparison fetch error:", err);
+        setComparisonError("Gagal memuat data perbandingan");
+        setComparisonData(null);
+      } finally {
+        setComparisonLoading(false);
+      }
+    };
+
+    fetchComparison();
+  }, [comparisonMonth, comparisonYears]);
+
+  // Fetch forecast data when zoom level changes
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchForecastData = async () => {
+      try {
+        setForecastLoading(true);
+        setForecastError(null);
+        const historyMonths =
+          FORECAST_ZOOM_LEVELS[forecastZoomLevel].historyMonths;
+        const overview = await getForecastOverview(historyMonths);
+        if (isCancelled) return;
+
+        // Transform data: combine monthly + forecast into single array
+        const transformedData = [];
+
+        // Add historical monthly data
+        if (overview.monthly && Array.isArray(overview.monthly)) {
+          overview.monthly.forEach((item) => {
+            transformedData.push({
+              type: "historical",
+              month: item.month,
+              year: item.year,
+              budget: item.budget || 0,
+              proposals: item.proposals || 0,
+            });
+          });
+        }
+
+        // Add forecast data
+        if (overview.forecast && Array.isArray(overview.forecast)) {
+          overview.forecast.forEach((item) => {
+            transformedData.push({
+              type: "forecast",
+              month: item.month,
+              year: item.year,
+              budget: item.budget || 0,
+              proposals: item.proposals || 0,
+            });
+          });
+        }
+
+        setForecastData(transformedData);
+      } catch (err) {
+        console.error("Forecast data fetch error:", err);
+        setForecastError("Gagal memuat data forecast");
+        setForecastData(null);
+      } finally {
+        if (!isCancelled) setForecastLoading(false);
+      }
+    };
+
+    fetchForecastData();
+    return () => {
+      isCancelled = true;
+    };
+  }, [forecastZoomLevel]);
 
   const parsedSummary = useMemo(() => {
     const total = Number(summaryStats?.total_proposals || 0);
@@ -266,6 +403,8 @@ const ChartDashboard = () => {
     { key: "data", label: "Data Proposal" },
     { key: "status", label: "Status Proposal" },
     { key: "anggaran", label: "Anggaran Proposal" },
+    { key: "perbandingan", label: "Perbandingan Periode" },
+    { key: "forecast-line", label: "Perbandingan Forecast" },
   ];
 
   const activeTabLabel =
@@ -503,6 +642,204 @@ const ChartDashboard = () => {
               />
             </div>
           </article>
+        )}
+
+        {/* Comparison Period Section */}
+        {activeTab === "perbandingan" && (
+          <>
+            <article
+              className="chart-card card-animate"
+              style={{ gridColumn: "1 / -1" }}
+            >
+              <div className="chart-card__header">
+                <h3>Perbandingan Budget Antar Periode Tahunan</h3>
+              </div>
+
+              {/* Comparison Filters */}
+              <div className="comparison-filters" style={{ marginTop: "16px" }}>
+                <div className="filter-group">
+                  <label htmlFor="comparison-month">Pilih Bulan:</label>
+                  <select
+                    id="comparison-month"
+                    value={comparisonMonth}
+                    onChange={(e) => setComparisonMonth(e.target.value)}
+                    className="filter-select"
+                  >
+                    {MONTHS_SHORT.map((month, idx) => (
+                      <option
+                        key={idx}
+                        value={String(idx + 1).padStart(2, "0")}
+                      >
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {overviewData?.yearly && (
+                  <div className="filter-group">
+                    <label htmlFor="comparison-years">Pilih Tahun:</label>
+                    <div className="year-checkboxes">
+                      {overviewData.yearly.map((y) => (
+                        <label key={y.year} className="checkbox-label">
+                          <input
+                            type="checkbox"
+                            value={y.year}
+                            checked={comparisonYears.includes(String(y.year))}
+                            onChange={(e) => {
+                              const year = String(e.target.value);
+                              if (e.target.checked) {
+                                setComparisonYears(
+                                  [...comparisonYears, year].sort(),
+                                );
+                              } else {
+                                setComparisonYears(
+                                  comparisonYears.filter((y) => y !== year),
+                                );
+                              }
+                            }}
+                          />
+                          {y.year}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </article>
+
+            {/* Comparison Chart */}
+            <article
+              className="chart-card card-animate"
+              style={{ gridColumn: "1 / -1" }}
+            >
+              <PeriodComparisonChart
+                comparisonData={comparisonData}
+                selectedMonth={comparisonMonth}
+                metric="budget"
+                loading={comparisonLoading}
+                error={comparisonError}
+              />
+            </article>
+          </>
+        )}
+
+        {/* Forecast Line Chart Section */}
+        {activeTab === "forecast-line" && (
+          <>
+            {/* Controls */}
+            <article
+              className="chart-card card-animate"
+              style={{ gridColumn: "1 / -1" }}
+            >
+              <div className="chart-card__header">
+                <h3>Perbandingan Data Historis vs Forecast</h3>
+              </div>
+
+              {/* Metric Toggle and Zoom Controls */}
+              <div
+                style={{
+                  marginTop: "16px",
+                  display: "flex",
+                  gap: "24px",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                }}
+              >
+                {/* Metric Toggle */}
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={() => setForecastMetric("budget")}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      border: "1px solid #e5e7eb",
+                      backgroundColor:
+                        forecastMetric === "budget" ? "#0b6bbd" : "#ffffff",
+                      color:
+                        forecastMetric === "budget" ? "#ffffff" : "#1f2937",
+                      cursor: "pointer",
+                      fontWeight: 500,
+                      fontSize: "14px",
+                      transition: "background-color 0.2s, color 0.2s",
+                    }}
+                  >
+                    Budget
+                  </button>
+                  <button
+                    onClick={() => setForecastMetric("proposals")}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      border: "1px solid #e5e7eb",
+                      backgroundColor:
+                        forecastMetric === "proposals" ? "#0b6bbd" : "#ffffff",
+                      color:
+                        forecastMetric === "proposals" ? "#ffffff" : "#1f2937",
+                      cursor: "pointer",
+                      fontWeight: 500,
+                      fontSize: "14px",
+                      transition: "background-color 0.2s, color 0.2s",
+                    }}
+                  >
+                    Jumlah Proposal
+                  </button>
+                </div>
+
+                {/* Zoom Controls */}
+                <div
+                  style={{ display: "flex", gap: "8px", marginLeft: "auto" }}
+                >
+                  {Object.entries(FORECAST_ZOOM_LEVELS).map(
+                    ([level, config]) => (
+                      <button
+                        key={level}
+                        onClick={() => setForecastZoomLevel(Number(level))}
+                        style={{
+                          padding: "8px 12px",
+                          borderRadius: "6px",
+                          border:
+                            forecastZoomLevel === Number(level)
+                              ? "2px solid #0b6bbd"
+                              : "1px solid #e5e7eb",
+                          backgroundColor:
+                            forecastZoomLevel === Number(level)
+                              ? "#f0f9ff"
+                              : "#ffffff",
+                          color: "#1f2937",
+                          cursor: "pointer",
+                          fontWeight: 500,
+                          fontSize: "12px",
+                          transition:
+                            "border-color 0.2s, background-color 0.2s",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        {Number(level) === 1 && <ZoomOut size={16} />}
+                        {Number(level) === 3 && <ZoomIn size={16} />}
+                        {config.label}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+            </article>
+
+            {/* Chart */}
+            <article
+              className="chart-card card-animate"
+              style={{ gridColumn: "1 / -1" }}
+            >
+              <ForecastLineChart
+                data={forecastData}
+                metric={forecastMetric}
+                loading={forecastLoading}
+                error={forecastError}
+              />
+            </article>
+          </>
         )}
       </section>
     </div>

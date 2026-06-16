@@ -24,3 +24,20 @@ export async function getForecastOverview(historyMonths = 999) {
   if (!res.ok) throw new Error("Failed to fetch forecast overview");
   return res.json();
 }
+
+/**
+ * Get comparison data untuk bulan tertentu across tahun
+ * @param {string} month - Bulan dalam format '01'-'12'
+ * @param {string[]} years - Array tahun, e.g., ['2024', '2025']
+ * @returns {Promise<Object>} Data dengan field 'comparison'
+ */
+export async function getComparisonData(month, years) {
+  if (!month || !years || years.length === 0) {
+    throw new Error("Month and years are required");
+  }
+  const yearsStr = years.join(",");
+  const params = `?month=${month}&years=${yearsStr}`;
+  const res = await fetch(`${API_BASE}/forecast/overview${params}`);
+  if (!res.ok) throw new Error("Failed to fetch comparison data");
+  return res.json();
+}

@@ -492,11 +492,15 @@ router.get("/donations", async (req, res) => {
 /**
  * GET /api/forecast/overview
  * Combined overview for the Forecast Center dashboard
- * Query params: ?months=12 (hanya n bulan terakhir historis, default: semua)
+ * Query params:
+ *   ?months=12 (hanya n bulan terakhir historis, default: semua)
+ *   ?month=05&years=2024,2025 (perbandingan data untuk bulan tertentu across tahun)
  */
 router.get("/overview", async (req, res) => {
   try {
     const historyMonths = parseInt(req.query.months, 10) || 9999; // Default: semua data
+    const comparisonMonth = req.query.month; // e.g., '05' untuk Mei
+    const comparisonYears = req.query.years; // e.g., '2024,2025'
 
     // Get all data in parallel by calling our own endpoints... or query directly
     const [budgetRows] = await pool.query(`
@@ -528,6 +532,41 @@ router.get("/overview", async (req, res) => {
       displayMonths = monthlyRows.slice(-historyMonths);
     }
 
+    // ============================================================
+    // COMPARISON MODE: Perbandingan data per bulan across tahun
+    // ============================================================
+    let comparisonData = null;
+    if (comparisonMonth && comparisonYears) {
+      const yearsArray = comparisonYears.split(",").map((y) => y.trim());
+      const monthPad = String(comparisonMonth).padStart(2, "0");
+
+      // Query untuk mendapatkan data bulan tertentu across tahun
+      const placeholders = yearsArray.map(() => "?").join(",");
+      const [compRows] = await pool.query(
+        `
+        SELECT 
+          YEAR(COALESCE(proposal_date, created_at)) AS year,
+          DATE_FORMAT(COALESCE(proposal_date, created_at), '%Y-%m') AS month,
+          SUM(budget) AS total_budget,
+          COUNT(*) AS total_proposals
+        FROM donation_proposals
+        WHERE MONTH(COALESCE(proposal_date, created_at)) = ?
+          AND YEAR(COALESCE(proposal_date, created_at)) IN (${placeholders})
+          AND COALESCE(proposal_date, created_at) IS NOT NULL
+        GROUP BY year, month
+        ORDER BY year ASC
+        `,
+        [parseInt(monthPad, 10), ...yearsArray.map((y) => parseInt(y, 10))],
+      );
+
+      comparisonData = compRows.map((r) => ({
+        year: r.year,
+        month: r.month,
+        budget: parseFloat(r.total_budget) || 0,
+        proposals: parseInt(r.total_proposals) || 0,
+      }));
+    }
+
     // Budget forecast: gunakan improved seasonal dengan SEMUA historis untuk kalkulasi
     const budgets = monthlyRows.map((r) => parseFloat(r.total_budget) || 0);
     const lastMonthStr =
@@ -556,7 +595,7 @@ router.get("/overview", async (req, res) => {
       };
     });
 
-    res.json({
+    const response = {
       yearly: budgetRows.map((r) => ({
         year: r.year,
         budget: parseFloat(r.total_budget) || 0,
@@ -578,7 +617,14 @@ router.get("/overview", async (req, res) => {
         confidence: Math.max(0, Math.min(100, 100 - sfResult.mape)),
         forecastMethod: sfResult.method,
       },
-    });
+    };
+
+    // Add comparison data if requested
+    if (comparisonData) {
+      response.comparison = comparisonData;
+    }
+
+    res.json(response);
   } catch (err) {
     console.error("Forecast overview error:", err);
     res.status(500).json({ message: "Error generating forecast overview" });

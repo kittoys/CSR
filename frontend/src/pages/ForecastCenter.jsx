@@ -115,10 +115,13 @@ const ForecastCenter = () => {
     if (!overview) return null;
 
     let monthData = overview.monthly;
-    
+
     // Apply scroll offset if zoomed in
     if (zoomLevel >= 2 && scrollOffset > 0) {
-      const maxOffset = Math.max(0, monthData.length - ZOOM_LEVELS[zoomLevel].historyMonths);
+      const maxOffset = Math.max(
+        0,
+        monthData.length - ZOOM_LEVELS[zoomLevel].historyMonths,
+      );
       const actualOffset = Math.min(scrollOffset, maxOffset);
       monthData = monthData.slice(actualOffset);
     }
@@ -169,10 +172,13 @@ const ForecastCenter = () => {
     if (!overview) return null;
 
     let monthData = overview.monthly;
-    
+
     // Apply scroll offset if zoomed in
     if (zoomLevel >= 2 && scrollOffset > 0) {
-      const maxOffset = Math.max(0, monthData.length - ZOOM_LEVELS[zoomLevel].historyMonths);
+      const maxOffset = Math.max(
+        0,
+        monthData.length - ZOOM_LEVELS[zoomLevel].historyMonths,
+      );
       const actualOffset = Math.min(scrollOffset, maxOffset);
       monthData = monthData.slice(actualOffset);
     }
@@ -373,9 +379,7 @@ const ForecastCenter = () => {
           <div className="scroll-controls">
             <button
               className="scroll-btn"
-              onClick={() =>
-                setScrollOffset(Math.max(0, scrollOffset - 1))
-              }
+              onClick={() => setScrollOffset(Math.max(0, scrollOffset - 1))}
               disabled={scrollOffset === 0}
               title="Geser ke belakang"
             >
@@ -385,7 +389,7 @@ const ForecastCenter = () => {
               {overview.monthly.length > 0 &&
                 `${scrollOffset + 1} - ${Math.min(
                   scrollOffset + ZOOM_LEVELS[zoomLevel].historyMonths,
-                  overview.monthly.length
+                  overview.monthly.length,
                 )} dari ${overview.monthly.length} bulan`}
             </div>
             <button
@@ -397,9 +401,9 @@ const ForecastCenter = () => {
                     Math.max(
                       0,
                       overview.monthly.length -
-                        ZOOM_LEVELS[zoomLevel].historyMonths
-                    )
-                  )
+                        ZOOM_LEVELS[zoomLevel].historyMonths,
+                    ),
+                  ),
                 )
               }
               disabled={
@@ -407,7 +411,7 @@ const ForecastCenter = () => {
                 Math.max(
                   0,
                   overview.monthly.length -
-                    ZOOM_LEVELS[zoomLevel].historyMonths
+                    ZOOM_LEVELS[zoomLevel].historyMonths,
                 )
               }
               title="Geser ke depan"
