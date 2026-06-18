@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   Building2,
   Droplets,
@@ -34,6 +34,13 @@ import {
   Tooltip,
 } from "chart.js";
 import { Bar, Doughnut, Line } from "react-chartjs-2";
+import {
+  getFocData,
+  addFocData,
+  updateFocData,
+  deleteFocData,
+  batchAddFocData,
+} from "../api/foc";
 import "./FocBulanan.css";
 
 ChartJS.register(
@@ -62,187 +69,108 @@ const MONTHS = [
   "Desember",
 ];
 
-const HISTORY_YEARS = [2026, 2025, 2024];
+const HISTORY_YEARS = [2026, 2025, 2024, 2023];
 
-const initialRows = [
-  {
-    id: 1,
-    tanggal: "2026-05-03",
-    lembaga: "Yayasan Maju Bersama",
-    penanggungJawab: "Rian Prasetyo",
-    nomorHp: "081234567891",
-    jumlahAqua: 35,
-    jenis: "Dus",
-    keterangan: "Distribusi acara sosial bulanan",
-    status: "Selesai",
-  },
-  {
-    id: 2,
-    tanggal: "2026-05-08",
-    lembaga: "Komunitas Peduli Anak",
-    penanggungJawab: "Nabila Putri",
-    nomorHp: "081299887766",
-    jumlahAqua: 420,
-    jenis: "Botol",
-    keterangan: "Kegiatan sekolah dan relawan",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    tanggal: "2026-05-10",
-    lembaga: "Rumah Singgah Cahaya",
-    penanggungJawab: "Fikri Hidayat",
-    nomorHp: "081277766655",
-    jumlahAqua: 22,
-    jenis: "Dus",
-    keterangan: "Cadangan konsumsi mingguan",
-    status: "Dibatalkan",
-  },
-  {
-    id: 4,
-    tanggal: "2026-04-22",
-    lembaga: "Yayasan Sehat Mandiri",
-    penanggungJawab: "Dea Cahyani",
-    nomorHp: "081322233344",
-    jumlahAqua: 30,
-    jenis: "Dus",
-    keterangan: "Bantuan kegiatan kesehatan",
-    status: "Selesai",
-  },
-  {
-    id: 5,
-    tanggal: "2026-03-15",
-    lembaga: "Panti Asuhan Harapan Baru",
-    penanggungJawab: "Agus Sutrisno",
-    nomorHp: "081355566677",
-    jumlahAqua: 280,
-    jenis: "Botol",
-    keterangan: "Kebutuhan puasa bersama",
-    status: "Selesai",
-  },
-  {
-    id: 6,
-    tanggal: "2025-11-02",
-    lembaga: "Relawan Peduli Lansia",
-    penanggungJawab: "Sinta Maharani",
-    nomorHp: "081388899900",
-    jumlahAqua: 18,
-    jenis: "Dus",
-    keterangan: "Donasi mingguan",
-    status: "Selesai",
-  },
-  {
-    id: 7,
-    tanggal: "2026-06-01",
-    lembaga: "Yayasan Bina Anak Cerdas",
-    penanggungJawab: "Hendra Wijaya",
-    nomorHp: "081411223344",
-    jumlahAqua: 50,
-    jenis: "Dus",
-    keterangan: "Program pendidikan anak yatim piatu",
-    status: "Selesai",
-  },
-  {
-    id: 8,
-    tanggal: "2026-06-02",
-    lembaga: "Rumah Tangga Sejahtera",
-    penanggungJawab: "Lilis Suryani",
-    nomorHp: "081544556677",
-    jumlahAqua: 600,
-    jenis: "Botol",
-    keterangan: "Acara community gathering bulan Juni",
-    status: "Selesai",
-  },
-  {
-    id: 9,
-    tanggal: "2026-06-03",
-    lembaga: "Pusat Layanan Kesehatan Masyarakat",
-    penanggungJawab: "Dr. Bambang Sutrisno",
-    nomorHp: "081677889900",
-    jumlahAqua: 40,
-    jenis: "Dus",
-    keterangan: "Pelayanan kesehatan gratis bulanan",
-    status: "Selesai",
-  },
-  {
-    id: 10,
-    tanggal: "2026-06-04",
-    lembaga: "Sekolah Dasar Negeri 15 Jakarta",
-    penanggungJawab: "Ibu Siti Rahayu",
-    nomorHp: "081722334455",
-    jumlahAqua: 180,
-    jenis: "Botol",
-    keterangan: "Program minum air sehat untuk pelajar",
-    status: "Pending",
-  },
-  {
-    id: 11,
-    tanggal: "2026-06-05",
-    lembaga: "Koperasi Produsen Tempe Bersama",
-    penanggungJawab: "Yudi Hermawan",
-    nomorHp: "081855667788",
-    jumlahAqua: 25,
-    jenis: "Dus",
-    keterangan: "Bantuan operasional koperasi",
-    status: "Selesai",
-  },
-  {
-    id: 12,
-    tanggal: "2026-06-05",
-    lembaga: "Panti Jompo Kasih Sayang",
-    penanggungJawab: "Ny. Dwi Retno",
-    nomorHp: "081999001122",
-    jumlahAqua: 35,
-    jenis: "Dus",
-    keterangan: "Donasi untuk lansia tidak mampu",
-    status: "Dibatalkan",
-  },
-  {
-    id: 13,
-    tanggal: "2026-05-28",
-    lembaga: "Organisasi Peduli Bencana Alam",
-    penanggungJawab: "Imam Soerjanto",
-    nomorHp: "081122334455",
-    jumlahAqua: 100,
-    jenis: "Botol",
-    keterangan: "Persiapan logistik bencana",
-    status: "Selesai",
-  },
-  {
-    id: 14,
-    tanggal: "2026-05-30",
-    lembaga: "Rumah Produksi Kerajinan Lokal",
-    penanggungJawab: "Sudi Mulyono",
-    nomorHp: "081233445566",
-    jumlahAqua: 28,
-    jenis: "Dus",
-    keterangan: "Dukungan UMKM kerajinan tangan",
-    status: "Selesai",
-  },
-  {
-    id: 15,
-    tanggal: "2026-05-25",
-    lembaga: "Yayasan Pendidikan Islam Terpadu",
-    penanggungJawab: "Ustadz Ahmad Hidayat",
-    nomorHp: "081344556677",
-    jumlahAqua: 65,
-    jenis: "Dus",
-    keterangan: "Bantuan untuk siswa kurang mampu",
-    status: "Selesai",
-  },
-  {
-    id: 16,
-    tanggal: "2026-05-20",
-    lembaga: "Gerakan Bantuan Lingkungan Hijau",
-    penanggungJawab: "Farida Winarsih",
-    nomorHp: "081455667788",
-    jumlahAqua: 45,
-    jenis: "Dus",
-    keterangan: "Program penghijauan dan lingkungan",
-    status: "Pending",
-  },
-];
+// generate rows: for every month from Jan 2023 to today, create one entry per institution
+const generateInitialRows = () => {
+  const start = new Date(2023, 0, 1);
+  const end = new Date();
 
+  const institutions = [
+    {
+      lembaga: "Kantor Desa Mekarsari",
+      pengambil: "Budi Setiawan",
+      nomorHp: "0812-3456-7890",
+      jumlahAqua: 10,
+    },
+    {
+      lembaga: "Kantor Desa Babakanpari",
+      pengambil: "Ahmad Fauzi",
+      nomorHp: "0813-4567-8901",
+      jumlahAqua: 10,
+    },
+    {
+      lembaga: "Polsek Cicurug",
+      pengambil: "Aiptu Hendra Wijaya",
+      nomorHp: "0815-5678-9012",
+      jumlahAqua: 7,
+    },
+    {
+      lembaga: "Polsek Cidahu",
+      pengambil: "Bripka Agus Susanto",
+      nomorHp: "0819-6789-0123",
+      jumlahAqua: 7,
+    },
+    {
+      lembaga: "Koramil 0713 Cicurug",
+      pengambil: "Serka M. Ridwan",
+      nomorHp: "0812-7890-1234",
+      jumlahAqua: 7,
+    },
+    {
+      lembaga: "Posko III Damkar Cicurug",
+      pengambil: "Danru Dedi Supriadi",
+      nomorHp: "0857-8901-2345",
+      jumlahAqua: 7,
+    },
+    {
+      lembaga: "Puskesmas Cicurug",
+      pengambil: "Dr. Rina Amalia",
+      nomorHp: "0821-9012-3456",
+      jumlahAqua: 10,
+    },
+    {
+      lembaga: "SMA Amaliyah Cicurug",
+      pengambil: "Drs. Cecep Mulyana",
+      nomorHp: "0813-0123-4567",
+      jumlahAqua: 10,
+    },
+    {
+      lembaga: "MTs Darul Amsor Muhammidin",
+      pengambil: "Ust. H. Syarifudin",
+      nomorHp: "0856-1234-5678",
+      jumlahAqua: 10,
+    },
+    {
+      lembaga: "KUA Kecamatan Cicurug",
+      pengambil: "H. Anwar Sadat, S.Ag",
+      nomorHp: "0878-2345-6789",
+      jumlahAqua: 7,
+    },
+  ];
+
+  const rows = [];
+  let id = 1;
+  const cursor = new Date(start.getFullYear(), start.getMonth(), 10);
+
+  while (cursor <= end) {
+    for (let i = 0; i < institutions.length; i++) {
+      const inst = institutions[i];
+      // set day so entries in a month vary slightly
+      const day = Math.min(25, 5 + (i % 10));
+      const d = new Date(cursor.getFullYear(), cursor.getMonth(), day);
+      if (d > end) break;
+
+      rows.push({
+        id: id,
+        tanggal: d.toISOString().slice(0, 10),
+        lembaga: inst.lembaga,
+        penanggungJawab: inst.pengambil,
+        nomorHp: inst.nomorHp,
+        jumlahAqua: inst.jumlahAqua,
+        jenis: "Dus",
+        keterangan: "Distribusi rutin (data massal)",
+        status: "Selesai",
+      });
+      id += 1;
+    }
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+
+  return rows;
+};
+
+const initialRows = generateInitialRows();
 const emptyForm = {
   lembaga: "",
   pengambil: "",
@@ -250,6 +178,7 @@ const emptyForm = {
   tanggal: "",
   jumlahAqua: "",
   jenis: "Dus",
+  status: "Pending",
   catatan: "",
   buktiFoto: null,
 };
@@ -283,12 +212,13 @@ const FocBulanan = () => {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
   const [rows, setRows] = useState(initialRows);
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const [selectedYear, setSelectedYear] = useState(currentYear);
+  // default to show ALL data: selected controls are empty string, activeFilter uses null
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
   const [searchName, setSearchName] = useState("");
   const [activeFilter, setActiveFilter] = useState({
-    month: currentMonth,
-    year: currentYear,
+    month: null,
+    year: null,
     search: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -296,6 +226,34 @@ const FocBulanan = () => {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [imagePreview, setImagePreview] = useState("");
+
+  // Load FOC data from API on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const dbData = await getFocData();
+        if (dbData && dbData.length > 0) {
+          // Map database records to component format, ensuring id is numeric
+          const mappedData = dbData.map((item) => ({
+            id: item.id || Math.random(),
+            tanggal: item.tanggal,
+            lembaga: item.lembaga,
+            penanggungJawab: item.penanggungJawab || "",
+            nomorHp: item.nomorHp || "",
+            jumlahAqua: item.jumlahAqua || 0,
+            jenis: item.jenis || "Dus",
+            keterangan: item.keterangan || "",
+            status: item.status || "Pending",
+          }));
+          setRows(mappedData);
+        }
+      } catch (err) {
+        console.log("Using client-side data (API not available):", err);
+        // Fall back to initial data if API fails
+      }
+    };
+    loadData();
+  }, []);
 
   const yearOptions = useMemo(() => {
     const existingYears = new Set(
@@ -330,13 +288,13 @@ const FocBulanan = () => {
   }, [rows, activeFilter]);
 
   const stats = useMemo(() => {
+    const filterMonth = activeFilter.month || currentMonth;
+    const filterYear = activeFilter.year || currentYear;
+
     const scopedByMonth = rows.filter((item) => {
       const month = monthFromDate(item.tanggal);
       const year = yearFromDate(item.tanggal);
-      return (
-        month === Number(activeFilter.month) &&
-        year === Number(activeFilter.year)
-      );
+      return month === Number(filterMonth) && year === Number(filterYear);
     });
 
     const totalLembaga = new Set(scopedByMonth.map((item) => item.lembaga))
@@ -351,18 +309,18 @@ const FocBulanan = () => {
       ? `${formatTanggal(latest.tanggal)} • ${latest.lembaga}`
       : "Belum ada pengambilan";
 
+    const yearToUse = activeFilter.year || currentYear;
     const totalTahun = rows
-      .filter(
-        (item) => yearFromDate(item.tanggal) === Number(activeFilter.year),
-      )
+      .filter((item) => yearFromDate(item.tanggal) === Number(yearToUse))
       .reduce((sum, item) => sum + Number(item.jumlahAqua || 0), 0);
 
     return { totalLembaga, totalAquaBulan, latestText, totalTahun };
   }, [rows, filteredRows, activeFilter]);
 
   const chartData = useMemo(() => {
+    const yearToUse = activeFilter.year || currentYear;
     const selectedYearRows = rows.filter(
-      (item) => yearFromDate(item.tanggal) === Number(activeFilter.year),
+      (item) => yearFromDate(item.tanggal) === Number(yearToUse),
     );
 
     const monthlyTotals = Array.from({ length: 12 }, (_x, idx) => {
@@ -504,6 +462,7 @@ const FocBulanan = () => {
       tanggal: row.tanggal,
       jumlahAqua: row.jumlahAqua,
       jenis: row.jenis,
+      status: row.status,
       catatan: row.keterangan,
       buktiFoto: null,
     });
@@ -528,7 +487,7 @@ const FocBulanan = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const payload = {
@@ -538,29 +497,42 @@ const FocBulanan = () => {
       nomorHp: form.nomorHp,
       jumlahAqua: Number(form.jumlahAqua || 0),
       jenis: form.jenis,
+      status: form.status,
       keterangan: form.catatan,
-      status: "Pending",
     };
 
-    if (formMode === "edit" && editingId) {
-      setRows((prev) =>
-        prev.map((item) =>
-          item.id === editingId ? { ...item, ...payload } : item,
-        ),
-      );
-    } else {
-      const nextId = rows.length
-        ? Math.max(...rows.map((item) => item.id)) + 1
-        : 1;
-      setRows((prev) => [{ id: nextId, ...payload }, ...prev]);
+    try {
+      if (formMode === "edit" && editingId) {
+        // Update existing record in database
+        await updateFocData(editingId, payload);
+        setRows((prev) =>
+          prev.map((item) =>
+            item.id === editingId ? { ...item, ...payload } : item,
+          ),
+        );
+      } else {
+        // Add new record to database
+        const response = await addFocData(payload);
+        const newId = response.id;
+        setRows((prev) => [{ id: newId, ...payload }, ...prev]);
+      }
+    } catch (err) {
+      console.error("Error saving FOC data:", err);
+      alert("Gagal menyimpan data. Pastikan server berjalan.");
     }
 
     resetModal();
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Hapus data pengambilan ini?")) return;
-    setRows((prev) => prev.filter((item) => item.id !== id));
+    try {
+      await deleteFocData(id);
+      setRows((prev) => prev.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error("Error deleting FOC data:", err);
+      alert("Gagal menghapus data. Pastikan server berjalan.");
+    }
   };
 
   const handleDetail = (row) => {
@@ -680,11 +652,13 @@ const FocBulanan = () => {
               {filteredRows.filter((r) => r.status === "Selesai").length}
             </span>
             <span className="foc-quick-stat-change foc-quick-stat-change--up">
-              {Math.round(
-                (filteredRows.filter((r) => r.status === "Selesai").length /
-                  filteredRows.length) *
-                  100,
-              )}
+              {filteredRows.length === 0
+                ? 0
+                : Math.round(
+                    (filteredRows.filter((r) => r.status === "Selesai").length /
+                      filteredRows.length) *
+                      100,
+                  )}
               % Success
             </span>
           </div>
@@ -742,7 +716,13 @@ const FocBulanan = () => {
             .slice(0, 5)
             .map((row, idx) => (
               <article key={row.id} className="foc-highlight-card">
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
                   <div className="foc-highlight-rank">#{idx + 1}</div>
                   <div className="foc-highlight-name">{row.lembaga}</div>
                 </div>
@@ -756,11 +736,16 @@ const FocBulanan = () => {
                   <div style={{ textAlign: "right" }}>
                     <div
                       className="foc-highlight-value"
-                      style={{ fontSize: "0.9rem", color: "var(--color-muted)" }}
+                      style={{
+                        fontSize: "0.9rem",
+                        color: "var(--color-muted)",
+                      }}
                     >
                       {row.penanggungJawab}
                     </div>
-                    <div className="foc-highlight-label">{formatTanggal(row.tanggal)}</div>
+                    <div className="foc-highlight-label">
+                      {formatTanggal(row.tanggal)}
+                    </div>
                   </div>
                 </div>
               </article>
@@ -779,11 +764,31 @@ const FocBulanan = () => {
         <div className="foc-comparison-grid">
           {[
             { bulan: "Juni", nilai: stats.totalAquaBulan, trend: "up" },
-            { bulan: "Mei", nilai: Math.round(stats.totalAquaBulan * 0.85), trend: "up" },
-            { bulan: "April", nilai: Math.round(stats.totalAquaBulan * 0.72), trend: "down" },
-            { bulan: "Maret", nilai: Math.round(stats.totalAquaBulan * 0.65), trend: "up" },
-            { bulan: "Februari", nilai: Math.round(stats.totalAquaBulan * 0.58), trend: "up" },
-            { bulan: "Januari", nilai: Math.round(stats.totalAquaBulan * 0.45), trend: "down" },
+            {
+              bulan: "Mei",
+              nilai: Math.round(stats.totalAquaBulan * 0.85),
+              trend: "up",
+            },
+            {
+              bulan: "April",
+              nilai: Math.round(stats.totalAquaBulan * 0.72),
+              trend: "down",
+            },
+            {
+              bulan: "Maret",
+              nilai: Math.round(stats.totalAquaBulan * 0.65),
+              trend: "up",
+            },
+            {
+              bulan: "Februari",
+              nilai: Math.round(stats.totalAquaBulan * 0.58),
+              trend: "up",
+            },
+            {
+              bulan: "Januari",
+              nilai: Math.round(stats.totalAquaBulan * 0.45),
+              trend: "down",
+            },
           ].map((item) => {
             const maxVal = stats.totalAquaBulan || 1000;
             const percentage = (item.nilai / maxVal) * 100;
@@ -799,7 +804,9 @@ const FocBulanan = () => {
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
-                <div className={`foc-comparison-trend foc-comparison-trend--${item.trend}`}>
+                <div
+                  className={`foc-comparison-trend foc-comparison-trend--${item.trend}`}
+                >
                   {item.trend === "up" ? "▲" : "▼"}
                   <span>{Math.round(Math.random() * 20 + 5)}%</span>
                 </div>
@@ -1105,6 +1112,19 @@ const FocBulanan = () => {
                 >
                   <option value="Dus">Dus</option>
                   <option value="Botol">Botol</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Status Distribusi</span>
+                <select
+                  name="status"
+                  value={form.status}
+                  onChange={handleFormChange}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Selesai">Selesai</option>
+                  <option value="Dibatalkan">Dibatalkan</option>
                 </select>
               </label>
 

@@ -258,6 +258,10 @@ function improvedSeasonalForecast(
 }
 
 // ============================================================
+// BACKTESTING FUNCTION: Generate historical forecasts
+// ============================================================
+
+// ============================================================
 // ENDPOINTS
 // ============================================================
 
@@ -399,8 +403,13 @@ router.get("/proposals", async (req, res) => {
 
     const sesResult = exponentialSmoothing(counts, 12, 0.3);
 
+    // Generate forecast months starting from the month AFTER the last historical month
+    const lastMonthStr = months[months.length - 1]; // e.g. "2025-12"
+    const [lastYear, lastMonthPad] = lastMonthStr.split("-");
     const forecast = sesResult.forecast.map((v, i) => {
-      const d = new Date();
+      // Create date from last historical month
+      const d = new Date(`${lastYear}-${lastMonthPad}-01`);
+      // Add i+1 months to get forecast period
       d.setMonth(d.getMonth() + i + 1);
       const fm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       return { month: fm, count: Math.round(v) };
@@ -461,8 +470,13 @@ router.get("/donations", async (req, res) => {
     const dusSES = exponentialSmoothing(dusActuals, 12, 0.3);
     const botolSES = exponentialSmoothing(botolActuals, 12, 0.3);
 
+    // Generate forecast months starting from the month AFTER the last historical month
+    const lastMonthStr = historical[historical.length - 1].month; // e.g. "2025-06"
+    const [lastYear, lastMonthPad] = lastMonthStr.split("-");
     const forecast = Array.from({ length: 12 }, (_, i) => {
-      const d = new Date();
+      // Create date from last historical month
+      const d = new Date(`${lastYear}-${lastMonthPad}-01`);
+      // Add i+1 months to get forecast period
       d.setMonth(d.getMonth() + i + 1);
       const fm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       return {
@@ -578,20 +592,51 @@ router.get("/overview", async (req, res) => {
       Math.round(Math.max(0, v)),
     );
 
-    // Proposal count forecast - gunakan exponential smoothing
+    // Proposal count forecast - gunakan improved seasonal seperti budget
     const counts = monthlyRows.map((r) => parseInt(r.total_proposals));
-    const countSES = exponentialSmoothing(counts, 12, 0.3);
+    const proposalResult = improvedSeasonalForecast(counts, 12, lastMonthIdx);
+    const proposalForecast = proposalResult.forecast.map((v) =>
+      Math.round(Math.max(0, v)),
+    );
 
     const projectedAnnual = budgetForecast.reduce((a, b) => a + b, 0);
 
-    const forecastMonths = Array.from({ length: 12 }, (_, i) => {
-      const d = new Date();
+    // Generate forecast months starting from the month AFTER the last historical month
+    const [lastYear, lastMonthPad] = lastMonthStr.split("-");
+    const futureForecasts = Array.from({ length: 12 }, (_, i) => {
+      // Create date from last historical month
+      const d = new Date(`${lastYear}-${lastMonthPad}-01`);
+      // Add i+1 months to get forecast period (month after last historical + i)
       d.setMonth(d.getMonth() + i + 1);
       const fm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       return {
         month: fm,
         budget: budgetForecast[i],
-        proposals: Math.round(countSES.forecast[i]),
+        proposals: proposalForecast[i],
+      };
+    });
+
+    // Generate comparison data: forecast values for historical months (backtest)
+    // Untuk setiap bulan historis, kita generate fitted forecast menggunakan seasonal pattern
+    const proposalAvg = counts.reduce((a, b) => a + b, 0) / counts.length;
+
+    const forecastComparison = monthlyRows.map((r, idx) => {
+      // Calculate fitted forecast value menggunakan seasonal indices dari sfResult
+      const monthIdx = (lastMonthIdx - (budgets.length - 1 - idx)) % 12;
+      const normalizedMonth = monthIdx < 0 ? monthIdx + 12 : monthIdx;
+      const seasonalIndex = sfResult.seasonalIndex[normalizedMonth] || 1;
+      const baseTrendVal =
+        (budgets.reduce((a, b) => a + b, 0) / budgets.length) * seasonalIndex;
+
+      const proposalSeasonal =
+        proposalAvg * proposalResult.seasonalIndex[normalizedMonth];
+
+      return {
+        month: r.month,
+        actual_budget: r.total_budget,
+        actual_proposals: r.total_proposals,
+        forecast_budget: Math.round(Math.max(0, baseTrendVal)),
+        forecast_proposals: Math.round(Math.max(0, proposalSeasonal)),
       };
     });
 
@@ -607,13 +652,15 @@ router.get("/overview", async (req, res) => {
         proposals: parseInt(r.total_proposals) || 0,
       })),
       allMonthlyCount: monthlyRows.length,
-      forecast: forecastMonths,
+      forecast: futureForecasts, // Only future months, not historical
+      forecastComparison: forecastComparison, // For showing forecast vs actual for historical months
       summary: {
         projectedAnnualBudget: Math.round(projectedAnnual),
         projectedAvgMonthly: Math.round(projectedAnnual / 12),
         budgetMAPE: sfResult.mape,
         budgetTrend: sfResult.trend,
-        proposalTrend: countSES.trend,
+        proposalMAPE: proposalResult.mape,
+        proposalTrend: proposalResult.trend,
         confidence: Math.max(0, Math.min(100, 100 - sfResult.mape)),
         forecastMethod: sfResult.method,
       },

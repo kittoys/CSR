@@ -47,8 +47,12 @@ export const updateProposal = async (id, payload) => {
 };
 
 export const deleteProposal = async (id) => {
+  const headers = authHeaders();
+  console.log("🗑️ Delete Proposal - Headers:", headers);
+  console.log("🗑️ Token dari localStorage:", localStorage.getItem("authToken"));
+  
   const res = await axios.delete(`${API_BASE}/proposals/${id}`, {
-    headers: authHeaders(),
+    headers,
   });
   return res.data;
 };

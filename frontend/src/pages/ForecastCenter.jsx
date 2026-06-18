@@ -126,29 +126,78 @@ const ForecastCenter = () => {
       monthData = monthData.slice(actualOffset);
     }
 
-    const historicalLabels = monthData.map((m) => monthLabel(m.month));
-    const forecastLabels = overview.forecast.map((m) => monthLabel(m.month));
-    const allLabels = [...historicalLabels, ...forecastLabels];
+    // Build unified timeline by merging historical, historical forecast (backtest),
+    // and future forecast — but limit forecasts to the currently displayed window.
+    const displayedMonths = monthData.map((m) => m.month);
+    const lastDisplayedMonthStr =
+      displayedMonths[displayedMonths.length - 1] ||
+      overview.monthly[overview.monthly.length - 1]?.month;
+    const forecastMonthsCount = ZOOM_LEVELS[zoomLevel].forecastMonths || 12;
 
-    const histBudgets = monthData.map((m) => m.budget);
-    const forecastBudgets = overview.forecast.map((m) => m.budget);
+    // compute allowed future months starting from the month after lastDisplayedMonthStr
+    const allowedFutureMonths = [];
+    if (lastDisplayedMonthStr) {
+      const [ly, lm] = lastDisplayedMonthStr.split("-");
+      const base = new Date(`${ly}-${lm}-01`);
+      for (let i = 1; i <= forecastMonthsCount; i++) {
+        const d = new Date(base);
+        d.setMonth(d.getMonth() + i);
+        allowedFutureMonths.push(
+          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+        );
+      }
+    }
 
-    // Pad historical to same length for overlay
-    const histPadded = [
-      ...histBudgets,
-      ...Array(forecastBudgets.length).fill(null),
-    ];
-    const forecastPadded = [
-      ...Array(histBudgets.length).fill(null),
-      ...forecastBudgets,
-    ];
+    const forecastComparisonFiltered = overview.forecastComparison?.filter(
+      (f) => displayedMonths.includes(f.month),
+    );
+    const forecastFutureFiltered = overview.forecast?.filter((f) =>
+      allowedFutureMonths.includes(f.month),
+    );
+
+    const allKeysSet = new Set();
+    displayedMonths.forEach((m) => allKeysSet.add(m));
+    forecastComparisonFiltered?.forEach((f) => allKeysSet.add(f.month));
+    forecastFutureFiltered?.forEach((f) => allKeysSet.add(f.month));
+    const allKeys = Array.from(allKeysSet).sort();
+
+    const labels = allKeys.map((k) => monthLabel(k));
+
+    // Map values to unified timeline
+    const actualMap = new Map();
+    const forecastHistoricalMap = new Map();
+    const forecastFutureMap = new Map();
+
+    monthData.forEach((m) => actualMap.set(m.month, m.budget));
+    forecastComparisonFiltered?.forEach((f) =>
+      forecastHistoricalMap.set(f.month, f.forecast_budget),
+    );
+    forecastFutureFiltered?.forEach((f) =>
+      forecastFutureMap.set(f.month, f.budget),
+    );
+
+    const actualBudgets = allKeys.map((k) => actualMap.get(k) || null);
+    const forecastHistBudgets = allKeys.map(
+      (k) => forecastHistoricalMap.get(k) || null,
+    );
+    const forecastFutureBudgets = allKeys.map(
+      (k) => forecastFutureMap.get(k) || null,
+    );
+
+    // Merge forecast: use historical forecast for historical months, future forecast for future
+    const mergedForecasts = allKeys.map((k, idx) => {
+      if (forecastHistBudgets[idx] !== null) return forecastHistBudgets[idx];
+      if (forecastFutureBudgets[idx] !== null)
+        return forecastFutureBudgets[idx];
+      return null;
+    });
 
     return {
-      labels: allLabels,
+      labels,
       datasets: [
         {
           label: "Budget Historis",
-          data: histPadded,
+          data: actualBudgets,
           backgroundColor: "rgba(11, 107, 189, 0.7)",
           borderColor: "#0b6bbd",
           borderWidth: 1,
@@ -156,7 +205,7 @@ const ForecastCenter = () => {
         },
         {
           label: "Prediksi Budget",
-          data: forecastPadded,
+          data: mergedForecasts,
           backgroundColor: "rgba(15, 159, 139, 0.6)",
           borderColor: "#0f9f8b",
           borderWidth: 2,
@@ -183,28 +232,79 @@ const ForecastCenter = () => {
       monthData = monthData.slice(actualOffset);
     }
 
-    const historicalLabels = monthData.map((m) => monthLabel(m.month));
-    const forecastLabels = overview.forecast.map((m) => monthLabel(m.month));
-    const allLabels = [...historicalLabels, ...forecastLabels];
+    // Build unified timeline by merging historical, historical forecast (backtest),
+    // and future forecast — but limit forecasts to the currently displayed window.
+    const displayedMonths = monthData.map((m) => m.month);
+    const lastDisplayedMonthStr =
+      displayedMonths[displayedMonths.length - 1] ||
+      overview.monthly[overview.monthly.length - 1]?.month;
+    const forecastMonthsCount = ZOOM_LEVELS[zoomLevel].forecastMonths || 12;
 
-    const histCounts = monthData.map((m) => m.proposals);
-    const forecastCounts = overview.forecast.map((m) => m.proposals);
+    // compute allowed future months starting from the month after lastDisplayedMonthStr
+    const allowedFutureMonths = [];
+    if (lastDisplayedMonthStr) {
+      const [ly, lm] = lastDisplayedMonthStr.split("-");
+      const base = new Date(`${ly}-${lm}-01`);
+      for (let i = 1; i <= forecastMonthsCount; i++) {
+        const d = new Date(base);
+        d.setMonth(d.getMonth() + i);
+        allowedFutureMonths.push(
+          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+        );
+      }
+    }
 
-    const histPadded = [
-      ...histCounts,
-      ...Array(forecastCounts.length).fill(null),
-    ];
-    const forecastPadded = [
-      ...Array(histCounts.length).fill(null),
-      ...forecastCounts,
-    ];
+    const forecastComparisonFiltered = overview.forecastComparison?.filter(
+      (f) => displayedMonths.includes(f.month),
+    );
+    const forecastFutureFiltered = overview.forecast?.filter((f) =>
+      allowedFutureMonths.includes(f.month),
+    );
+
+    const allKeysSet = new Set();
+    displayedMonths.forEach((m) => allKeysSet.add(m));
+    forecastComparisonFiltered?.forEach((f) => allKeysSet.add(f.month));
+    forecastFutureFiltered?.forEach((f) => allKeysSet.add(f.month));
+    const allKeys = Array.from(allKeysSet).sort();
+
+    const labels = allKeys.map((k) => monthLabel(k));
+
+    // Map values to unified timeline
+    const actualMap = new Map();
+    const forecastHistoricalMap = new Map();
+    const forecastFutureMap = new Map();
+
+    monthData.forEach((m) => actualMap.set(m.month, m.proposals));
+    forecastComparisonFiltered?.forEach((f) =>
+      forecastHistoricalMap.set(f.month, f.forecast_proposals),
+    );
+    forecastFutureFiltered?.forEach((f) =>
+      forecastFutureMap.set(f.month, f.proposals),
+    );
+
+    const actualProposals = allKeys.map((k) => actualMap.get(k) || null);
+    const forecastHistProposals = allKeys.map(
+      (k) => forecastHistoricalMap.get(k) || null,
+    );
+    const forecastFutureProposals = allKeys.map(
+      (k) => forecastFutureMap.get(k) || null,
+    );
+
+    // Merge forecast: use historical forecast for historical months, future forecast for future
+    const mergedForecasts = allKeys.map((k, idx) => {
+      if (forecastHistProposals[idx] !== null)
+        return forecastHistProposals[idx];
+      if (forecastFutureProposals[idx] !== null)
+        return forecastFutureProposals[idx];
+      return null;
+    });
 
     return {
-      labels: allLabels,
+      labels,
       datasets: [
         {
           label: "Proposal Historis",
-          data: histPadded,
+          data: actualProposals,
           borderColor: "#0b6bbd",
           backgroundColor: "rgba(11,107,189,0.1)",
           fill: true,
@@ -213,7 +313,7 @@ const ForecastCenter = () => {
         },
         {
           label: "Prediksi Proposal",
-          data: forecastPadded,
+          data: mergedForecasts,
           borderColor: "#0f9f8b",
           borderDash: [6, 4],
           borderWidth: 2,
@@ -336,10 +436,12 @@ const ForecastCenter = () => {
           </div>
           <div>
             <p>Tingkat Keyakinan</p>
-            <h3>{overview ? `${overview.summary.confidence}%` : "-"}</h3>
+            <h3>
+              {overview ? `${overview.summary.confidence.toFixed(1)}%` : "-"}
+            </h3>
             <span className="forecast-trend forecast-trend--up">
               <Sparkles size={14} />
-              MAPE: {overview?.summary?.budgetMAPE || 0}%
+              MAPE: {overview?.summary?.budgetMAPE?.toFixed(1) || 0}%
             </span>
           </div>
         </article>

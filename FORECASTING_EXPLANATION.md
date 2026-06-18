@@ -168,7 +168,7 @@ R² = 1 - (SSRes / SSTot)
 ### 3️⃣ Improved Seasonal Forecast (Advanced) ⭐
 **Kapan digunakan:**
 - Data budget proposal (>= 12 bulan)
-- Data dengan pola musiman yang jelas
+- Data dengan pola musiman yang jelas 
 
 **Tahap-tahap:**
 1. **Outlier Detection** - Hapus anomali

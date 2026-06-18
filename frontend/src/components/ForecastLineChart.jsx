@@ -41,19 +41,39 @@ const ForecastLineChart = ({ data, metric = "budget", loading, error }) => {
     const historical = data.filter((item) => item.type === "historical");
     const forecast = data.filter((item) => item.type === "forecast");
 
-    // Create labels for x-axis (month-year)
-    const labels = data.map((item) => {
-      const monthIdx = parseInt(item.month, 10) - 1;
-      return `${MONTHS_SHORT[monthIdx]} ${item.year}`;
+    // Build a unified, sorted timeline (month-year) from both historical and forecast items
+    const metricKey = metric === "budget" ? "budget" : "proposals";
+
+    const keyFor = (item) => {
+      const m = String(parseInt(item.month, 10)).padStart(2, "0");
+      return `${item.year}-${m}`;
+    };
+
+    const allKeysSet = new Set();
+    data.forEach((item) => allKeysSet.add(keyFor(item)));
+    const allKeys = Array.from(allKeysSet).sort();
+
+    const labels = allKeys.map((k) => {
+      const [y, m] = k.split("-");
+      const monthIdx = parseInt(m, 10) - 1;
+      return `${MONTHS_SHORT[monthIdx]} ${y}`;
     });
 
-    // Extract metric values for both lines
-    const metricKey = metric === "budget" ? "budget" : "proposals";
-    const historicalValues = data.map((item) =>
-      item.type === "historical" ? item[metricKey] : null,
+    // Map values to the unified timeline so historical and forecast align correctly
+    const historicalMap = new Map();
+    const forecastMap = new Map();
+    historical.forEach((it) =>
+      historicalMap.set(keyFor(it), it[metricKey] ?? null),
     );
-    const forecastValues = data.map((item) =>
-      item.type === "forecast" ? item[metricKey] : null,
+    forecast.forEach((it) =>
+      forecastMap.set(keyFor(it), it[metricKey] ?? null),
+    );
+
+    const historicalValues = allKeys.map((k) =>
+      historicalMap.has(k) ? historicalMap.get(k) : null,
+    );
+    const forecastValues = allKeys.map((k) =>
+      forecastMap.has(k) ? forecastMap.get(k) : null,
     );
 
     const isBudget = metric === "budget";
@@ -65,31 +85,28 @@ const ForecastLineChart = ({ data, metric = "budget", loading, error }) => {
           label: "Data Historis",
           data: historicalValues,
           borderColor: "#0b6bbd",
-          backgroundColor: "rgba(11, 107, 189, 0.05)",
-          borderWidth: 2.5,
-          fill: true,
+          borderWidth: 2,
+          fill: false,
           tension: 0.4,
-          pointRadius: 4,
+          pointRadius: 3,
           pointBackgroundColor: "#0b6bbd",
           pointBorderColor: "#fff",
-          pointBorderWidth: 2,
-          pointHoverRadius: 6,
+          pointBorderWidth: 1.5,
+          pointHoverRadius: 5,
           spanGaps: true,
         },
         {
           label: "Prediksi",
           data: forecastValues,
-          borderColor: "#10b981",
-          backgroundColor: "rgba(16, 185, 129, 0.05)",
-          borderWidth: 2.5,
-          borderDash: [5, 5], // Dashed line for forecast
-          fill: true,
+          borderColor: "#ef4444",
+          borderWidth: 2,
+          fill: false,
           tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: "#10b981",
+          pointRadius: 3,
+          pointBackgroundColor: "#ef4444",
           pointBorderColor: "#fff",
-          pointBorderWidth: 2,
-          pointHoverRadius: 6,
+          pointBorderWidth: 1.5,
+          pointHoverRadius: 5,
           spanGaps: true,
         },
       ],

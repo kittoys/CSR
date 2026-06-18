@@ -9,6 +9,7 @@ const categoryRoutes = require("./routes/categories");
 const proposalRoutes = require("./routes/proposals");
 const uploadRoutes = require("./routes/upload");
 const forecastRoutes = require("./routes/forecast");
+const focRoutes = require("./routes/foc");
 
 const app = express();
 app.use(cors());
@@ -27,6 +28,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/proposals", proposalRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/forecast", forecastRoutes);
+app.use("/api/foc", focRoutes);
 
 const PORT = process.env.PORT || 5000;
 
