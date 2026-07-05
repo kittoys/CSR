@@ -105,9 +105,14 @@ const ProposalModal = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let newValue = value;
+    // Khusus untuk case_id: hanya izinkan digit
+    if (name === "case_id") {
+      newValue = String(value).replace(/\D/g, "");
+    }
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: newValue,
     }));
   };
 
@@ -290,11 +295,14 @@ const ProposalModal = ({
       return;
     }
 
-    const saveResult = await onSubmit({
+    const payload = {
       ...formData,
       status: nextStatus,
       remove_proof: removeProof,
-    });
+      budget: Number(formData.budget),
+    };
+
+    const saveResult = await onSubmit(payload);
 
     if (saveResult !== false) {
       setFormData({
@@ -511,6 +519,8 @@ const ProposalModal = ({
                   onChange={handleChange}
                   placeholder="Masukkan total harga dalam IDR"
                   required
+                  min="0"
+                  step="1"
                 />
               </div>
             </div>
