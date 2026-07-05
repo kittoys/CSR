@@ -15,11 +15,11 @@ const ProposalModal = ({
     proposal_name: "",
     organization: "",
     bentuk_donasi: "",
-    tipe_proposal: "",
     product_detail: "",
     jumlah_produk: "",
     budget: "",
     catatan: "",
+    reject_reason: "",
     pic_name: "",
     pic_email: "",
     proposal_date: new Date().toISOString().split("T")[0],
@@ -58,11 +58,11 @@ const ProposalModal = ({
         proposal_name: editingProposal.proposal_name || "",
         organization: editingProposal.organization || "",
         bentuk_donasi: editingProposal.bentuk_donasi || "",
-        tipe_proposal: editingProposal.tipe_proposal || "",
         product_detail: editingProposal.product_detail || "",
         jumlah_produk: editingProposal.jumlah_produk || "",
         budget: editingProposal.budget || "",
         catatan: editingProposal.catatan || "",
+        reject_reason: editingProposal.reject_reason || "",
         pic_name: editingProposal.pic_name || "",
         pic_email: editingProposal.pic_email || "",
         proposal_date: formatDateForInput(editingProposal.proposal_date),
@@ -85,7 +85,6 @@ const ProposalModal = ({
         proposal_name: "",
         organization: "",
         bentuk_donasi: "",
-        tipe_proposal: "",
         product_detail: "",
         jumlah_produk: "",
         budget: "",
@@ -266,6 +265,17 @@ const ProposalModal = ({
       }
     }
 
+    if (
+      formData.bright_status === "Rejected" &&
+      (!formData.reject_reason || formData.reject_reason.trim() === "")
+    ) {
+      toast.warning(
+        "Alasan penolakan harus diisi saat status Bright ditetapkan Rejected",
+        "Data Tidak Lengkap",
+      );
+      return;
+    }
+
     const hasExistingProof = !!proofFileName && !removeProof;
     const hasNewProof = !!formData.file_bukti_donasi;
     const nextStatus =
@@ -292,11 +302,11 @@ const ProposalModal = ({
         proposal_name: "",
         organization: "",
         bentuk_donasi: "",
-        tipe_proposal: "",
         product_detail: "",
         jumlah_produk: "",
         budget: "",
         catatan: "",
+        reject_reason: "",
         pic_name: "",
         pic_email: "",
         proposal_date: new Date().toISOString().split("T")[0],
@@ -432,6 +442,18 @@ const ProposalModal = ({
                 </select>
               </div>
             </div>
+            {formData.bright_status === "Rejected" && (
+              <div className="form-group">
+                <label>Alasan Penolakan</label>
+                <textarea
+                  name="reject_reason"
+                  value={formData.reject_reason}
+                  onChange={handleChange}
+                  placeholder="Jelaskan alasan penolakan proposal ini secara spesifik"
+                  rows="3"
+                ></textarea>
+              </div>
+            )}
           </div>
 
           {/* Informasi Produk */}
@@ -453,20 +475,6 @@ const ProposalModal = ({
                   <option value="Pendidikan">Pendidikan</option>
                   <option value="Kesehatan">Kesehatan</option>
                   <option value="Lainnya">Lainnya</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Tipe Proposal</label>
-                <select
-                  name="tipe_proposal"
-                  value={formData.tipe_proposal}
-                  onChange={handleChange}
-                >
-                  <option value="">Pilih tipe</option>
-                  <option value="Donasi Produk">Donasi Produk</option>
-                  <option value="Donasi Uang">Donasi Uang</option>
-                  <option value="Program Sosial">Program Sosial</option>
-                  <option value="Pelatihan">Pelatihan</option>
                 </select>
               </div>
             </div>

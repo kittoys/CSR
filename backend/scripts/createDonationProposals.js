@@ -12,11 +12,11 @@ async function createDonationProposalsTable() {
         proposal_name VARCHAR(255) NOT NULL,
         organization VARCHAR(255),
         bentuk_donasi VARCHAR(100),
-        tipe_proposal VARCHAR(100),
         product_detail TEXT,
         jumlah_produk VARCHAR(255),
         budget DECIMAL(15,2),
         catatan TEXT,
+        reject_reason TEXT,
         status ENUM('In Progress', 'Siap Diambil', 'Done') DEFAULT 'In Progress',
         bright_status ENUM('Pending', 'Approved', 'Rejected') DEFAULT NULL,
         pic_name VARCHAR(255),
@@ -50,7 +50,7 @@ async function createDonationProposalsTable() {
 
     // Verify
     const [rows] = await pool.query(
-      "SELECT COUNT(*) as count FROM donation_proposals"
+      "SELECT COUNT(*) as count FROM donation_proposals",
     );
     console.log(`📊 Total proposals: ${rows[0].count}`);
 

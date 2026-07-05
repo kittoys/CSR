@@ -248,11 +248,11 @@ router.post(
       proposal_name,
       organization,
       bentuk_donasi,
-      tipe_proposal,
       product_detail,
       jumlah_produk,
       budget,
       catatan,
+      reject_reason,
       status,
       bright_status,
       pic_name,
@@ -295,6 +295,16 @@ router.post(
       });
     }
 
+    if (
+      bright_status === "Rejected" &&
+      (!reject_reason || reject_reason.trim() === "")
+    ) {
+      return res.status(400).json({
+        message:
+          "Alasan penolakan wajib diisi saat status Bright ditetapkan Rejected",
+      });
+    }
+
     try {
       // Generate case_id otomatis jika tidak disediakan
       let finalCaseId = case_id;
@@ -309,18 +319,18 @@ router.post(
       }
 
       const [result] = await pool.query(
-        `INSERT INTO donation_proposals (case_id, proposal_name, organization, bentuk_donasi, tipe_proposal, product_detail, jumlah_produk, budget, catatan, status, bright_status, pic_name, pic_email, proposal_date, proposal_file_name, proposal_file_path, proof_file_name, proof_file_path)
+        `INSERT INTO donation_proposals (case_id, proposal_name, organization, bentuk_donasi, product_detail, jumlah_produk, budget, catatan, reject_reason, status, bright_status, pic_name, pic_email, proposal_date, proposal_file_name, proposal_file_path, proof_file_name, proof_file_path)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           finalCaseId,
           proposal_name,
           organization,
           bentuk_donasi,
-          tipe_proposal,
           product_detail,
           jumlah_produk,
           budget,
           catatan,
+          reject_reason || null,
           finalStatus,
           bright_status || null,
           pic_name,
@@ -362,11 +372,11 @@ router.put(
       proposal_name,
       organization,
       bentuk_donasi,
-      tipe_proposal,
       product_detail,
       jumlah_produk,
       budget,
       catatan,
+      reject_reason,
       status,
       bright_status,
       pic_name,
@@ -414,9 +424,23 @@ router.put(
             ? "Done"
             : status || "In Progress";
 
-      if (existingProofStatus.trim() === "Done" && !proofUploaded && !existingProofPath) {
+      if (
+        existingProofStatus.trim() === "Done" &&
+        !proofUploaded &&
+        !existingProofPath
+      ) {
         return res.status(400).json({
           message: "Bukti pengambilan wajib diunggah untuk status Done",
+        });
+      }
+
+      if (
+        bright_status === "Rejected" &&
+        (!reject_reason || reject_reason.trim() === "")
+      ) {
+        return res.status(400).json({
+          message:
+            "Alasan penolakan wajib diisi saat status Bright ditetapkan Rejected",
         });
       }
 
@@ -433,11 +457,11 @@ router.put(
         proposal_name,
         organization,
         bentuk_donasi,
-        tipe_proposal,
         product_detail,
         jumlah_produk,
         budget,
         catatan,
+        reject_reason || null,
         existingProofStatus,
         bright_status || null,
         pic_name,
@@ -446,7 +470,7 @@ router.put(
       ];
 
       let query = `UPDATE donation_proposals
-      SET case_id = ?, proposal_name = ?, organization = ?, bentuk_donasi = ?, tipe_proposal = ?, product_detail = ?, jumlah_produk = ?, budget = ?, catatan = ?, status = ?, bright_status = ?, pic_name = ?, pic_email = ?, proposal_date = ?`;
+      SET case_id = ?, proposal_name = ?, organization = ?, bentuk_donasi = ?, product_detail = ?, jumlah_produk = ?, budget = ?, catatan = ?, reject_reason = ?, status = ?, bright_status = ?, pic_name = ?, pic_email = ?, proposal_date = ?`;
 
       if (proposalUploaded) {
         query += `, proposal_file_name = ?, proposal_file_path = ?`;

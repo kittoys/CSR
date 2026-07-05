@@ -22,7 +22,7 @@ async function upgradeProposalTable() {
       SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
       WHERE TABLE_NAME = 'donation_proposals' AND TABLE_SCHEMA = ?
     `,
-      [process.env.DB_NAME || "csr_db"]
+      [process.env.DB_NAME || "csr_db"],
     );
 
     const existingColumns = columns.map((c) => c.COLUMN_NAME);
@@ -30,9 +30,9 @@ async function upgradeProposalTable() {
     // Add new columns if they don't exist
     const newColumns = [
       { name: "bentuk_donasi", def: "ADD COLUMN bentuk_donasi VARCHAR(100)" },
-      { name: "tipe_proposal", def: "ADD COLUMN tipe_proposal VARCHAR(100)" },
       { name: "jumlah_produk", def: "ADD COLUMN jumlah_produk VARCHAR(255)" },
       { name: "catatan", def: "ADD COLUMN catatan TEXT" },
+      { name: "reject_reason", def: "ADD COLUMN reject_reason TEXT" },
       { name: "file_pendukung", def: "ADD COLUMN file_pendukung VARCHAR(255)" },
       { name: "file_path", def: "ADD COLUMN file_path VARCHAR(255)" },
       {
@@ -65,7 +65,7 @@ async function upgradeProposalTable() {
           console.log(`✅ Added column: ${col.name}`);
         } catch (err) {
           console.log(
-            `⚠️  Skipped: ${col.name} (${err.message.substring(0, 50)})`
+            `⚠️  Skipped: ${col.name} (${err.message.substring(0, 50)})`,
           );
         }
       } else {

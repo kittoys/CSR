@@ -62,11 +62,11 @@ async function setupDatabase() {
         proposal_name VARCHAR(255) NOT NULL,
         organization VARCHAR(255),
         bentuk_donasi VARCHAR(100),
-        tipe_proposal VARCHAR(100),
         product_detail TEXT,
         jumlah_produk VARCHAR(255),
         budget DECIMAL(15,2),
         catatan TEXT,
+        reject_reason TEXT,
         status ENUM('In Progress', 'Siap Diambil', 'Done') DEFAULT 'In Progress',
         bright_status ENUM('Pending', 'Approved', 'Rejected') DEFAULT NULL,
         pic_name VARCHAR(255),
@@ -90,7 +90,7 @@ async function setupDatabase() {
       `INSERT INTO users (email, password, name, role) 
        VALUES (?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE password = VALUES(password)`,
-      ["admin@csr.com", hashedPassword, "Admin User", "admin"]
+      ["admin@csr.com", hashedPassword, "Admin User", "admin"],
     );
 
     console.log("✅ Admin user inserted (password: admin123)");
@@ -102,7 +102,7 @@ async function setupDatabase() {
        ('Pendidikan', 'Program pemberdayaan di bidang pendidikan'),
        ('Kesehatan', 'Program kesehatan masyarakat'),
        ('Ekonomi', 'Program pemberdayaan ekonomi lokal')
-       ON DUPLICATE KEY UPDATE description = VALUES(description)`
+       ON DUPLICATE KEY UPDATE description = VALUES(description)`,
     );
 
     console.log("✅ Categories inserted");
@@ -289,7 +289,7 @@ async function setupDatabase() {
       await connection.query(
         `INSERT INTO csr_programs (title, description, category_id, location, start_date, end_date, status, image_url)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        program
+        program,
       );
     }
 
@@ -451,7 +451,7 @@ async function setupDatabase() {
         await connection.query(
           `INSERT INTO donation_proposals (case_id, proposal_name, organization, product_detail, budget, status, pic_name, pic_email, proposal_date)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          proposal
+          proposal,
         );
       } catch (err) {
         // Ignore duplicate key errors
@@ -462,16 +462,16 @@ async function setupDatabase() {
 
     // Verify
     const [userCount] = await connection.query(
-      "SELECT COUNT(*) as count FROM users"
+      "SELECT COUNT(*) as count FROM users",
     );
     const [catCount] = await connection.query(
-      "SELECT COUNT(*) as count FROM categories"
+      "SELECT COUNT(*) as count FROM categories",
     );
     const [progCount] = await connection.query(
-      "SELECT COUNT(*) as count FROM csr_programs"
+      "SELECT COUNT(*) as count FROM csr_programs",
     );
     const [propCount] = await connection.query(
-      "SELECT COUNT(*) as count FROM donation_proposals"
+      "SELECT COUNT(*) as count FROM donation_proposals",
     );
 
     console.log("\n📊 Database Summary:");

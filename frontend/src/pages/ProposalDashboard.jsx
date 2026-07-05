@@ -1349,6 +1349,16 @@ const ProposalDashboard = () => {
                     {viewProposal.bright_status || "-"}
                   </span>
                 </div>
+                {viewProposal.bright_status === "Rejected" && (
+                  <div className="proposal-detail-item proposal-detail-item--full">
+                    <span className="proposal-detail-label">
+                      Alasan Penolakan
+                    </span>
+                    <span className="proposal-detail-value proposal-detail-value--muted">
+                      {viewProposal.reject_reason || "Tidak ada keterangan"}
+                    </span>
+                  </div>
+                )}
                 <div className="proposal-detail-item proposal-detail-item--full">
                   <span className="proposal-detail-label">Tanggal</span>
                   <span className="proposal-detail-value">

@@ -96,7 +96,7 @@ const Navbar = ({
           className={`sidebar ${isSidebarHidden ? "sidebar--hidden" : ""}`}
         >
           <div className="sidebar__top">
-            <NavLink to="/program" className="sidebar__brand">
+            <NavLink to="/proposals" className="sidebar__brand">
               <div className="sidebar__logo">
                 <img
                   src={logoSrc}
@@ -183,7 +183,7 @@ const Navbar = ({
         )}
 
         <header className="sidebar-mobile">
-          <NavLink to="/program" className="sidebar-mobile__brand">
+          <NavLink to="/proposals" className="sidebar-mobile__brand">
             <div className="sidebar-mobile__logo">
               <img
                 src={logoSrc}

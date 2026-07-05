@@ -31,7 +31,7 @@ const Login = () => {
       if (data.token) {
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/program");
+        navigate("/proposals");
       }
     } catch (err) {
       setError(err.response?.data?.message || "Login gagal");

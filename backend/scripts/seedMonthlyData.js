@@ -73,15 +73,19 @@ function distributeMonthly(total, weights) {
 }
 
 // Hitung budget per proposal dengan koreksi untuk pas dengan target bulanan
-function calculateBudgetPerProposal(monthlyBudget, proposalCount, proposalIndex) {
+function calculateBudgetPerProposal(
+  monthlyBudget,
+  proposalCount,
+  proposalIndex,
+) {
   const budgetPerUnit = monthlyBudget / proposalCount;
-  
+
   // Jika proposal terakhir, hitung sisa agar total tepat
   if (proposalIndex === proposalCount - 1) {
     const budgetForOthers = budgetPerUnit * proposalIndex;
     return monthlyBudget - budgetForOthers;
   }
-  
+
   return budgetPerUnit;
 }
 
@@ -108,7 +112,7 @@ async function seedMonthlyData() {
     // Step 1: Hapus data dummy lama
     console.log("🗑️  Menghapus data dummy lama...");
     await connection.query(
-      "DELETE FROM donation_proposals WHERE case_id LIKE 'CSR-%-DUMMY-%'"
+      "DELETE FROM donation_proposals WHERE case_id LIKE 'CSR-%-DUMMY-%'",
     );
     console.log("✅ Data lama berhasil dihapus\n");
 
@@ -129,7 +133,7 @@ async function seedMonthlyData() {
       // Distribusi bulanan
       const monthlyProposals = distributeMonthly(
         target.total,
-        SEASONAL_WEIGHTS
+        SEASONAL_WEIGHTS,
       );
       const monthlyBudgets = distributeMonthly(target.budget, SEASONAL_WEIGHTS);
 
@@ -150,7 +154,8 @@ async function seedMonthlyData() {
           const orgData = ORGS[globalSerialNumber % ORGS.length];
           const proposalName =
             PROPOSAL_NAMES[globalSerialNumber % PROPOSAL_NAMES.length];
-          const status = STATUS_ROTATION[proposalIndex % STATUS_ROTATION.length];
+          const status =
+            STATUS_ROTATION[proposalIndex % STATUS_ROTATION.length];
 
           // Tentukan bright_status berdasarkan status
           const brightStatus = ["Done", "Siap Diambil"].includes(status)
@@ -166,14 +171,14 @@ async function seedMonthlyData() {
           const finalBudget = calculateBudgetPerProposal(
             monthlyBudget,
             proposalCount,
-            i
+            i,
           );
 
           // Insert ke database
           await connection.query(
             `INSERT INTO donation_proposals (
               case_id, proposal_name, organization, bentuk_donasi,
-              tipe_proposal, product_detail, jumlah_produk, budget,
+              product_detail, jumlah_produk, budget,
               status, bright_status, pic_name, pic_email, proposal_date
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
@@ -190,7 +195,7 @@ async function seedMonthlyData() {
               orgData.pic,
               orgData.email,
               proposalDateStr,
-            ]
+            ],
           );
 
           globalSerialNumber++;
@@ -198,10 +203,9 @@ async function seedMonthlyData() {
         }
 
         // Tambahkan ke summary per bulan
-        const monthName = new Date(yearNum, month - 1).toLocaleString(
-          "id-ID",
-          { month: "short" }
-        );
+        const monthName = new Date(yearNum, month - 1).toLocaleString("id-ID", {
+          month: "short",
+        });
         monthSummary += `${monthName}: ${proposalCount} | `;
       }
 
@@ -229,15 +233,17 @@ async function seedMonthlyData() {
       const year = row.tahun;
       const target = yearTargets[year];
       const totalBudget = Math.round(parseFloat(row.total_budget));
-      const proposalValid =
-        row.jumlah_proposal === target.total ? "✓" : "✗";
+      const proposalValid = row.jumlah_proposal === target.total ? "✓" : "✗";
       const budgetValid = totalBudget === target.budget ? "✓" : "✗";
 
       console.log(
-        `   ${year}: Proposal ${proposalValid} (${row.jumlah_proposal}/${target.total}) | Budget ${budgetValid} (Rp ${totalBudget.toLocaleString("id-ID")} / Rp ${target.budget.toLocaleString("id-ID")})`
+        `   ${year}: Proposal ${proposalValid} (${row.jumlah_proposal}/${target.total}) | Budget ${budgetValid} (Rp ${totalBudget.toLocaleString("id-ID")} / Rp ${target.budget.toLocaleString("id-ID")})`,
       );
 
-      if (row.jumlah_proposal !== target.total || totalBudget !== target.budget) {
+      if (
+        row.jumlah_proposal !== target.total ||
+        totalBudget !== target.budget
+      ) {
         allValid = false;
       }
     }

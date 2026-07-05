@@ -30,6 +30,7 @@ const AppContent = () => {
   const [isPrivateSidebarHidden, setIsPrivateSidebarHidden] = useState(() => {
     return localStorage.getItem(PRIVATE_SIDEBAR_STORAGE_KEY) === "1";
   });
+  const hasAuthToken = Boolean(localStorage.getItem("authToken"));
   const isLoginPage = /^\/login(\/|$)/.test(location.pathname);
   const isPrivatePage =
     /^\/program(\/|$)/.test(location.pathname) ||
@@ -95,11 +96,21 @@ const AppContent = () => {
             element={<ProtectedRoute element={<SettingsPanel />} />}
           />
           <Route path="/dev-login" element={<DevLoginRedirect />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route
+            path="/"
+            element={
+              <Navigate to={hasAuthToken ? "/proposals" : "/login"} replace />
+            }
+          />
           <Route path="/home" element={<Home />} />
           <Route path="/programs" element={<Programs />} />
           <Route path="/programs/:id" element={<ProgramDetail />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route
+            path="*"
+            element={
+              <Navigate to={hasAuthToken ? "/proposals" : "/login"} replace />
+            }
+          />
         </Routes>
       </main>
     </div>

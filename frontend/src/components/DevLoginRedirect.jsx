@@ -16,7 +16,7 @@ const DevLoginRedirect = () => {
     return <Navigate to="/login" replace />;
   }
 
-  return <Navigate to="/program" replace />;
+  return <Navigate to="/proposals" replace />;
 };
 
 export default DevLoginRedirect;
