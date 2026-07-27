@@ -5,7 +5,6 @@ import {
   Calendar,
   Wallet,
   FileText,
-  Droplets,
   BarChart3,
   Target,
   Sparkles,
@@ -57,6 +56,12 @@ const MONTHS_SHORT = [
   "Des",
 ];
 
+const ZOOM_LEVELS = {
+  1: { label: "Zoom Out", historyMonths: 999, forecastMonths: 12 },
+  2: { label: "Default", historyMonths: 12, forecastMonths: 12 },
+  3: { label: "Zoom In", historyMonths: 6, forecastMonths: 12 },
+};
+
 const formatCurrency = (value) =>
   new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -84,12 +89,6 @@ const ForecastCenter = () => {
   const [error, setError] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(2); // 1=full, 2=12+12 months, 3=6+12 months (closer)
   const [scrollOffset, setScrollOffset] = useState(0);
-
-  const ZOOM_LEVELS = {
-    1: { label: "Zoom Out", historyMonths: 999, forecastMonths: 12 },
-    2: { label: "Default", historyMonths: 12, forecastMonths: 12 },
-    3: { label: "Zoom In", historyMonths: 6, forecastMonths: 12 },
-  };
 
   useEffect(() => {
     const fetchOverview = async () => {
