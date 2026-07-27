@@ -23,11 +23,13 @@ async function setupFocTable() {
         jenis VARCHAR(50),
         keterangan TEXT,
         status VARCHAR(50) DEFAULT 'Pending',
+        created_by INT DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_tanggal (tanggal),
         INDEX idx_lembaga (lembaga),
-        INDEX idx_status (status)
+        INDEX idx_status (status),
+        INDEX idx_created_by (created_by)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 

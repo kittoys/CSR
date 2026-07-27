@@ -25,6 +25,10 @@ async function seedDatabase() {
       "INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)",
       ["admin@csr.com", hashedPassword, "Admin User", "admin"]
     );
+    await connection.query(
+      "INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)",
+      ["petugas@csr.com", await bcrypt.hash("petugas123", 10), "Petugas CSR", "petugas"]
+    );
 
     // Insert categories
     console.log("📋 Creating categories...");
@@ -78,6 +82,8 @@ async function seedDatabase() {
     console.log("\n✅ Database seeded successfully!\n");
     console.log("📧 Admin Email: admin@csr.com");
     console.log("🔑 Admin Password: admin123\n");
+    console.log("📧 Petugas Email: petugas@csr.com");
+    console.log("🔑 Petugas Password: petugas123\n");
 
     connection.release();
     process.exit(0);

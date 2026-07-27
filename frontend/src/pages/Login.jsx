@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { loginUser } from "../api/auth";
+import { useNavigate } from "react-router-dom";
+import { loginUser, setAuthSession } from "../api/auth";
 import "./Login.css";
 
 const Login = () => {
@@ -23,14 +23,14 @@ const Login = () => {
       setLoading(true);
       const data = await loginUser({ email, password });
 
-      if (data.user.role !== "admin") {
-        setError("Hanya admin yang bisa login");
+      const allowedRoles = ["admin", "petugas"];
+      if (!allowedRoles.includes(data.user?.role)) {
+        setError("Role tidak diizinkan untuk login");
         return;
       }
 
       if (data.token) {
-        localStorage.setItem("authToken", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        setAuthSession(data.token, data.user);
         navigate("/proposals");
       }
     } catch (err) {
@@ -47,9 +47,9 @@ const Login = () => {
           <div className="login-logo">
             <img src="/logo_CSR_AQUA.png" alt="CSR Aqua Logo" />
           </div>
-          <h1 className="login-title">Masuk Admin CSR</h1>
+          <h1 className="login-title">Masuk CSR</h1>
           <p className="login-subtitle">
-            Masukkan kredensial Anda untuk melanjutkan
+            Masukkan kredensial admin atau petugas untuk melanjutkan
           </p>
 
           {error && <div className="alert alert--error">{error}</div>}
@@ -60,7 +60,7 @@ const Login = () => {
               <input
                 id="email"
                 type="email"
-                placeholder="admin@example.com"
+                placeholder="petugas@csr.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
@@ -121,7 +121,7 @@ const Login = () => {
           </form>
 
           <p className="login-footer">
-            Belum punya akun? <Link to="/register">Daftar di sini</Link>
+            Hubungi admin untuk membuat akun petugas atau admin baru.
           </p>
         </div>
       </div>

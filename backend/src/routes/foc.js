@@ -1,17 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
+const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
 
 /**
  * GET /api/foc
  * Retrieve all FOC (Focussed On Community) monthly data, sorted by date
  */
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
-    const [rows] = await pool.query(`
+    let query = `
       SELECT * FROM foc_bulanan
-      ORDER BY tanggal DESC, id DESC
-    `);
+    `;
+    const params = [];
+
+    if (req.user.role === "petugas") {
+      query += ` WHERE created_by = ?`;
+      params.push(req.user.id);
+    }
+
+    query += ` ORDER BY tanggal DESC, id DESC`;
+
+    const [rows] = await pool.query(query, params);
 
     res.json({
       success: true,
@@ -28,7 +38,7 @@ router.get("/", async (req, res) => {
  * Bulk insert multiple FOC records (for initial data load)
  * Body: { records: [{tanggal, lembaga, ...}, ...] }
  */
-router.post("/batch", async (req, res) => {
+router.post("/batch", verifyToken, async (req, res) => {
   try {
     const { records } = req.body;
 
@@ -45,12 +55,13 @@ router.post("/batch", async (req, res) => {
       r.jenis,
       r.keterangan,
       r.status || "Pending",
+      req.user?.id || null,
     ]);
 
     const [result] = await pool.query(
       `
       INSERT INTO foc_bulanan 
-        (tanggal, lembaga, penanggungJawab, nomorHp, jumlahAqua, jenis, keterangan, status, created_at)
+        (tanggal, lembaga, penanggungJawab, nomorHp, jumlahAqua, jenis, keterangan, status, created_by, created_at)
       VALUES ?
     `,
       [values],
@@ -72,7 +83,7 @@ router.post("/batch", async (req, res) => {
  * Add or update FOC monthly data
  * Body: { tanggal, lembaga, penanggungJawab, nomorHp, jumlahAqua, jenis, keterangan, status }
  */
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
   try {
     const {
       tanggal,
@@ -94,8 +105,8 @@ router.post("/", async (req, res) => {
     const [result] = await pool.query(
       `
       INSERT INTO foc_bulanan 
-        (tanggal, lembaga, penanggungJawab, nomorHp, jumlahAqua, jenis, keterangan, status, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        (tanggal, lembaga, penanggungJawab, nomorHp, jumlahAqua, jenis, keterangan, status, created_by, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
     `,
       [
         tanggal,
@@ -106,6 +117,7 @@ router.post("/", async (req, res) => {
         jenis,
         keterangan,
         status || "Pending",
+        req.user?.id || null,
       ],
     );
 
@@ -124,7 +136,7 @@ router.post("/", async (req, res) => {
  * PUT /api/foc/:id
  * Update FOC monthly data
  */
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -137,6 +149,19 @@ router.put("/:id", async (req, res) => {
       keterangan,
       status,
     } = req.body;
+
+    const [ownerRows] = await pool.query(
+      `SELECT created_by FROM foc_bulanan WHERE id = ?`,
+      [id],
+    );
+
+    if (!ownerRows.length) {
+      return res.status(404).json({ message: "FOC data not found" });
+    }
+
+    if (req.user.role === "petugas" && ownerRows[0].created_by !== req.user.id) {
+      return res.status(403).json({ message: "Anda tidak bisa mengubah data ini" });
+    }
 
     const [result] = await pool.query(
       `
@@ -176,9 +201,22 @@ router.put("/:id", async (req, res) => {
  * DELETE /api/foc/:id
  * Delete FOC monthly data
  */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
+
+    const [ownerRows] = await pool.query(
+      `SELECT created_by FROM foc_bulanan WHERE id = ?`,
+      [id],
+    );
+
+    if (!ownerRows.length) {
+      return res.status(404).json({ message: "FOC data not found" });
+    }
+
+    if (req.user.role === "petugas" && ownerRows[0].created_by !== req.user.id) {
+      return res.status(403).json({ message: "Anda tidak bisa menghapus data ini" });
+    }
 
     const [result] = await pool.query(`DELETE FROM foc_bulanan WHERE id = ?`, [
       id,

@@ -232,21 +232,18 @@ const FocBulanan = () => {
     const loadData = async () => {
       try {
         const dbData = await getFocData();
-        if (dbData && dbData.length > 0) {
-          // Map database records to component format, ensuring id is numeric
-          const mappedData = dbData.map((item) => ({
-            id: item.id || Math.random(),
-            tanggal: item.tanggal,
-            lembaga: item.lembaga,
-            penanggungJawab: item.penanggungJawab || "",
-            nomorHp: item.nomorHp || "",
-            jumlahAqua: item.jumlahAqua || 0,
-            jenis: item.jenis || "Dus",
-            keterangan: item.keterangan || "",
-            status: item.status || "Pending",
-          }));
-          setRows(mappedData);
-        }
+        const mappedData = (dbData || []).map((item) => ({
+          id: item.id || Math.random(),
+          tanggal: item.tanggal,
+          lembaga: item.lembaga,
+          penanggungJawab: item.penanggungJawab || "",
+          nomorHp: item.nomorHp || "",
+          jumlahAqua: item.jumlahAqua || 0,
+          jenis: item.jenis || "Dus",
+          keterangan: item.keterangan || "",
+          status: item.status || "Pending",
+        }));
+        setRows(mappedData);
       } catch (err) {
         console.log("Using client-side data (API not available):", err);
         // Fall back to initial data if API fails
@@ -610,6 +607,38 @@ const FocBulanan = () => {
         </article>
       </section>
 
+      <section className="foc-analytics-grid">
+        <article className="foc-chart-card">
+          <header>
+            <BarChart3 size={18} />
+            <h3>Grafik Total Donasi per Bulan</h3>
+          </header>
+          <div className="foc-chart-body">
+            <Bar data={chartData.donasiBulanan} options={chartOptions} />
+          </div>
+        </article>
+
+        <article className="foc-chart-card">
+          <header>
+            <Boxes size={18} />
+            <h3>Grafik Lembaga Paling Sering Mengambil</h3>
+          </header>
+          <div className="foc-chart-body">
+            <Doughnut data={chartData.lembagaTeratas} options={chartOptions} />
+          </div>
+        </article>
+
+        <article className="foc-chart-card foc-chart-card--full">
+          <header>
+            <LineChart size={18} />
+            <h3>Grafik Jumlah Aqua Keluar</h3>
+          </header>
+          <div className="foc-chart-body">
+            <Line data={chartData.aquaKeluar} options={chartOptions} />
+          </div>
+        </article>
+      </section>
+
       {/* ============================================
           QUICK STATS SUMMARY SECTION
           ============================================ */}
@@ -953,38 +982,6 @@ const FocBulanan = () => {
             </tbody>
           </table>
         </div>
-      </section>
-
-      <section className="foc-analytics-grid">
-        <article className="foc-chart-card">
-          <header>
-            <BarChart3 size={18} />
-            <h3>Grafik Total Donasi per Bulan</h3>
-          </header>
-          <div className="foc-chart-body">
-            <Bar data={chartData.donasiBulanan} options={chartOptions} />
-          </div>
-        </article>
-
-        <article className="foc-chart-card">
-          <header>
-            <Boxes size={18} />
-            <h3>Grafik Lembaga Paling Sering Mengambil</h3>
-          </header>
-          <div className="foc-chart-body">
-            <Doughnut data={chartData.lembagaTeratas} options={chartOptions} />
-          </div>
-        </article>
-
-        <article className="foc-chart-card foc-chart-card--full">
-          <header>
-            <LineChart size={18} />
-            <h3>Grafik Jumlah Aqua Keluar</h3>
-          </header>
-          <div className="foc-chart-body">
-            <Line data={chartData.aquaKeluar} options={chartOptions} />
-          </div>
-        </article>
       </section>
 
       <section className="foc-history-card">

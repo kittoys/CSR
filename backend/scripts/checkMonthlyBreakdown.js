@@ -41,7 +41,7 @@ async function checkMonthlyData() {
         "Dec",
       ];
       console.log(
-        `     ${months[row.month]}: ${row.proposals.toString().padStart(3)} props | Rp${row.total_budget.toLocaleString("id-ID")}`
+        `     ${months[row.month]}: ${row.proposals.toString().padStart(3)} props | Rp${row.total_budget.toLocaleString("id-ID")}`,
       );
     });
 

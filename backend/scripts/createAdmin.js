@@ -33,6 +33,22 @@ async function createAdminUser() {
     console.log(`📧 Email: ${email}`);
     console.log(`🔑 Password: ${password}`);
 
+    const petugasEmail = "petugas@csr.com";
+    const petugasPassword = "petugas123";
+    const petugasName = "Petugas CSR";
+    const petugasHashedPassword = await bcrypt.hash(petugasPassword, 10);
+
+    await connection.execute(
+      `INSERT INTO users (email, password, name, role)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE password = VALUES(password), name = VALUES(name), role = VALUES(role)`,
+      [petugasEmail, petugasHashedPassword, petugasName, "petugas"]
+    );
+
+    console.log(`✅ Petugas user created successfully!`);
+    console.log(`📧 Email: ${petugasEmail}`);
+    console.log(`🔑 Password: ${petugasPassword}`);
+
     await connection.end();
     process.exit(0);
   } catch (err) {

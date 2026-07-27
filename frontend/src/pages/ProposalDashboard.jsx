@@ -12,6 +12,7 @@ import {
 import { generatePrintTableHTML } from "../utils/PrintTableTemplate";
 import { generatePrintChartHTML } from "../utils/PrintChartTemplate";
 import { exportRowsToExcel } from "../utils/exportSpreadsheet";
+import { getAuthToken, logoutUser } from "../api/auth";
 import { useToast } from "../context/ToastContext";
 import "./ProposalDashboard.css";
 
@@ -101,6 +102,31 @@ const ProposalDashboard = () => {
     fetchMonthlyStats();
   }, [fetchStats, fetchMonthlyStats]);
 
+  useEffect(() => {
+    const refreshData = () => {
+      fetchProposals();
+      fetchStats();
+      fetchMonthlyStats();
+    };
+
+    const intervalId = window.setInterval(refreshData, 10000);
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        refreshData();
+      }
+    };
+
+    window.addEventListener("focus", refreshData);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", refreshData);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchStats, fetchMonthlyStats]);
+
   // Adjust stat-value font sizes to fit container when content overflows
   useEffect(() => {
     if (!statsRef.current) return;
@@ -150,7 +176,9 @@ const ProposalDashboard = () => {
     try {
       setError(null);
       const data = await getProposals();
-      setProposals(Array.isArray(data) ? data : []);
+      const normalized = Array.isArray(data) ? data : [];
+      console.log("📦 Proposal rows received:", normalized.length, normalized[0]);
+      setProposals(normalized);
     } catch (err) {
       setError("Gagal memuat data. Pastikan server backend berjalan.");
       console.error(err);
@@ -161,7 +189,7 @@ const ProposalDashboard = () => {
     setIsLoading(true);
 
     // Cek authentication terlebih dahulu
-    const token = localStorage.getItem("authToken");
+    const token = getAuthToken();
     if (!token) {
       toast.warning(
         "Silakan login di halaman Login dengan:\n- Email: admin@csr.com\n- Password: admin123",
@@ -215,9 +243,11 @@ const ProposalDashboard = () => {
           "- Email: admin@csr.com\n" +
           "- Password: admin123";
         // Hapus token yang tidak valid
-        localStorage.removeItem("authToken");
+        logoutUser();
       } else if (err.response?.status === 403) {
-        message = "Akses ditolak. Hanya admin yang dapat menambah proposal.";
+        message =
+          err.response?.data?.message ||
+          "Akses ditolak. Hanya admin yang dapat mengubah status approval.";
       }
 
       toast.error(message, "Gagal Menyimpan Proposal");
@@ -371,12 +401,16 @@ const ProposalDashboard = () => {
   };
 
   const filteredProposals = proposals.filter((proposal) => {
+    const proposalName = String(proposal?.proposal_name || "").toLowerCase();
+    const caseId = String(proposal?.case_id || "").toLowerCase();
+    const organization = String(proposal?.organization || "").toLowerCase();
+
     const statusMatch =
       filterStatus === "Semua Status" || proposal.status === filterStatus;
     const searchMatch =
-      proposal.proposal_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proposal.case_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proposal.organization.toLowerCase().includes(searchTerm.toLowerCase());
+      proposalName.includes(searchTerm.toLowerCase()) ||
+      caseId.includes(searchTerm.toLowerCase()) ||
+      organization.includes(searchTerm.toLowerCase());
 
     // Filter berdasarkan tanggal (bulan/tahun)
     let dateMatch = true;

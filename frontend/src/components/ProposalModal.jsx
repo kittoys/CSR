@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getAuthUser } from "../api/auth";
 import { useToast } from "../context/ToastContext";
 import "./ProposalModal.css";
 
@@ -10,6 +11,9 @@ const ProposalModal = ({
   editingProposal,
 }) => {
   const toast = useToast();
+  const currentUser = getAuthUser();
+  const isAdmin = currentUser?.role === "admin";
+  const isPetugas = currentUser?.role === "petugas";
   const [formData, setFormData] = useState({
     case_id: "",
     proposal_name: "",
@@ -24,7 +28,7 @@ const ProposalModal = ({
     pic_email: "",
     proposal_date: new Date().toISOString().split("T")[0],
     status: "In Progress",
-    bright_status: "",
+    bright_status: isPetugas ? "Pending" : "",
     file_proposal: null,
     file_bukti_donasi: null,
   });
@@ -67,7 +71,9 @@ const ProposalModal = ({
         pic_email: editingProposal.pic_email || "",
         proposal_date: formatDateForInput(editingProposal.proposal_date),
         status: editingProposal.status || "In Progress",
-        bright_status: editingProposal.bright_status || "",
+        bright_status: isPetugas
+          ? editingProposal.bright_status || "Pending"
+          : editingProposal.bright_status || "",
         file_proposal: null,
         file_bukti_donasi: null,
       });
@@ -93,7 +99,7 @@ const ProposalModal = ({
         pic_email: "",
         proposal_date: new Date().toISOString().split("T")[0],
         status: "In Progress",
-        bright_status: "",
+        bright_status: isPetugas ? "Pending" : "",
         file_proposal: null,
         file_bukti_donasi: null,
       });
@@ -101,7 +107,7 @@ const ProposalModal = ({
       setProofFileName("");
       setRemoveProof(false);
     }
-  }, [editingProposal]);
+  }, [editingProposal, isPetugas]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -270,8 +276,12 @@ const ProposalModal = ({
       }
     }
 
+    const effectiveBrightStatus = isPetugas
+      ? editingProposal?.bright_status || "Pending"
+      : formData.bright_status;
+
     if (
-      formData.bright_status === "Rejected" &&
+      effectiveBrightStatus === "Rejected" &&
       (!formData.reject_reason || formData.reject_reason.trim() === "")
     ) {
       toast.warning(
@@ -298,6 +308,8 @@ const ProposalModal = ({
     const payload = {
       ...formData,
       status: nextStatus,
+      bright_status: effectiveBrightStatus,
+      reject_reason: isPetugas ? editingProposal?.reject_reason || formData.reject_reason : formData.reject_reason,
       remove_proof: removeProof,
       budget: Number(formData.budget),
     };
@@ -442,12 +454,18 @@ const ProposalModal = ({
                   name="bright_status"
                   value={formData.bright_status}
                   onChange={handleChange}
+                  disabled={!isAdmin}
                 >
                   <option value="">-- Pilih Status --</option>
                   <option value="Pending">Pending</option>
-                  <option value="Approved">Approved</option>
-                  <option value="Rejected">Rejected</option>
+                  {isAdmin && <option value="Approved">Approved</option>}
+                  {isAdmin && <option value="Rejected">Rejected</option>}
                 </select>
+                {!isAdmin && (
+                  <small style={{ display: "block", marginTop: "6px", color: "#6b7280" }}>
+                    Hanya admin yang dapat mengubah status approval.
+                  </small>
+                )}
               </div>
             </div>
             {formData.bright_status === "Rejected" && (
@@ -459,6 +477,7 @@ const ProposalModal = ({
                   onChange={handleChange}
                   placeholder="Jelaskan alasan penolakan proposal ini secara spesifik"
                   rows="3"
+                  disabled={!isAdmin}
                 ></textarea>
               </div>
             )}
@@ -478,10 +497,7 @@ const ProposalModal = ({
                 >
                   <option value="">Pilih bentuk donasi</option>
                   <option value="Air Mineral">Air Mineral</option>
-                  <option value="Uang Tunai">Uang Tunai</option>
-                  <option value="Barang Kebutuhan">Barang Kebutuhan</option>
-                  <option value="Pendidikan">Pendidikan</option>
-                  <option value="Kesehatan">Kesehatan</option>
+                  <option value="Material">Material</option>
                   <option value="Lainnya">Lainnya</option>
                 </select>
               </div>

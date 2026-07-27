@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { getAuthToken, logoutUser } from "../api/auth";
+import { getAuthToken, getAuthUser, logoutUser } from "../api/auth";
 import {
   Home,
   Briefcase,
@@ -8,7 +8,6 @@ import {
   Droplets,
   Building2,
   ScrollText,
-  Settings,
   LogOut,
   Menu,
   X,
@@ -24,6 +23,9 @@ const Navbar = ({
   onToggleSidebar,
 }) => {
   const token = getAuthToken();
+  const user = getAuthUser();
+  const isAdmin = user?.role === "admin";
+  const isPetugas = user?.role === "petugas";
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -69,14 +71,24 @@ const Navbar = ({
 
   const navLinks =
     mode === "private"
-      ? [
-          { to: "/proposals", label: "Dashboard", icon: FileText },
-          { to: "/foc-bulanan", label: "FOC Bulanan", icon: Droplets },
-          { to: "/forecast", label: "Forecast", icon: Sparkles },
-          { to: "/program", label: "Data program", icon: Building2 },
-          { to: "/chart", label: "Laporan", icon: ScrollText },
-          { to: "/setting", label: "Setting", icon: Settings },
-        ]
+      ? isAdmin
+        ? [
+            { to: "/proposals", label: "Dashboard", icon: FileText },
+            { to: "/users", label: "Manajemen User", icon: Briefcase },
+            { to: "/foc-bulanan", label: "FOC Bulanan", icon: Droplets },
+            { to: "/forecast", label: "Forecast", icon: Sparkles },
+            { to: "/program", label: "Data program", icon: Building2 },
+            { to: "/chart", label: "Laporan", icon: ScrollText },
+          ]
+        : isPetugas
+          ? [
+              { to: "/proposals", label: "Dashboard", icon: FileText },
+              { to: "/foc-bulanan", label: "FOC Bulanan", icon: Droplets },
+              { to: "/forecast", label: "Forecast", icon: Sparkles },
+              { to: "/program", label: "Data program", icon: Building2 },
+              { to: "/chart", label: "Laporan", icon: ScrollText },
+            ]
+          : [{ to: "/proposals", label: "Dashboard", icon: FileText }]
       : [
           { to: "/home", label: "Home", icon: Home, end: true },
           { to: "/programs", label: "Programs", icon: Briefcase },

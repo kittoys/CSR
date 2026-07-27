@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
-const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
+const {
+  verifyToken,
+  isAdmin,
+  isAuthenticated,
+} = require("../middleware/authMiddleware");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs/promises");
@@ -202,12 +206,13 @@ router.get("/stats/monthly", async (req, res) => {
   }
 });
 
-// GET semua proposal donasi
-router.get("/", async (req, res) => {
+// GET semua proposal donasi (admin dan petugas melihat seluruh data proposal)
+router.get("/", verifyToken, async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT * FROM donation_proposals ORDER BY created_at DESC`,
-    );
+    const query = `SELECT * FROM donation_proposals ORDER BY created_at DESC`;
+    console.log("proposal list query", query);
+    const [rows] = await pool.query(query);
+    console.log("proposal list rows", rows.length, rows[0]);
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -215,8 +220,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET proposal by id
-router.get("/:id", async (req, res) => {
+// GET proposal by id (admin dan petugas melihat proposal apa pun)
+router.get("/:id", verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM donation_proposals WHERE id = ?`,
@@ -224,6 +229,7 @@ router.get("/:id", async (req, res) => {
     );
     if (!rows.length)
       return res.status(404).json({ message: "Proposal not found" });
+
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
@@ -231,11 +237,10 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// POST buat proposal baru
+// POST buat proposal baru (admin dan petugas bisa, tapi dengan batasan berbeda)
 router.post(
   "/",
   verifyToken,
-  isAdmin,
   upload.fields([
     { name: "file_proposal", maxCount: 1 },
     { name: "file_bukti_donasi", maxCount: 1 },
@@ -243,6 +248,22 @@ router.post(
     { name: "file_pendukung", maxCount: 1 },
   ]),
   async (req, res) => {
+    // Petugas hanya bisa membuat proposal dengan status default
+    if (req.user.role === "petugas") {
+      const { status, bright_status } = req.body;
+      if (status && status !== "In Progress") {
+        return res.status(403).json({
+          message:
+            "Petugas hanya bisa membuat proposal dengan status 'In Progress'",
+        });
+      }
+      if (bright_status && bright_status !== "Pending") {
+        return res.status(403).json({
+          message: "Petugas tidak bisa mengubah bright_status",
+        });
+      }
+    }
+
     const {
       case_id,
       proposal_name,
@@ -283,11 +304,18 @@ router.post(
       ? `/uploads/${proofUploaded.filename}`
       : null;
 
-    const finalStatus = proofUploaded
-      ? "Done"
-      : removeProof
+    // Petugas default status is "In Progress"
+    const finalStatus =
+      req.user.role === "petugas"
         ? "In Progress"
-        : status || "In Progress";
+        : proofUploaded
+          ? "Done"
+          : removeProof
+            ? "In Progress"
+            : status || "In Progress";
+
+    const finalBrightStatus =
+      req.user.role === "petugas" ? "Pending" : bright_status || "Pending";
 
     if (finalStatus.trim() === "Done" && !proofUploaded) {
       return res.status(400).json({
@@ -296,7 +324,7 @@ router.post(
     }
 
     if (
-      bright_status === "Rejected" &&
+      finalBrightStatus === "Rejected" &&
       (!reject_reason || reject_reason.trim() === "")
     ) {
       return res.status(400).json({
@@ -319,9 +347,10 @@ router.post(
       }
 
       const [result] = await pool.query(
-        `INSERT INTO donation_proposals (case_id, proposal_name, organization, bentuk_donasi, product_detail, jumlah_produk, budget, catatan, reject_reason, status, bright_status, pic_name, pic_email, proposal_date, proposal_file_name, proposal_file_path, proof_file_name, proof_file_path)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO donation_proposals (created_by, case_id, proposal_name, organization, bentuk_donasi, product_detail, jumlah_produk, budget, catatan, reject_reason, status, bright_status, pic_name, pic_email, proposal_date, proposal_file_name, proposal_file_path, proof_file_name, proof_file_path)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
+          req.user.id,
           finalCaseId,
           proposal_name,
           organization,
@@ -332,7 +361,7 @@ router.post(
           catatan,
           reject_reason || null,
           finalStatus,
-          bright_status || null,
+          finalBrightStatus,
           pic_name,
           pic_email,
           proposal_date,
@@ -356,57 +385,85 @@ router.post(
   },
 );
 
-// PUT update proposal
+// PUT update proposal (admin full access, petugas limited)
 router.put(
   "/:id",
   verifyToken,
-  isAdmin,
   upload.fields([
     { name: "file_proposal", maxCount: 1 },
     { name: "file_bukti_donasi", maxCount: 1 },
     { name: "file_pendukung", maxCount: 1 },
   ]),
   async (req, res) => {
-    const {
-      case_id,
-      proposal_name,
-      organization,
-      bentuk_donasi,
-      product_detail,
-      jumlah_produk,
-      budget,
-      catatan,
-      reject_reason,
-      status,
-      bright_status,
-      pic_name,
-      pic_email,
-      proposal_date,
-    } = req.body;
-
-    const files = req.files || {};
-    const proposalUploaded =
-      (files.file_proposal && files.file_proposal[0]) ||
-      (files.file_pendukung && files.file_pendukung[0]) ||
-      null;
-    const proofUploaded =
-      (files.file_bukti_donasi && files.file_bukti_donasi[0]) || null;
-    const removeProof = ["true", "1", "yes"].includes(
-      String(req.body.remove_proof || "").toLowerCase(),
-    );
-
-    const proposal_file_name = proposalUploaded
-      ? proposalUploaded.originalname
-      : null;
-    const proposal_file_path = proposalUploaded
-      ? `/uploads/${proposalUploaded.filename}`
-      : null;
-    const proof_file_name = proofUploaded ? proofUploaded.originalname : null;
-    const proof_file_path = proofUploaded
-      ? `/uploads/${proofUploaded.filename}`
-      : null;
-
     try {
+      // Check ownership for petugas
+      const [proposalRows] = await pool.query(
+        `SELECT created_by, status, bright_status FROM donation_proposals WHERE id = ?`,
+        [req.params.id],
+      );
+      if (!proposalRows.length) {
+        return res.status(404).json({ message: "Proposal not found" });
+      }
+
+      const currentProposal = proposalRows[0];
+
+      // Petugas hanya bisa update proposal yang mereka buat
+      if (
+        req.user.role === "petugas" &&
+        currentProposal.created_by !== req.user.id
+      ) {
+        return res
+          .status(403)
+          .json({ message: "Anda tidak bisa update proposal ini" });
+      }
+
+      const {
+        case_id,
+        proposal_name,
+        organization,
+        bentuk_donasi,
+        product_detail,
+        jumlah_produk,
+        budget,
+        catatan,
+        reject_reason,
+        status,
+        bright_status,
+        pic_name,
+        pic_email,
+        proposal_date,
+      } = req.body;
+
+      const isPetugas = req.user.role === "petugas";
+      const effectiveBrightStatus = isPetugas
+        ? currentProposal.bright_status || "Pending"
+        : bright_status || currentProposal.bright_status || null;
+      const effectiveRejectReason = isPetugas
+        ? currentProposal.reject_reason || null
+        : reject_reason || null;
+
+      const files = req.files || {};
+      const proposalUploaded =
+        (files.file_proposal && files.file_proposal[0]) ||
+        (files.file_pendukung && files.file_pendukung[0]) ||
+        null;
+      const proofUploaded =
+        (files.file_bukti_donasi && files.file_bukti_donasi[0]) || null;
+      const removeProof = ["true", "1", "yes"].includes(
+        String(req.body.remove_proof || "").toLowerCase(),
+      );
+
+      const proposal_file_name = proposalUploaded
+        ? proposalUploaded.originalname
+        : null;
+      const proposal_file_path = proposalUploaded
+        ? `/uploads/${proposalUploaded.filename}`
+        : null;
+      const proof_file_name = proofUploaded ? proofUploaded.originalname : null;
+      const proof_file_path = proofUploaded
+        ? `/uploads/${proofUploaded.filename}`
+        : null;
+
       const [existingRows] = await pool.query(
         `SELECT proof_file_name, proof_file_path FROM donation_proposals WHERE id = ?`,
         [req.params.id],
@@ -435,8 +492,8 @@ router.put(
       }
 
       if (
-        bright_status === "Rejected" &&
-        (!reject_reason || reject_reason.trim() === "")
+        effectiveBrightStatus === "Rejected" &&
+        (!effectiveRejectReason || effectiveRejectReason.trim() === "")
       ) {
         return res.status(400).json({
           message:
@@ -461,9 +518,9 @@ router.put(
         jumlah_produk,
         budget,
         catatan,
-        reject_reason || null,
+        effectiveRejectReason,
         existingProofStatus,
-        bright_status || null,
+        effectiveBrightStatus,
         pic_name,
         pic_email,
         proposal_date,

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
+const { verifyToken } = require("../middleware/authMiddleware");
 
 // ============================================================
 // SIMPLE EXPONENTIAL SMOOTHING + LINEAR REGRESSION UTILS
@@ -269,7 +270,7 @@ function improvedSeasonalForecast(
  * GET /api/forecast/budget
  * Returns historical budget by month + 12-month forecast
  */
-router.get("/budget", async (req, res) => {
+router.get("/budget", verifyToken, async (req, res) => {
   try {
     // Get monthly budget totals from donation_proposals
     const [rows] = await pool.query(`
@@ -375,7 +376,7 @@ router.get("/budget", async (req, res) => {
  * GET /api/forecast/proposals
  * Returns historical proposal count by month + 12-month forecast
  */
-router.get("/proposals", async (req, res) => {
+router.get("/proposals", verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT 
@@ -451,7 +452,7 @@ router.get("/proposals", async (req, res) => {
  * GET /api/forecast/donations
  * Forecast donasi Aqua (dummy data for now - integrates with FocBulanan)
  */
-router.get("/donations", async (req, res) => {
+router.get("/donations", verifyToken, async (req, res) => {
   try {
     // Build dummy historical donation data (would come from foc_bulanan table in future)
     const historical = [
@@ -510,7 +511,7 @@ router.get("/donations", async (req, res) => {
  *   ?months=12 (hanya n bulan terakhir historis, default: semua)
  *   ?month=05&years=2024,2025 (perbandingan data untuk bulan tertentu across tahun)
  */
-router.get("/overview", async (req, res) => {
+router.get("/overview", verifyToken, async (req, res) => {
   try {
     const historyMonths = parseInt(req.query.months, 10) || 9999; // Default: semua data
     const comparisonMonth = req.query.month; // e.g., '05' untuk Mei

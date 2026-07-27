@@ -95,6 +95,17 @@ async function setupDatabase() {
 
     console.log("✅ Admin user inserted (password: admin123)");
 
+    const petugasHashedPassword = await bcrypt.hash("petugas123", 10);
+
+    await connection.query(
+      `INSERT INTO users (email, password, name, role) 
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE password = VALUES(password), name = VALUES(name), role = VALUES(role)`,
+      ["petugas@csr.com", petugasHashedPassword, "Petugas CSR", "petugas"],
+    );
+
+    console.log("✅ Petugas user inserted (password: petugas123)");
+
     // Insert categories
     await connection.query(
       `INSERT INTO categories (name, description) VALUES 

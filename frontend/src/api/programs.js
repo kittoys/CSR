@@ -1,9 +1,10 @@
 import axios from "axios";
+import { getAuthToken } from "./auth";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 
 const authHeaders = () => {
-  const token = localStorage.getItem("authToken");
+  const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
