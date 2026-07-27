@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getProgram } from "../api/programs";
+import { resolveImageUrl } from "../utils/apiConfig";
 import "./ProgramDetail.css";
 
 const ProgramDetail = () => {
@@ -39,12 +40,6 @@ const ProgramDetail = () => {
     image_url,
     source_link,
   } = program;
-
-  const resolveImageUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith("/uploads")) return `http://localhost:5000${url}`;
-    return url;
-  };
 
   const imageUrl =
     resolveImageUrl(image_url) ||

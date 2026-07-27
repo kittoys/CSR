@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { API_BASE } from "../utils/apiConfig";
 import "./UserManagement.css";
 
 const UserManagement = () => {
@@ -32,7 +33,7 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      const res = await fetch("http://localhost:5000/api/auth/users", {
+      const res = await fetch(`${API_BASE}/auth/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -52,7 +53,7 @@ const UserManagement = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("authToken");
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +80,7 @@ const UserManagement = () => {
     try {
       const token = localStorage.getItem("authToken");
       const res = await fetch(
-        `http://localhost:5000/api/auth/users/${editingId}`,
+        `${API_BASE}/auth/users/${editingId}`,
         {
           method: "PUT",
           headers: {
@@ -112,7 +113,7 @@ const UserManagement = () => {
       try {
         const token = localStorage.getItem("authToken");
         const res = await fetch(
-          `http://localhost:5000/api/auth/users/${userId}`,
+          `${API_BASE}/auth/users/${userId}`,
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },

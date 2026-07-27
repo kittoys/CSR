@@ -1,6 +1,5 @@
 import { getAuthToken } from "./auth";
-
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
+import { API_BASE } from "../utils/apiConfig";
 
 const getAuthHeaders = () => {
   const token = getAuthToken();

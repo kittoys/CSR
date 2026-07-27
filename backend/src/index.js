@@ -3,6 +3,7 @@ const cors = require("cors");
 const path = require("path");
 require("dotenv").config();
 
+const pool = require("./config/db");
 const authRoutes = require("./routes/auth");
 const programRoutes = require("./routes/programs");
 const categoryRoutes = require("./routes/categories");
@@ -14,6 +15,8 @@ const focRoutes = require("./routes/foc");
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+pool.connectDB();
 
 // Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));

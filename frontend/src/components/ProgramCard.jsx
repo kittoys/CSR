@@ -1,15 +1,10 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Calendar, MapPin, ArrowRight, Clock } from "lucide-react";
+import { resolveImageUrl } from "../utils/apiConfig";
 import "./ProgramCard.css";
 
 const ProgramCard = ({ program, index = 0 }) => {
-  const resolveImageUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith("/uploads")) return `http://localhost:5000${url}`;
-    return url;
-  };
-
   const {
     id,
     title,

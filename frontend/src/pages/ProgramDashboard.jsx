@@ -10,6 +10,7 @@ import { getCategories } from "../api/categories";
 import { Download } from "lucide-react";
 import { useToast } from "../context/ToastContext";
 import { exportRowsToExcel } from "../utils/exportSpreadsheet";
+import { API_BASE } from "../utils/apiConfig";
 import "./ProgramDashboard.css";
 
 const emptyForm = {
@@ -114,7 +115,7 @@ const ProgramDashboard = () => {
         const formData = new FormData();
         formData.append("image", imageFile);
 
-        const uploadResponse = await fetch("http://localhost:5000/api/upload", {
+        const uploadResponse = await fetch(`${API_BASE}/upload`, {
           method: "POST",
           body: formData,
         });
