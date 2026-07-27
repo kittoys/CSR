@@ -311,7 +311,7 @@ const FocBulanan = () => {
       .reduce((sum, item) => sum + Number(item.jumlahAqua || 0), 0);
 
     return { totalLembaga, totalAquaBulan, latestText, totalTahun };
-  }, [rows, filteredRows, activeFilter]);
+  }, [rows, filteredRows, activeFilter, currentMonth, currentYear]);
 
   const chartData = useMemo(() => {
     const yearToUse = activeFilter.year || currentYear;
