@@ -39,7 +39,6 @@ import {
   addFocData,
   updateFocData,
   deleteFocData,
-  batchAddFocData,
 } from "../api/foc";
 import "./FocBulanan.css";
 
@@ -389,7 +388,7 @@ const FocBulanan = () => {
         ],
       },
     };
-  }, [rows, activeFilter.year]);
+  }, [rows, activeFilter.year, currentYear]);
 
   const chartOptions = {
     responsive: true,
