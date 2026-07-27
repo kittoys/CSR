@@ -79,20 +79,17 @@ const UserManagement = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("authToken");
-      const res = await fetch(
-        `${API_BASE}/auth/users/${editingId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            role: formData.role,
-          }),
+      const res = await fetch(`${API_BASE}/auth/users/${editingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify({
+          name: formData.name,
+          role: formData.role,
+        }),
+      });
       const data = await res.json();
       if (res.ok) {
         toast.success("User berhasil diupdate");
@@ -112,13 +109,10 @@ const UserManagement = () => {
     if (window.confirm("Yakin ingin menghapus user ini?")) {
       try {
         const token = localStorage.getItem("authToken");
-        const res = await fetch(
-          `${API_BASE}/auth/users/${userId}`,
-          {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
+        const res = await fetch(`${API_BASE}/auth/users/${userId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await res.json();
         if (res.ok) {
           toast.success("User berhasil dihapus");
