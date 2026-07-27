@@ -283,35 +283,35 @@ const FocBulanan = () => {
       );
   }, [rows, activeFilter]);
 
-  const stats = useMemo(() => {
-    const filterMonth = activeFilter.month || currentMonth;
-    const filterYear = activeFilter.year || currentYear;
+const stats = useMemo(() => {
+  const filterMonth = activeFilter.month || currentMonth;
+  const filterYear = activeFilter.year || currentYear;
 
-    const scopedByMonth = rows.filter((item) => {
-      const month = monthFromDate(item.tanggal);
-      const year = yearFromDate(item.tanggal);
-      return month === Number(filterMonth) && year === Number(filterYear);
-    });
+  const scopedByMonth = rows.filter((item) => {
+    const month = monthFromDate(item.tanggal);
+    const year = yearFromDate(item.tanggal);
+    return month === Number(filterMonth) && year === Number(filterYear);
+  });
 
-    const totalLembaga = new Set(scopedByMonth.map((item) => item.lembaga))
-      .size;
-    const totalAquaBulan = scopedByMonth.reduce(
-      (sum, item) => sum + Number(item.jumlahAqua || 0),
-      0,
-    );
+  const totalLembaga = new Set(scopedByMonth.map((item) => item.lembaga))
+    .size;
+  const totalAquaBulan = scopedByMonth.reduce(
+    (sum, item) => sum + Number(item.jumlahAqua || 0),
+    0,
+  );
 
-    const latest = filteredRows[0];
-    const latestText = latest
-      ? `${formatTanggal(latest.tanggal)} • ${latest.lembaga}`
-      : "Belum ada pengambilan";
+  const latest = filteredRows[0];
+  const latestText = latest
+    ? `${formatTanggal(latest.tanggal)} • ${latest.lembaga}`
+    : "Belum ada pengambilan";
 
-    const yearToUse = activeFilter.year || currentYear;
-    const totalTahun = rows
-      .filter((item) => yearFromDate(item.tanggal) === Number(yearToUse))
-      .reduce((sum, item) => sum + Number(item.jumlahAqua || 0), 0);
+  const yearToUse = activeFilter.year || currentYear;
+  const totalTahun = rows
+    .filter((item) => yearFromDate(item.tanggal) === Number(yearToUse))
+    .reduce((sum, item) => sum + Number(item.jumlahAqua || 0), 0);
 
-    return { totalLembaga, totalAquaBulan, latestText, totalTahun };
-  }, [rows, filteredRows, activeFilter, currentMonth, currentYear]);
+  return { totalLembaga, totalAquaBulan, latestText, totalTahun };
+}, [rows, filteredRows, activeFilter, currentMonth, currentYear]); // ✅ Fixed dependencies
 
   const chartData = useMemo(() => {
     const yearToUse = activeFilter.year || currentYear;
