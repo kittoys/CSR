@@ -76,8 +76,14 @@ const baseOptions = {
   },
 };
 
+const FORECAST_ZOOM_LEVELS = {
+  1: { label: "Zoom Out", historyMonths: 999 },
+  2: { label: "Default", historyMonths: 12 },
+  3: { label: "Zoom In", historyMonths: 6 },
+};
+
 const ChartDashboard = () => {
-  const currentYear = new Date().getFullYear().toString();
+  const currentYear = useMemo(() => new Date().getFullYear().toString(), []);
   const [activeTab, setActiveTab] = useState("data");
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [yearOptions, setYearOptions] = useState([currentYear]);
@@ -101,12 +107,6 @@ const ChartDashboard = () => {
   const [forecastData, setForecastData] = useState(null);
   const [forecastLoading, setForecastLoading] = useState(false);
   const [forecastError, setForecastError] = useState(null);
-
-  const FORECAST_ZOOM_LEVELS = {
-    1: { label: "Zoom Out", historyMonths: 999 },
-    2: { label: "Default", historyMonths: 12 },
-    3: { label: "Zoom In", historyMonths: 6 },
-  };
 
   useEffect(() => {
     let isCancelled = false;
@@ -225,62 +225,62 @@ const ChartDashboard = () => {
   }, [comparisonMonth, comparisonYears]);
 
   // Fetch forecast data when zoom level changes
-  // useEffect(() => {
-  //   let isCancelled = false;
+  useEffect(() => {
+    let isCancelled = false;
 
-  //   const fetchForecastData = async () => {
-  //     try {
-  //       setForecastLoading(true);
-  //       setForecastError(null);
-  //       const historyMonths =
-  //         FORECAST_ZOOM_LEVELS[forecastZoomLevel].historyMonths;
-  //       const overview = await getForecastOverview(historyMonths);
-  //       if (isCancelled) return;
+    const fetchForecastData = async () => {
+      try {
+        setForecastLoading(true);
+        setForecastError(null);
+        const historyMonths =
+          FORECAST_ZOOM_LEVELS[forecastZoomLevel].historyMonths;
+        const overview = await getForecastOverview(historyMonths);
+        if (isCancelled) return;
 
-  //       // Transform data: combine monthly + forecast into single array
-  //       const transformedData = [];
+        // Transform data: combine monthly + forecast into single array
+        const transformedData = [];
 
-  //       // Add historical monthly data
-  //       if (overview.monthly && Array.isArray(overview.monthly)) {
-  //         overview.monthly.forEach((item) => {
-  //           transformedData.push({
-  //             type: "historical",
-  //             month: item.month,
-  //             year: item.year,
-  //             budget: item.budget || 0,
-  //             proposals: item.proposals || 0,
-  //           });
-  //         });
-  //       }
+        // Add historical monthly data
+        if (overview.monthly && Array.isArray(overview.monthly)) {
+          overview.monthly.forEach((item) => {
+            transformedData.push({
+              type: "historical",
+              month: item.month,
+              year: item.year,
+              budget: item.budget || 0,
+              proposals: item.proposals || 0,
+            });
+          });
+        }
 
-  //       // Add forecast data
-  //       if (overview.forecast && Array.isArray(overview.forecast)) {
-  //         overview.forecast.forEach((item) => {
-  //           transformedData.push({
-  //             type: "forecast",
-  //             month: item.month,
-  //             year: item.year,
-  //             budget: item.budget || 0,
-  //             proposals: item.proposals || 0,
-  //           });
-  //         });
-  //       }
+        // Add forecast data
+        if (overview.forecast && Array.isArray(overview.forecast)) {
+          overview.forecast.forEach((item) => {
+            transformedData.push({
+              type: "forecast",
+              month: item.month,
+              year: item.year,
+              budget: item.budget || 0,
+              proposals: item.proposals || 0,
+            });
+          });
+        }
 
-  //       setForecastData(transformedData);
-  //     } catch (err) {
-  //       console.error("Forecast data fetch error:", err);
-  //       setForecastError("Gagal memuat data forecast");
-  //       setForecastData(null);
-  //     } finally {
-  //       if (!isCancelled) setForecastLoading(false);
-  //     }
-  //   };
+        setForecastData(transformedData);
+      } catch (err) {
+        console.error("Forecast data fetch error:", err);
+        setForecastError("Gagal memuat data forecast");
+        setForecastData(null);
+      } finally {
+        if (!isCancelled) setForecastLoading(false);
+      }
+    };
 
-  //   fetchForecastData();
-  //   return () => {
-  //     isCancelled = true;
-  //   };
-  // }, [forecastZoomLevel]);
+    fetchForecastData();
+    return () => {
+      isCancelled = true;
+    };
+  }, [forecastZoomLevel]);
 
   const parsedSummary = useMemo(() => {
     const total = Number(summaryStats?.total_proposals || 0);
