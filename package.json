@@ -1,7 +1,7 @@
 {
   "name": "csr",
   "private": true,
-  "packageManager": "npm@10",
+  "packageManager": "npm@10.0.0",
   "scripts": {
     "start": "npm --prefix backend start",
     "build": "npm --prefix frontend build",

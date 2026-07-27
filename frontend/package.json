@@ -2,7 +2,7 @@
     "name": "csr-frontend",
     "version": "0.1.0",
     "private": true,
-    "packageManager": "npm@10",
+    "packageManager": "npm@10.0.0",
     "dependencies": {
       "@testing-library/dom": "^10.4.1",
       "@testing-library/jest-dom": "^6.9.1",
