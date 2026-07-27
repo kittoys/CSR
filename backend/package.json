@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "packageManager": "npm@10",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "build": "node -e \"console.log('Backend build step: no transpilation required')\"",
     "dev": "nodemon src/index.js",
