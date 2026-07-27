@@ -55,7 +55,7 @@ export const deleteProposal = async (id) => {
   const headers = authHeaders();
   console.log("🗑️ Delete Proposal - Headers:", headers);
   console.log("🗑️ Token dari sessionStorage:", getAuthToken());
-  
+
   const res = await axios.delete(`${API_BASE}/proposals/${id}`, {
     headers,
   });

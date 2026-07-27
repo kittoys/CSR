@@ -23,11 +23,16 @@ async function seedDatabase() {
     console.log("👥 Creating users...");
     await connection.query(
       "INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)",
-      ["admin@csr.com", hashedPassword, "Admin User", "admin"]
+      ["admin@csr.com", hashedPassword, "Admin User", "admin"],
     );
     await connection.query(
       "INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)",
-      ["petugas@csr.com", await bcrypt.hash("petugas123", 10), "Petugas CSR", "petugas"]
+      [
+        "petugas@csr.com",
+        await bcrypt.hash("petugas123", 10),
+        "Petugas CSR",
+        "petugas",
+      ],
     );
 
     // Insert categories
@@ -75,7 +80,7 @@ async function seedDatabase() {
     for (const prog of programs) {
       await connection.query(
         "INSERT INTO csr_programs (title, description, category_id, location, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        prog
+        prog,
       );
     }
 

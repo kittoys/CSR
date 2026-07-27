@@ -159,8 +159,13 @@ router.put("/:id", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "FOC data not found" });
     }
 
-    if (req.user.role === "petugas" && ownerRows[0].created_by !== req.user.id) {
-      return res.status(403).json({ message: "Anda tidak bisa mengubah data ini" });
+    if (
+      req.user.role === "petugas" &&
+      ownerRows[0].created_by !== req.user.id
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Anda tidak bisa mengubah data ini" });
     }
 
     const [result] = await pool.query(
@@ -214,8 +219,13 @@ router.delete("/:id", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "FOC data not found" });
     }
 
-    if (req.user.role === "petugas" && ownerRows[0].created_by !== req.user.id) {
-      return res.status(403).json({ message: "Anda tidak bisa menghapus data ini" });
+    if (
+      req.user.role === "petugas" &&
+      ownerRows[0].created_by !== req.user.id
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Anda tidak bisa menghapus data ini" });
     }
 
     const [result] = await pool.query(`DELETE FROM foc_bulanan WHERE id = ?`, [

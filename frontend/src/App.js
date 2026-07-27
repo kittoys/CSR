@@ -51,10 +51,7 @@ const AppContent = () => {
   const handleToggleSidebar = () => {
     setIsPrivateSidebarHidden((prevHidden) => {
       const nextHidden = !prevHidden;
-      localStorage.setItem(
-        PRIVATE_SIDEBAR_STORAGE_KEY,
-        nextHidden ? "1" : "0",
-      );
+      localStorage.setItem(PRIVATE_SIDEBAR_STORAGE_KEY, nextHidden ? "1" : "0");
       return nextHidden;
     });
   };

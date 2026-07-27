@@ -26,7 +26,7 @@ async function createAdminUser() {
       `INSERT INTO users (email, password, name, role)
        VALUES (?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE password = VALUES(password), name = VALUES(name), role = VALUES(role)`,
-      [email, hashedPassword, name, "admin"]
+      [email, hashedPassword, name, "admin"],
     );
 
     console.log(`✅ Admin user created successfully!`);
@@ -42,7 +42,7 @@ async function createAdminUser() {
       `INSERT INTO users (email, password, name, role)
        VALUES (?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE password = VALUES(password), name = VALUES(name), role = VALUES(role)`,
-      [petugasEmail, petugasHashedPassword, petugasName, "petugas"]
+      [petugasEmail, petugasHashedPassword, petugasName, "petugas"],
     );
 
     console.log(`✅ Petugas user created successfully!`);

@@ -177,7 +177,11 @@ const ProposalDashboard = () => {
       setError(null);
       const data = await getProposals();
       const normalized = Array.isArray(data) ? data : [];
-      console.log("📦 Proposal rows received:", normalized.length, normalized[0]);
+      console.log(
+        "📦 Proposal rows received:",
+        normalized.length,
+        normalized[0],
+      );
       setProposals(normalized);
     } catch (err) {
       setError("Gagal memuat data. Pastikan server backend berjalan.");

@@ -20,14 +20,16 @@ test("GET /api/proposals returns legacy proposals for petugas", async () => {
       typeof query === "string" &&
       query.startsWith("SELECT * FROM donation_proposals")
     ) {
-      return [[
-        {
-          id: 1,
-          created_by: 9,
-          proposal_name: "Legacy Proposal",
-          status: "In Progress",
-        },
-      ]];
+      return [
+        [
+          {
+            id: 1,
+            created_by: 9,
+            proposal_name: "Legacy Proposal",
+            status: "In Progress",
+          },
+        ],
+      ];
     }
 
     return [[]];

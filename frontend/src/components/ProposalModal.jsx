@@ -309,7 +309,9 @@ const ProposalModal = ({
       ...formData,
       status: nextStatus,
       bright_status: effectiveBrightStatus,
-      reject_reason: isPetugas ? editingProposal?.reject_reason || formData.reject_reason : formData.reject_reason,
+      reject_reason: isPetugas
+        ? editingProposal?.reject_reason || formData.reject_reason
+        : formData.reject_reason,
       remove_proof: removeProof,
       budget: Number(formData.budget),
     };
@@ -462,7 +464,13 @@ const ProposalModal = ({
                   {isAdmin && <option value="Rejected">Rejected</option>}
                 </select>
                 {!isAdmin && (
-                  <small style={{ display: "block", marginTop: "6px", color: "#6b7280" }}>
+                  <small
+                    style={{
+                      display: "block",
+                      marginTop: "6px",
+                      color: "#6b7280",
+                    }}
+                  >
                     Hanya admin yang dapat mengubah status approval.
                   </small>
                 )}
