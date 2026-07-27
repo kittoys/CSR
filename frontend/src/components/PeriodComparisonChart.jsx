@@ -34,12 +34,6 @@ const COLORS = {
   year4: "#f59e0b", // Amber
 };
 
-const formatCurrency = (value) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
 
 const formatCompact = (value) => {
   if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)}M`;

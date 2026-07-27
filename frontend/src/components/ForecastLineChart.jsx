@@ -76,7 +76,7 @@ const ForecastLineChart = ({ data, metric = "budget", loading, error }) => {
       forecastMap.has(k) ? forecastMap.get(k) : null,
     );
 
-    const isBudget = metric === "budget";
+  
 
     return {
       labels,
