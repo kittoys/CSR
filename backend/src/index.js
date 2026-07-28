@@ -13,7 +13,7 @@ const forecastRoutes = require("./routes/forecast");
 const focRoutes = require("./routes/foc");
 
 const app = express();
-const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000,http://localhost:3001")
+const allowedOrigins = (process.env.CORS_ORIGIN || "")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -21,15 +21,19 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000,http:/
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-        return;
+      if (!origin) return callback(null, true);
+
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
       }
 
-      callback(null, false);
+      callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-  }),
+  })
 );
 app.use(express.json());
 
