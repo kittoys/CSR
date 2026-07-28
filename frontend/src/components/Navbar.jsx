@@ -74,7 +74,7 @@ const Navbar = ({
       ? isAdmin
         ? [
             { to: "/proposals", label: "Dashboard", icon: FileText },
-            { to: "/users", label: "Manajemen User", icon: Briefcase },
+            { to: "/UserManagement", label: "Manajemen User", icon: Briefcase },
             { to: "/foc-bulanan", label: "FOC Bulanan", icon: Droplets },
             { to: "/forecast", label: "Forecast", icon: Sparkles },
             { to: "/program", label: "Data program", icon: Building2 },
