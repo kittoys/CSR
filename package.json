@@ -4,7 +4,7 @@
   "packageManager": "npm@10.0.0",
   "scripts": {
     "start": "npm --prefix backend start",
-    "build": "npm --prefix frontend build",
+    "build": "npm --prefix frontend run build",
     "dev": "npm --prefix backend run dev"
   },
   "dependencies": {
